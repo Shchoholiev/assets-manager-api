@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetsManagerApi.Domain", "AssetsManagerApi.Domain\AssetsManagerApi.Domain.csproj", "{9B65E546-74C9-450E-BD73-3BD08B88CD80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetsManagerApi.Application", "AssetsManagerApi.Application\AssetsManagerApi.Application.csproj", "{1265D951-68CF-4BE3-A642-958C222B3A5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetsManagerApi.Persistance", "AssetsManagerApi.Persistance\AssetsManagerApi.Persistance.csproj", "{A3CEA50A-A2BB-49FD-80C5-7AFAAAC7B264}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetsManagerApi.Infrastructure", "AssetsManagerApi.Infrastructure\AssetsManagerApi.Infrastructure.csproj", "{A1954B5F-37B1-4268-9E7A-0F3D4F8AF169}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetsManagerApi.Api", "AssetsManagerApi.Api\AssetsManagerApi.Api.csproj", "{ECEFCA9D-A13C-416C-A5A1-1A190CBD7D26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetsManagerApi.IntegrationTests", "AssetsManagerApi.IntegrationTests\AssetsManagerApi.IntegrationTests.csproj", "{4F027093-B37C-44BF-B213-1B0F6D36A3D9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B65E546-74C9-450E-BD73-3BD08B88CD80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B65E546-74C9-450E-BD73-3BD08B88CD80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B65E546-74C9-450E-BD73-3BD08B88CD80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B65E546-74C9-450E-BD73-3BD08B88CD80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1265D951-68CF-4BE3-A642-958C222B3A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1265D951-68CF-4BE3-A642-958C222B3A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1265D951-68CF-4BE3-A642-958C222B3A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1265D951-68CF-4BE3-A642-958C222B3A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3CEA50A-A2BB-49FD-80C5-7AFAAAC7B264}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3CEA50A-A2BB-49FD-80C5-7AFAAAC7B264}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3CEA50A-A2BB-49FD-80C5-7AFAAAC7B264}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3CEA50A-A2BB-49FD-80C5-7AFAAAC7B264}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1954B5F-37B1-4268-9E7A-0F3D4F8AF169}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1954B5F-37B1-4268-9E7A-0F3D4F8AF169}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1954B5F-37B1-4268-9E7A-0F3D4F8AF169}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1954B5F-37B1-4268-9E7A-0F3D4F8AF169}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECEFCA9D-A13C-416C-A5A1-1A190CBD7D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECEFCA9D-A13C-416C-A5A1-1A190CBD7D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECEFCA9D-A13C-416C-A5A1-1A190CBD7D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECEFCA9D-A13C-416C-A5A1-1A190CBD7D26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F027093-B37C-44BF-B213-1B0F6D36A3D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F027093-B37C-44BF-B213-1B0F6D36A3D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F027093-B37C-44BF-B213-1B0F6D36A3D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F027093-B37C-44BF-B213-1B0F6D36A3D9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
