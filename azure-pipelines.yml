@@ -8,10 +8,10 @@ variables:
   buildConfiguration: 'Release'
 
 stages:
-# Development Stage
-- stage: Dev
+# Build Stage
+- stage: Build
   jobs:
-  - job: DeployToDev
+  - job: BuildJob
     steps:
     - task: DotNetCoreCLI@2
       inputs:
@@ -28,6 +28,26 @@ stages:
         archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
         replaceExistingArchive: true
       displayName: 'Archive published files'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+      displayName: 'Publish Artifact'
+
+# Development Stage
+- stage: Dev
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: DeployToDev
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        artifactName: 'drop'
+        downloadPath: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'Download Artifact'
 
     - task: AzureWebApp@1
       inputs:
@@ -48,6 +68,12 @@ stages:
       runOnce:
         deploy:
           steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              artifactName: 'drop'
+              downloadPath: '$(Build.ArtifactStagingDirectory)'
+            displayName: 'Download Artifact'
+
           - task: AzureWebApp@1
             inputs:
               azureSubscription: 'Azure subscription 1(41a8d72c-b0d9-45ef-b78c-12163a697ed0)'
