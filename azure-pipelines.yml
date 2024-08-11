@@ -15,3 +15,10 @@ variables:
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'Azure subscription 1(41a8d72c-b0d9-45ef-b78c-12163a697ed0)'
+    appType: 'webAppLinux'
+    appName: 'assets-manager-api-dev'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
