@@ -17,13 +17,25 @@ stages:
       inputs:
         command: 'publish'
         publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/publish'
+      displayName: 'Publish the application'
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/publish'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
+      displayName: 'Archive published files'
 
     - task: AzureWebApp@1
       inputs:
         azureSubscription: 'Azure subscription 1(41a8d72c-b0d9-45ef-b78c-12163a697ed0)'
         appType: 'webAppLinux'
         appName: 'assets-manager-api-dev'
-        package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+        package: '$(Build.ArtifactStagingDirectory)/*.zip'
+      displayName: 'Deploy to Development environment'
 
 # Production Stage with Approval
 - stage: Prod
@@ -41,4 +53,5 @@ stages:
               azureSubscription: 'Azure subscription 1(41a8d72c-b0d9-45ef-b78c-12163a697ed0)'
               appType: 'webAppLinux'
               appName: 'assets-manager-api'
-              package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+              package: '$(Build.ArtifactStagingDirectory)/*.zip'
+            displayName: 'Deploy to Production environment'
