@@ -17,17 +17,6 @@ stages:
       inputs:
         command: 'publish'
         publishWebProjects: true
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/publish'
-      displayName: 'Publish the application'
-
-    - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/publish'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-        replaceExistingArchive: true
-      displayName: 'Archive published files'
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -43,18 +32,18 @@ stages:
   jobs:
   - job: DeployToDev
     steps:
-    - task: DownloadBuildArtifacts@0
+    - task: DownloadPipelineArtifact@2
       inputs:
-        artifactName: 'drop'
-        downloadPath: '$(Pipeline.Workspace)/drop'
-      displayName: 'Download Artifact'
+        source: 'current'
+        artifact: 'drop'
+        path: '$(Pipeline.Workspace)'
 
     - task: AzureWebApp@1
       inputs:
         azureSubscription: 'Azure subscription 1(41a8d72c-b0d9-45ef-b78c-12163a697ed0)'
         appType: 'webAppLinux'
         appName: 'assets-manager-api-dev'
-        package: '$(Pipeline.Workspace)/drop/*.zip'
+        package: '$(Pipeline.Workspace)/**/*.zip'
       displayName: 'Deploy to Development environment'
 
 # Production Stage with Approval
@@ -68,16 +57,16 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: DownloadBuildArtifacts@0
+          - task: DownloadPipelineArtifact@2
             inputs:
-              artifactName: 'drop'
-              downloadPath: '$(Pipeline.Workspace)/drop'
-            displayName: 'Download Artifact'
+              source: 'current'
+              artifact: 'drop'
+              path: '$(Pipeline.Workspace)'
 
           - task: AzureWebApp@1
             inputs:
               azureSubscription: 'Azure subscription 1(41a8d72c-b0d9-45ef-b78c-12163a697ed0)'
               appType: 'webAppLinux'
-              appName: 'assets-manager-api-prod'
-              package: '$(Pipeline.Workspace)/drop/*.zip'
+              appName: 'assets-manager-api'
+              package: '$(Pipeline.Workspace)/**/*.zip'
             displayName: 'Deploy to Production environment'
