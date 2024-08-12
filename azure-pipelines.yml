@@ -1,6 +1,11 @@
 trigger:
 - master
 
+pr:
+  branches:
+    include:
+    - master
+
 pool:
   vmImage: ubuntu-latest
 
@@ -26,10 +31,23 @@ stages:
         publishLocation: 'Container'
       displayName: 'Publish Artifact'
 
-# Development Stage
-- stage: Dev
+# Test Stage
+- stage: Test
   dependsOn: Build
   condition: succeeded()
+  jobs:
+  - job: TestJob
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        projects: '**/*Tests/*.csproj'
+      displayName: 'Run Unit Tests'
+
+# Development Stage
+- stage: Dev
+  dependsOn: Test
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'master'))
   jobs:
   - job: DeployToDev
     steps:
