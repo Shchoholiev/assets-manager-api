@@ -42,7 +42,22 @@ stages:
       inputs:
         command: 'test'
         projects: '**/*Tests/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
       displayName: 'Run Unit Tests'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/TestResults/*.trx'
+        mergeTestResults: true
+      displayName: 'Publish Test Results'
+
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+        reportDirectory: '$(Build.SourcesDirectory)/**/CodeCoverageReport'
+        additionalCodeCoverageFiles: ''
+      displayName: 'Publish Code Coverage Results'
 
 # Development Stage
 - stage: Dev
