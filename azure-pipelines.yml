@@ -1,6 +1,11 @@
 trigger:
 - master
 
+pr:
+  branches:
+    include:
+    - master
+
 pool:
   vmImage: ubuntu-latest
 
@@ -26,10 +31,37 @@ stages:
         publishLocation: 'Container'
       displayName: 'Publish Artifact'
 
-# Development Stage
-- stage: Dev
+# Test Stage
+- stage: Test
   dependsOn: Build
   condition: succeeded()
+  jobs:
+  - job: TestJob
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        projects: '**/*Tests/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+      displayName: 'Run Unit Tests'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/TestResults/*.trx'
+        mergeTestResults: true
+      displayName: 'Publish Test Results'
+
+    - task: PublishCodeCoverageResults@2  # Updated to V2
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+        reportDirectory: '$(Build.SourcesDirectory)/**/CodeCoverageReport'
+      displayName: 'Publish Code Coverage Results'
+
+# Development Stage
+- stage: Dev
+  dependsOn: Test
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'master'))
   jobs:
   - job: DeployToDev
     steps:
