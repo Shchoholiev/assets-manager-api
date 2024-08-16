@@ -43,7 +43,7 @@ stages:
         command: 'test'
         projects: '**/*Tests/*.csproj'
         arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
-      displayName: 'Run Unit Tests'
+      displayName: 'Run Integration Tests'
 
     - task: PublishTestResults@2
       inputs:
@@ -51,7 +51,7 @@ stages:
         mergeTestResults: true
       displayName: 'Publish Test Results'
 
-    - task: PublishCodeCoverageResults@2  # Updated to V2
+    - task: PublishCodeCoverageResults@2 
       inputs:
         codeCoverageTool: 'Cobertura'
         summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
