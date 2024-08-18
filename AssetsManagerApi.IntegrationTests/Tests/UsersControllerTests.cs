@@ -1,8 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using Amazon.Runtime.Internal;
+using AssetsManagerApi.Api.Models;
 using AssetsManagerApi.Application.Models.Identity;
-using AssetsManagerApi.IntegrationTests;
 
 namespace AssetsManagerApi.IntegrationTests.Tests;
 

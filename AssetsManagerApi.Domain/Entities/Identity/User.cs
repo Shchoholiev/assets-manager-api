@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-
-namespace AssetsManagerApi.Domain.Entities.Identity;
+﻿namespace AssetsManagerApi.Domain.Entities.Identity;
 
 public class User : EntityBase
 {
@@ -10,7 +8,7 @@ public class User : EntityBase
 
     public string? PasswordHash { get; set; }
 
-    public ObjectId? CompanyId { get; set; }
+    public string? CompanyId { get; set; }
 
     public List<Role> Roles { get; set; }
 }
