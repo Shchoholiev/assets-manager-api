@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using AssetsManagerApi.Domain.Entities;
 
-namespace AssetsManagerApi.Application.IRepository;
+namespace AssetsManagerApi.Application.IRepositories;
 
 public interface IBaseRepository<TEntity> where TEntity : EntityBase
 {

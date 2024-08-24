@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using AssetsManagerApi.Application.IRepository;
+using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Persistance.Db;
 using Microsoft.Azure.Cosmos;
