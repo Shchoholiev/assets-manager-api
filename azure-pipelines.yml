@@ -38,15 +38,6 @@ stages:
   jobs:
   - job: TestJob
     steps:
-
-    - script: |
-        echo "Printing CosmosDb Configuration Variables:"
-        echo "CosmosDb__Endpoint: $CosmosDb__Endpoint"
-        echo "CosmosDb__PrimaryKey: $CosmosDb__PrimaryKey"
-        echo "CosmosDb__DatabaseName: $CosmosDb__DatabaseName"
-        echo "Full list of environment variables:"
-        printenv
-      displayName: 'Print Cosmos DB Environment Variables'
       
     - task: DotNetCoreCLI@2
       inputs:
