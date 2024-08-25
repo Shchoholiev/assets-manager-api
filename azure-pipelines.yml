@@ -11,7 +11,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  - group: ApiTests
+  group: ApiTests
 
 stages:
 # Build Stage
