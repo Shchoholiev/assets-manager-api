@@ -10,7 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  buildConfiguration: 'Release'
+  - group: ApiTests
 
 stages:
 # Build Stage
@@ -38,12 +38,22 @@ stages:
   jobs:
   - job: TestJob
     steps:
+
+    - script: |
+        echo "Printing CosmosDb Configuration Variables:"
+        echo "CosmosDb__Endpoint: $CosmosDb__Endpoint"
+        echo "CosmosDb__PrimaryKey: $CosmosDb__PrimaryKey"
+        echo "CosmosDb__DatabaseName: $CosmosDb__DatabaseName"
+        echo "Full list of environment variables:"
+        printenv
+      displayName: 'Print Cosmos DB Environment Variables'
+      
     - task: DotNetCoreCLI@2
       inputs:
         command: 'test'
         projects: '**/*Tests/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
-      displayName: 'Run Unit Tests'
+        arguments: '--configuration $(buildConfiguration) --collect "Code coverage" --logger "trx;LogFileName=test_results.trx"'
+      displayName: 'Run Integration Tests'
 
     - task: PublishTestResults@2
       inputs:
@@ -51,7 +61,7 @@ stages:
         mergeTestResults: true
       displayName: 'Publish Test Results'
 
-    - task: PublishCodeCoverageResults@2  # Updated to V2
+    - task: PublishCodeCoverageResults@2 
       inputs:
         codeCoverageTool: 'Cobertura'
         summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'

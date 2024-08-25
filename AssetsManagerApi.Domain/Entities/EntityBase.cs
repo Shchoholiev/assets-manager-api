@@ -1,20 +1,19 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace AssetsManagerApi.Domain.Entities;
 
 public abstract class EntityBase
 {
-    [BsonId]
-    public ObjectId Id { get; set; }
+    [JsonProperty("id")]
+    public string Id { get; set; }
 
-    public ObjectId CreatedById { get; set; }
+    public string CreatedById { get; set; }
 
     public DateTime CreatedDateUtc { get; set; }
 
     public bool IsDeleted { get; set; }
 
-    public ObjectId? LastModifiedById { get; set; }
+    public string? LastModifiedById { get; set; }
 
     public DateTime? LastModifiedDateUtc { get; set; }
 }
