@@ -10,8 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  buildConfiguration: 'Release'
-  group: ApiTests
+  - group: ApiTests
 
 stages:
 # Build Stage
@@ -39,7 +38,7 @@ stages:
   jobs:
   - job: TestJob
     steps:
-    
+
     - script: |
         echo "Printing CosmosDb Configuration Variables:"
         echo "CosmosDb__Endpoint: $CosmosDb__Endpoint"
