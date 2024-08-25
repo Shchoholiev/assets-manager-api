@@ -1,3 +1,4 @@
+using AssetsManagerApi.Persistance.Db;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -21,16 +22,16 @@ public class TestingFactory<TEntryPoint> : WebApplicationFactory<Program> where 
         });
     }
 
-    // public void InitialaizeDatabase()
-    // {
-    //     if (_isDataInitialaized) return;
+    public void InitialaizeDatabase()
+    {
+        if (_isDataInitialaized) return;
 
-    //     using var scope = Services.CreateScope();
-    //     var mongodbContext = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<CosmosDbContext>();
 
-    //     var initialaizer = new DbInitializer(mongodbContext);
-    //     initialaizer.InitializeDb();
+        var initialaizer = new DbInitializer(dbContext);
+        initialaizer.InitializeDb();
 
-    //     _isDataInitialaized = true;
-    // }
+        _isDataInitialaized = true;
+    }
 }

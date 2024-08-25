@@ -1,3 +1,6 @@
+using AssetsManagerApi.Api.Middlewares;
+using AssetsManagerApi.Application;
+using AssetsManagerApi.Infrastructure;
 using AssetsManagerApi.Persistance;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddMapper();
 builder.Services.AddRepositories();
+builder.Services.AddServices(builder.Configuration);
+builder.Services.AddJWTTokenAuthentication(builder.Configuration);
 
 builder.Services.AddHealthChecks();
 builder.Services.AddControllers();
@@ -38,6 +44,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.MapControllers();
 

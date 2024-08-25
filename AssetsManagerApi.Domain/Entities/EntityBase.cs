@@ -1,7 +1,10 @@
+using Newtonsoft.Json;
+
 namespace AssetsManagerApi.Domain.Entities;
 
 public abstract class EntityBase
 {
+    [JsonProperty("id")]
     public string Id { get; set; }
 
     public string CreatedById { get; set; }

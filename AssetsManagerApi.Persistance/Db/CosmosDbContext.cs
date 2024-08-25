@@ -9,6 +9,8 @@ public class CosmosDbContext
 
     private readonly Database _database;
 
+    public Database Db => _database;
+
     public CosmosDbContext(IConfiguration configuration)
     {
         var cosmosDbSettings = configuration.GetSection("CosmosDb");

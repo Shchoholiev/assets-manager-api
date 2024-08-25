@@ -16,6 +16,7 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
+        entity.Id = Guid.NewGuid().ToString();
         var response = await _container.CreateItemAsync(entity, cancellationToken: cancellationToken);
         return response.Resource;
     }

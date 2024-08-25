@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AssetsManagerApi.Domain\AssetsManagerApi.Domain.csproj" />
     <ProjectReference Include="..\AssetsManagerApi.Application\AssetsManagerApi.Application.csproj" />
+    <ProjectReference Include="..\AssetsManagerApi.Infrastructure\AssetsManagerApi.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

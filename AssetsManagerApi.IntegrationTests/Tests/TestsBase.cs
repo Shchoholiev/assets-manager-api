@@ -14,7 +14,7 @@ public class TestsBase : IClassFixture<TestingFactory<Program>>
     {
         HttpClient = factory.CreateClient();
         ResourceUrl = resourceUrl;
-        // factory.InitialaizeDatabase();
+        factory.InitialaizeDatabase();
     }
 
     public async Task LoginAsync(string email, string password)
