@@ -149,4 +149,53 @@ public class UsersControllerTests(TestingFactory<Program> factory)
         Assert.NotNull(error);
         Assert.NotNull(error.Message);
     }
+
+    [Fact]
+    public async Task VerifyEmailAsync_ValidToken_ReturnsOk()
+    {
+        // Arrange
+        var validToken = "valid-token";
+
+        // Act
+        var response = await HttpClient.GetAsync($"{ResourceUrl}/verify?token={validToken}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task VerifyEmailAsync_InvalidToken_ReturnsBadRequest()
+    {
+        // Arrange
+        var invalidToken = "invalid-token";
+
+        // Act
+        var response = await HttpClient.GetAsync($"{ResourceUrl}/verify?token={invalidToken}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task VerifyEmailAsync_ExpiredToken_ReturnsBadRequest()
+    {
+        // Arrange
+        var expiredToken = "expired-token"; 
+
+        // Act
+        var response = await HttpClient.GetAsync($"{ResourceUrl}/verify?token={expiredToken}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task VerifyEmailAsync_NoTokenProvided_ReturnsBadRequest()
+    {
+        // Act
+        var response = await HttpClient.GetAsync($"{ResourceUrl}/verify");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

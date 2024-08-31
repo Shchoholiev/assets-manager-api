@@ -189,6 +189,16 @@ public class UserManager(
         return userDto;
     }
 
+    public Task<bool> SendEmailVerificationAsync(string userId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> VerifyEmailAsync(string token, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     private async Task<RefreshToken> AddRefreshToken(string userId, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"Adding new refresh token for user with Id : {userId}.");

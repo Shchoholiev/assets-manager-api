@@ -41,4 +41,16 @@ public class UsersController(
         var userDto = await _userManager.RemoveFromRoleAsync(roleName, userId, cancellationToken);
         return Ok(userDto);
     }
+
+    /// <summary>
+    /// Verifies the user's email using the provided token.
+    /// Using get to be able to open link from an email.
+    /// </summary>
+    /// <param name="token">The email verification token.</param>
+    [HttpGet("verify")]
+    public async Task<ActionResult> VerifyEmailAsync([FromQuery] string token, CancellationToken cancellationToken)
+    {
+        await _userManager.VerifyEmailAsync(token, cancellationToken);
+        return Ok();
+    }
 }

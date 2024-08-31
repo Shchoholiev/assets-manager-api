@@ -56,7 +56,7 @@ public class DbInitializer(CosmosDbContext dbContext)
 
         var updateTestUser = new User
         {
-            Id = "652c3b89ae02a3135d6309fc",
+            Id = "672c3b89ae02a3135d6309fc",
             Email = "update@gmail.com",
             Roles = new List<Role> { userRole },
             PasswordHash = passwordHasher.Hash("Yuiop12345"),
@@ -97,6 +97,46 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedDateUtc = DateTime.UtcNow
         };
         await usersCollection.CreateItemAsync(adminUser);
+
+        var validTokenUser = new User
+        {
+            Id = "b3e00e4b-4c5a-4e08-932f-5b579d5c3f8f",
+            Email = "validtoken@gmail.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = "valid-token",
+            EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(1) // Valid for 1 hour
+        };
+        await usersCollection.CreateItemAsync(validTokenUser);
+
+        // User with an expired email verification token
+        var expiredTokenUser = new User
+        {
+            Id = "f96ef4c1-6d6e-4eeb-91f1-8f70b3b9e45a",
+            Email = "expiredtoken@gmail.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = "expired-token",
+            EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(-1) // Expired 1 hour ago
+        };
+        await usersCollection.CreateItemAsync(expiredTokenUser);
+
+        var noTokenUser = new User
+        {
+            Id = "d4aeadbb-9c7f-4d2d-9e8a-ffb0f688fdc4",
+            Email = "notoken@gmail.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = null,
+            EmailVerificationTokenExpiry = null
+        };
+        await usersCollection.CreateItemAsync(noTokenUser);
 
         #endregion
 
