@@ -70,7 +70,7 @@ public class UsersController(
     /// Resets the user's password using the provided token and new password.
     /// </summary>
     /// <param name="resetPasswordModel">The model containing the reset token and new password.</param>
-    [HttpPut("reset-password")]
+    [HttpPut("password-reset")]
     public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordModel resetPasswordModel, CancellationToken cancellationToken)
     {
         await _userManager.ResetPasswordAsync(resetPasswordModel.Token, resetPasswordModel.NewPassword, cancellationToken);

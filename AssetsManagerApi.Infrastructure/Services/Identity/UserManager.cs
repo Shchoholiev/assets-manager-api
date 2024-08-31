@@ -298,9 +298,45 @@ public class UserManager(
         _logger.LogInformation($"Password reset email sent to {user.Email}.");
     }
 
-    public Task ResetPasswordAsync(string token, string newPassword, CancellationToken cancellationToken)
+    public async Task ResetPasswordAsync(string token, string newPassword, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation($"Attempting to reset password using token {token}.");
+
+        var user = await _usersRepository.GetOneAsync(u => u.PasswordResetToken == token, cancellationToken);
+        if (user == null)
+        {
+            _logger.LogError($"No user found with the provided password reset token: {token}.");
+            throw new EntityNotFoundException("Invalid or expired password reset token.");
+        }
+
+        if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
+        {
+            _logger.LogError($"Password reset token for user {user.Email} has expired.");
+            throw new TokenExpiredException("The password reset token has expired.");
+        }
+
+        user.PasswordHash = _passwordHasher.Hash(newPassword);
+        user.PasswordResetToken = null;
+        user.PasswordResetTokenExpiry = null;
+
+        await _usersRepository.UpdateUserAsync(user, cancellationToken);
+
+        _logger.LogInformation($"Password reset successfully for user {user.Email}.");
+
+        var subject = "Your Password Has Been Reset";
+        var body = $@"
+            <html>
+                <body>
+                    <h2>Password Reset Notification</h2>
+                    <p>Dear {user.Name},</p>
+                    <p>Your password for the account associated with this email address has been successfully reset. If you did not initiate this request, please contact our support team immediately.</p>
+                    <p>Best regards,<br/>The Assets Manager Team</p>
+                </body>
+            </html>";
+
+        await _emailsService.SendEmailAsync(user.Email, subject, body);
+
+        _logger.LogInformation($"Password reset notification sent to {user.Email}.");
     }
 
     private async Task<RefreshToken> AddRefreshToken(string userId, CancellationToken cancellationToken)

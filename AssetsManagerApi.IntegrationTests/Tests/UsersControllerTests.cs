@@ -301,7 +301,6 @@ public class UsersControllerTests(TestingFactory<Program> factory)
         // Arrange
         var resetModel = new ResetPasswordModel
         {
-            Token = "",
             NewPassword = "NewSecurePassword123!"
         };
 
