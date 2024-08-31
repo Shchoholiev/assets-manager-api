@@ -20,7 +20,6 @@ public interface IUserManager
     /// </summary>
     /// <param name="userId">The ID of the user.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    /// <returns>True if the email was sent successfully; otherwise, false.</returns>
     Task SendEmailVerificationAsync(string userId, CancellationToken cancellationToken);
 
     /// <summary>
@@ -28,6 +27,20 @@ public interface IUserManager
     /// </summary>
     /// <param name="token">The email verification token.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
-    /// <returns>True if the email verification was successful; otherwise, false.</returns>
     Task VerifyEmailAsync(string token, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Sends a password reset email with a token to the user's email address.
+    /// </summary>
+    /// <param name="email">The email address of the user requesting a password reset.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    Task RequestPasswordResetAsync(string email, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Resets the user's password using the provided token and new password.
+    /// </summary>
+    /// <param name="token">The password reset token.</param>
+    /// <param name="newPassword">The new password to set for the user.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    Task ResetPasswordAsync(string token, string newPassword, CancellationToken cancellationToken);
 }

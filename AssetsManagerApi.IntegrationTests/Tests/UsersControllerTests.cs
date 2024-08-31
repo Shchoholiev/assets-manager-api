@@ -150,6 +150,8 @@ public class UsersControllerTests(TestingFactory<Program> factory)
         Assert.NotNull(error.Message);
     }
 
+    #region VerifyEmail
+
     [Fact]
     public async Task VerifyEmailAsync_ValidToken_ReturnsOk()
     {
@@ -194,6 +196,117 @@ public class UsersControllerTests(TestingFactory<Program> factory)
     {
         // Act
         var response = await HttpClient.GetAsync($"{ResourceUrl}/verify");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    #endregion
+
+    [Fact]
+    public async Task RequestPasswordReset_ValidEmail_ReturnsOk()
+    {
+        // Arrange
+        var requestModel = new ResetPasswordRequestModel { Email = "anotherreset@example.com" };
+
+        // Act
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/password-reset", requestModel);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RequestPasswordReset_InvalidEmail_ReturnsNotFound()
+    {
+        // Arrange
+        var requestModel = new ResetPasswordRequestModel { Email = "nonexistentuser@example.com" };
+
+        // Act
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/password-reset", requestModel);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RequestPasswordReset_NoEmailProvided_ReturnsBadRequest()
+    {
+        // Arrange
+        var requestModel = new ResetPasswordRequestModel();
+
+        // Act
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/password-reset", requestModel);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    // Test for Reset Password
+
+    [Fact]
+    public async Task ResetPassword_ValidToken_ReturnsOk()
+    {
+        // Arrange
+        var resetModel = new ResetPasswordModel
+        {
+            Token = "valid-reset-token",
+            NewPassword = "NewSecurePassword123!"
+        };
+
+        // Act
+        var response = await HttpClient.PutAsJsonAsync($"{ResourceUrl}/password-reset", resetModel);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ResetPassword_InvalidToken_ReturnsNotFound()
+    {
+        // Arrange
+        var resetModel = new ResetPasswordModel
+        {
+            Token = "invalid-reset-token",
+            NewPassword = "NewSecurePassword123!"
+        };
+
+        // Act
+        var response = await HttpClient.PutAsJsonAsync($"{ResourceUrl}/password-reset", resetModel);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ExpiredToken_ReturnsGone()
+    {
+        // Arrange
+        var resetModel = new ResetPasswordModel
+        {
+            Token = "expired-reset-token",
+            NewPassword = "NewSecurePassword123!"
+        };
+
+        // Act
+        var response = await HttpClient.PutAsJsonAsync($"{ResourceUrl}/password-reset", resetModel);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Gone, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ResetPassword_NoTokenProvided_ReturnsBadRequest()
+    {
+        // Arrange
+        var resetModel = new ResetPasswordModel
+        {
+            Token = "",
+            NewPassword = "NewSecurePassword123!"
+        };
+
+        // Act
+        var response = await HttpClient.PutAsJsonAsync($"{ResourceUrl}/password-reset", resetModel);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

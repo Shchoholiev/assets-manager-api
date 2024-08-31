@@ -41,7 +41,9 @@ public class UserManager(
 
     private readonly ILogger _logger = logger;
 
-    private readonly string _verificationBaseUrl = configuration.GetValue<string>("EmailSettings:VerificationBaseUrl")!;
+    private readonly string _verificationUrl = configuration.GetValue<string>("EmailSettings:VerificationUrl")!;
+
+    private readonly string _passwordResetUrl = configuration.GetValue<string>("EmailSettings:PasswordResetUrl")!;
 
     public async Task<TokensModel> RegisterAsync(Register register, CancellationToken cancellationToken)
     {
@@ -215,7 +217,7 @@ public class UserManager(
 
         await _usersRepository.UpdateUserAsync(user, cancellationToken);
 
-        var verificationLink = $"{_verificationBaseUrl}?token={token}";
+        var verificationLink = $"{_verificationUrl}?token={token}";
         var subject = "Please Confirm Your Email Address";
         
         var body = $@"
@@ -259,6 +261,46 @@ public class UserManager(
         await _usersRepository.UpdateUserAsync(user, cancellationToken);
 
         _logger.LogInformation($"Email verified successfully for user {user.Email}.");
+    }
+
+
+    public async Task RequestPasswordResetAsync(string email, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation($"Requesting password reset for user with email {email}.");
+
+        var user = await _usersRepository.GetOneAsync(u => u.Email == email, cancellationToken);
+        if (user == null)
+        {
+            throw new EntityNotFoundException($"User with email {email} is not found.");
+        }
+
+        var token = Guid.NewGuid().ToString();
+        user.PasswordResetToken = token;
+        user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+        await _usersRepository.UpdateUserAsync(user, cancellationToken);
+
+        var resetLink = $"{_passwordResetUrl}?token={token}";
+        var subject = "Password Reset Request";
+        var body = $@"
+            <html>
+                <body>
+                    <h2>Password Reset for Assets Manager</h2>
+                    <p>We received a request to reset the password for your account. If you made this request, please click the link below to reset your password:</p>
+                    <p><a href='{resetLink}' style='color: #1a73e8;'>Reset Your Password</a></p>
+                    <p>If you did not request a password reset, please ignore this email or contact support if you have any concerns.</p>
+                    <p>Best regards,<br/>The Assets Manager Team</p>
+                </body>
+            </html>";
+
+        await _emailsService.SendEmailAsync(user.Email, subject, body);
+
+        _logger.LogInformation($"Password reset email sent to {user.Email}.");
+    }
+
+    public Task ResetPasswordAsync(string token, string newPassword, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task<RefreshToken> AddRefreshToken(string userId, CancellationToken cancellationToken)

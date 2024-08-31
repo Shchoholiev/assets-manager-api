@@ -1,3 +1,4 @@
+using AssetsManagerApi.Api.Models;
 using AssetsManagerApi.Application.IServices.Identity;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Identity;
@@ -51,6 +52,28 @@ public class UsersController(
     public async Task<ActionResult> VerifyEmailAsync([FromQuery] string token, CancellationToken cancellationToken)
     {
         await _userManager.VerifyEmailAsync(token, cancellationToken);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Initiates a password reset request for the specified email.
+    /// </summary>
+    /// <param name="email">The email address of the user requesting a password reset.</param>
+    [HttpPost("password-reset")]
+    public async Task<ActionResult> RequestPasswordReset([FromBody] ResetPasswordRequestModel resetRequestModel, CancellationToken cancellationToken)
+    {
+        await _userManager.RequestPasswordResetAsync(resetRequestModel.Email, cancellationToken);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Resets the user's password using the provided token and new password.
+    /// </summary>
+    /// <param name="resetPasswordModel">The model containing the reset token and new password.</param>
+    [HttpPut("reset-password")]
+    public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordModel resetPasswordModel, CancellationToken cancellationToken)
+    {
+        await _userManager.ResetPasswordAsync(resetPasswordModel.Token, resetPasswordModel.NewPassword, cancellationToken);
         return Ok();
     }
 }
