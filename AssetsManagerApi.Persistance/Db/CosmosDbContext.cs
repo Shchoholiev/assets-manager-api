@@ -18,9 +18,6 @@ public class CosmosDbContext
         var primaryKey = cosmosDbSettings["PrimaryKey"]!;
         var databaseId = cosmosDbSettings["DatabaseName"]!;
 
-        Console.WriteLine($"Endpoint: {endpointUri}, PrimaryKey: {primaryKey}, DatabaseId: {databaseId}");
-
-
         _cosmosClient = new CosmosClient(endpointUri, primaryKey);
         _database = _cosmosClient.CreateDatabaseIfNotExistsAsync(databaseId).Result;
     }
