@@ -21,7 +21,7 @@ public interface IUserManager
     /// <param name="userId">The ID of the user.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>True if the email was sent successfully; otherwise, false.</returns>
-    Task<bool> SendEmailVerificationAsync(string userId, CancellationToken cancellationToken);
+    Task SendEmailVerificationAsync(string userId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Verifies the user's email using the provided token.
@@ -29,5 +29,5 @@ public interface IUserManager
     /// <param name="token">The email verification token.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>True if the email verification was successful; otherwise, false.</returns>
-    Task<bool> VerifyEmailAsync(string token, CancellationToken cancellationToken);
+    Task VerifyEmailAsync(string token, CancellationToken cancellationToken);
 }

@@ -14,7 +14,7 @@ public class UsersControllerTests(TestingFactory<Program> factory)
         // Arrange
         var register = new Register
         {
-            Email = "register@gmail.com",
+            Email = "serhii.shchoholiev@nure.ua",
             Password = "Yuiop12345",
         };
 

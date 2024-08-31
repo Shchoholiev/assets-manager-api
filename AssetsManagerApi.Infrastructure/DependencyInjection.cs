@@ -1,5 +1,7 @@
 using System.Text;
+using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.IServices.Identity;
+using AssetsManagerApi.Infrastructure.Services;
 using AssetsManagerApi.Infrastructure.Services.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +18,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IUserManager, UserManager>();
         services.AddScoped<ITokensService, TokensService>();
+        services.AddScoped<IEmailsService, GmailSmtpEmailsService>();
 
         return services;
     }
