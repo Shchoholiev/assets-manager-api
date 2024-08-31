@@ -1,10 +1,12 @@
 ﻿using AssetsManagerApi.Application.Exceptions;
 using AssetsManagerApi.Application.IRepositories;
+using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.IServices.Identity;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Identity;
 using AssetsManagerApi.Domain.Entities.Identity;
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -18,8 +20,10 @@ public class UserManager(
     ITokensService tokensService,
     IRolesRepository rolesRepository,
     IRefreshTokensRepository refreshTokensRepository,
+    IEmailsService emailsService,
     IMapper mapper,
-    ILogger<UserManager> logger) : IUserManager
+    ILogger<UserManager> logger,
+    IConfiguration configuration) : IUserManager
 {
     private readonly IUsersRepository _usersRepository = usersRepository;
 
@@ -31,9 +35,13 @@ public class UserManager(
     
     private readonly IRefreshTokensRepository _refreshTokensRepository = refreshTokensRepository;
 
+    private readonly IEmailsService _emailsService = emailsService;
+
     private readonly IMapper _mapper = mapper;
 
     private readonly ILogger _logger = logger;
+
+    private readonly string _verificationBaseUrl = configuration.GetValue<string>("EmailSettings:VerificationBaseUrl")!;
 
     public async Task<TokensModel> RegisterAsync(Register register, CancellationToken cancellationToken)
     {
@@ -63,6 +71,8 @@ public class UserManager(
         var refreshToken = await AddRefreshToken(user.Id, cancellationToken);
         var tokens = this.GetUserTokens(user, refreshToken);
 
+        await SendEmailVerificationAsync(user.Id, cancellationToken);
+
         this._logger.LogInformation($"Registered guest with guest id: {user.Id}.");
 
         return tokens;
@@ -81,7 +91,7 @@ public class UserManager(
         var user = await this._usersRepository.GetOneAsync(u => u.Email == login.Email, cancellationToken);
         if (user == null)
         {
-            throw new EntityNotFoundException("User");
+            throw new EntityNotFoundException($"User with email: {login.Email} is not found.");
         }
 
         if (!this._passwordHasher.Check(login.Password, user.PasswordHash))
@@ -187,6 +197,68 @@ public class UserManager(
         this._logger.LogInformation($"Removed Role: {roleName} from User with Id: {userId}.");
 
         return userDto;
+    }
+
+    public async Task SendEmailVerificationAsync(string userId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation($"Sending verification email to user with ID {userId}.");
+
+        var user = await _usersRepository.GetOneAsync(userId, cancellationToken);
+        if (user == null)
+        {
+            throw new EntityNotFoundException($"User with Id: {userId} is not found.");
+        }
+
+        var token = Guid.NewGuid().ToString();
+        user.EmailVerificationToken = token;
+        user.EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+        await _usersRepository.UpdateUserAsync(user, cancellationToken);
+
+        var verificationLink = $"{_verificationBaseUrl}?token={token}";
+        var subject = "Please Confirm Your Email Address";
+        
+        var body = $@"
+            <html>
+                <body>
+                    <h2>Welcome to Assets Manager, {user.Name}!</h2>
+                    <p>Thank you for registering with Assets Manager. To complete your registration, please verify your email address by clicking the link below:</p>
+                    <p><a href='{verificationLink}' style='color: #1a73e8;'>Verify Your Email Address</a></p>
+                    <p>If you did not sign up for this account, please ignore this email.</p>
+                    <p>Best regards,<br/>The Assets Manager Team</p>
+                </body>
+            </html>";
+
+        await _emailsService.SendEmailAsync(user.Email, subject, body);
+
+        _logger.LogInformation($"Verification email sent to {user.Email}.");
+    }
+
+    public async Task VerifyEmailAsync(string token, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation($"Verifying email with token {token}.");
+
+        var user = await _usersRepository.GetOneAsync(
+            u => u.EmailVerificationToken == token, cancellationToken);
+        if (user == null)
+        {
+            _logger.LogError($"User with email verification token: {token} not found.");
+            throw new EntityNotFoundException($"User with email verification token: {token} is not found.");
+        }
+
+        if (user.EmailVerificationTokenExpiry < DateTime.UtcNow)
+        {
+            _logger.LogError($"Verification token for user {user.Email} has expired.");
+            throw new TokenExpiredException("The email verification token has expired.");
+        }
+
+        user.IsEmailVerified = true;
+        user.EmailVerificationToken = null; 
+        user.EmailVerificationTokenExpiry = null;
+
+        await _usersRepository.UpdateUserAsync(user, cancellationToken);
+
+        _logger.LogInformation($"Email verified successfully for user {user.Email}.");
     }
 
     private async Task<RefreshToken> AddRefreshToken(string userId, CancellationToken cancellationToken)

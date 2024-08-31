@@ -78,6 +78,11 @@ public class GlobalExceptionHandlerMiddleware(
                 statusCode = HttpStatusCode.NotImplemented;
                 break;
 
+            case TokenExpiredException tokenExpiredException:
+                message = tokenExpiredException.Message;
+                statusCode = HttpStatusCode.Gone;
+                break;
+
             default:
                 break;
         }

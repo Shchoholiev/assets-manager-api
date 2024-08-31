@@ -14,7 +14,7 @@ public class UsersControllerTests(TestingFactory<Program> factory)
         // Arrange
         var register = new Register
         {
-            Email = "register@gmail.com",
+            Email = "serhii.shchoholiev@nure.ua",
             Password = "Yuiop12345",
         };
 
@@ -148,5 +148,54 @@ public class UsersControllerTests(TestingFactory<Program> factory)
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.NotNull(error);
         Assert.NotNull(error.Message);
+    }
+
+    [Fact]
+    public async Task VerifyEmailAsync_ValidToken_ReturnsOk()
+    {
+        // Arrange
+        var validToken = "valid-token";
+
+        // Act
+        var response = await HttpClient.GetAsync($"{ResourceUrl}/verify?token={validToken}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task VerifyEmailAsync_InvalidToken_Returns404NotFound()
+    {
+        // Arrange
+        var invalidToken = "invalid-token";
+
+        // Act
+        var response = await HttpClient.GetAsync($"{ResourceUrl}/verify?token={invalidToken}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task VerifyEmailAsync_ExpiredToken_Returns410Gone()
+    {
+        // Arrange
+        var expiredToken = "expired-token"; 
+
+        // Act
+        var response = await HttpClient.GetAsync($"{ResourceUrl}/verify?token={expiredToken}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Gone, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task VerifyEmailAsync_NoTokenProvided_ReturnsBadRequest()
+    {
+        // Act
+        var response = await HttpClient.GetAsync($"{ResourceUrl}/verify");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }
