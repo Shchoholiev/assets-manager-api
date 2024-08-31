@@ -91,7 +91,7 @@ public class UserManager(
         var user = await this._usersRepository.GetOneAsync(u => u.Email == login.Email, cancellationToken);
         if (user == null)
         {
-            throw new EntityNotFoundException("User");
+            throw new EntityNotFoundException($"User with email: {login.Email} is not found.");
         }
 
         if (!this._passwordHasher.Check(login.Password, user.PasswordHash))
@@ -206,8 +206,7 @@ public class UserManager(
         var user = await _usersRepository.GetOneAsync(userId, cancellationToken);
         if (user == null)
         {
-            _logger.LogWarning($"User with ID {userId} not found.");
-            return;
+            throw new EntityNotFoundException($"User with Id: {userId} is not found.");
         }
 
         var token = Guid.NewGuid().ToString();
@@ -235,9 +234,31 @@ public class UserManager(
         _logger.LogInformation($"Verification email sent to {user.Email}.");
     }
 
-    public Task VerifyEmailAsync(string token, CancellationToken cancellationToken)
+    public async Task VerifyEmailAsync(string token, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation($"Verifying email with token {token}.");
+
+        var user = await _usersRepository.GetOneAsync(
+            u => u.EmailVerificationToken == token, cancellationToken);
+        if (user == null)
+        {
+            _logger.LogError($"User with email verification token: {token} not found.");
+            throw new EntityNotFoundException($"User with email verification token: {token} is not found.");
+        }
+
+        if (user.EmailVerificationTokenExpiry < DateTime.UtcNow)
+        {
+            _logger.LogError($"Verification token for user {user.Email} has expired.");
+            throw new TokenExpiredException("The email verification token has expired.");
+        }
+
+        user.IsEmailVerified = true;
+        user.EmailVerificationToken = null; 
+        user.EmailVerificationTokenExpiry = null;
+
+        await _usersRepository.UpdateUserAsync(user, cancellationToken);
+
+        _logger.LogInformation($"Email verified successfully for user {user.Email}.");
     }
 
     private async Task<RefreshToken> AddRefreshToken(string userId, CancellationToken cancellationToken)

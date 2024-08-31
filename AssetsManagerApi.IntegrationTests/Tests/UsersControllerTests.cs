@@ -164,7 +164,7 @@ public class UsersControllerTests(TestingFactory<Program> factory)
     }
 
     [Fact]
-    public async Task VerifyEmailAsync_InvalidToken_ReturnsBadRequest()
+    public async Task VerifyEmailAsync_InvalidToken_Returns404NotFound()
     {
         // Arrange
         var invalidToken = "invalid-token";
@@ -173,11 +173,11 @@ public class UsersControllerTests(TestingFactory<Program> factory)
         var response = await HttpClient.GetAsync($"{ResourceUrl}/verify?token={invalidToken}");
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
-    public async Task VerifyEmailAsync_ExpiredToken_ReturnsBadRequest()
+    public async Task VerifyEmailAsync_ExpiredToken_Returns410Gone()
     {
         // Arrange
         var expiredToken = "expired-token"; 
@@ -186,7 +186,7 @@ public class UsersControllerTests(TestingFactory<Program> factory)
         var response = await HttpClient.GetAsync($"{ResourceUrl}/verify?token={expiredToken}");
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Gone, response.StatusCode);
     }
 
     [Fact]
