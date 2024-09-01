@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Configuration.AddJsonFile($"appsettings.Local.json", optional: true, reloadOnChange: true);
+
 builder.Services.AddMapper();
 builder.Services.AddRepositories();
 builder.Services.AddServices(builder.Configuration);
