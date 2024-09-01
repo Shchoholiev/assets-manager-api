@@ -138,6 +138,60 @@ public class DbInitializer(CosmosDbContext dbContext)
         };
         await usersCollection.CreateItemAsync(noTokenUser);
 
+        // Users specifically for testing password reset
+
+        var anotherValidResetUser = new User
+        {
+            Id = "b1d4aead-9c7f-4d2d-9e8a-ffb0f688fabc",
+            Email = "anotherreset@example.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            PasswordResetToken = "another-valid-reset-token",
+            PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1) // Valid for 1 hour
+        };
+        await usersCollection.CreateItemAsync(anotherValidResetUser);
+
+        var validPasswordResetUser = new User
+        {
+            Id = "a1e00b4c-4d5a-4e18-932f-5c579e5c3a8f",
+            Email = "validreset@example.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            PasswordResetToken = "valid-reset-token",
+            PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1) // Valid for 1 hour
+        };
+        await usersCollection.CreateItemAsync(validPasswordResetUser);
+
+        var expiredPasswordResetUser = new User
+        {
+            Id = "c96ef4c1-6d7e-4aeb-91f1-8f70b3b9e75b",
+            Email = "expiredreset@example.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            PasswordResetToken = "expired-reset-token",
+            PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(-1) // Expired 1 hour ago
+        };
+        await usersCollection.CreateItemAsync(expiredPasswordResetUser);
+
+        var noPasswordResetTokenUser = new User
+        {
+            Id = "e5aeadbb-9c7f-4d2d-9e8a-ffb0f688fdc4",
+            Email = "nopasswordreset@example.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            PasswordResetToken = null,
+            PasswordResetTokenExpiry = null
+        };
+        await usersCollection.CreateItemAsync(noPasswordResetTokenUser);
+
         #endregion
 
         #region RefreshTokens
