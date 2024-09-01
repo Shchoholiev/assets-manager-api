@@ -18,7 +18,8 @@ public class TestingFactory<TEntryPoint> : WebApplicationFactory<Program> where 
 
             config
                 .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.Test.json", optional: true, reloadOnChange: true);
+                .AddJsonFile($"appsettings.Test.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.Local.json", optional: true, reloadOnChange: true);
 
             config.AddEnvironmentVariables();
         });
