@@ -73,7 +73,7 @@ public class UserManager(
         var refreshToken = await AddRefreshToken(user.Id, cancellationToken);
         var tokens = this.GetUserTokens(user, refreshToken);
 
-        await SendEmailVerificationAsync(user.Id, cancellationToken);
+        Task.Run(async () => await SendEmailVerificationAsync(user.Id, cancellationToken));
 
         this._logger.LogInformation($"Registered guest with guest id: {user.Id}.");
 
