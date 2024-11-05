@@ -9,7 +9,7 @@ namespace AssetsManagerApi.Api.Controllers;
 [Route("codeAssets")]
 public class CodeAssetsController(ICodeAssetsService codeAssetsService) : ApiController
 {
-    private readonly ICodeAssetsService _codeAssetsService;
+    private readonly ICodeAssetsService _codeAssetsService = codeAssetsService;
 
     public async Task<ActionResult<PagedList<CodeAssetDto>>> GetCodeAssetsPage(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {

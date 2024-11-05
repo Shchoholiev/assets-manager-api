@@ -11,6 +11,4 @@ public class FileSystemNodeDto
     public string ParentId { get; set; }
 
     public FileType Type { get; set; }
-
-    public FileTagDto Tag { get; set; }
 }
