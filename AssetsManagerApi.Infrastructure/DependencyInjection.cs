@@ -19,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<IUserManager, UserManager>();
         services.AddScoped<ITokensService, TokensService>();
         services.AddScoped<IEmailsService, GmailSmtpEmailsService>();
+        services.AddScoped<ICodeAssetsService, CodeAssetsService>();
 
         return services;
     }

@@ -11,6 +11,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService) : ApiCon
 {
     private readonly ICodeAssetsService _codeAssetsService = codeAssetsService;
 
+    [HttpGet]
     public async Task<ActionResult<PagedList<CodeAssetDto>>> GetCodeAssetsPage(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var codeAssets = await this._codeAssetsService.GetCodeAssetsPage(pageNumber, pageSize, cancellationToken);
