@@ -2,6 +2,8 @@ using AssetsManagerApi.Api.Middlewares;
 using AssetsManagerApi.Application;
 using AssetsManagerApi.Infrastructure;
 using AssetsManagerApi.Persistance;
+using AssetsManagerApi.Persistance.Db;
+using AssetsManagerApi.Persistance.PersistanceExtentions;
 
 var builder = WebApplication.CreateBuilder(args);
 
