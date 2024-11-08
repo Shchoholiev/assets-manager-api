@@ -27,12 +27,29 @@ public class DbInitializer(CosmosDbContext dbContext)
         var foldersCollection = await _dbContext.GetContainerAsync("Folders");
         var codeFilesCollection = await _dbContext.GetContainerAsync("CodeFiles");
 
+        var usersCollection = await _dbContext.GetContainerAsync("Users");
+        var admin = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
+                                   .Where(u => u.Id == "652c3b89ae02a3135d6408fc")
+                                   .AsEnumerable()
+                                   .FirstOrDefault();
+
+        var user1 = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
+                                   .Where(u => u.Id == "652c3b89ae02a3135d6439fc")
+                                   .AsEnumerable()
+                                   .FirstOrDefault();
+
+        var user2 = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
+                                   .Where(u => u.Id == "652c3b89ae02a3135d6432fc")
+                                   .AsEnumerable()
+                                   .FirstOrDefault();
+
         var cSharpTag = new Tag
         {
             Id = Guid.NewGuid().ToString(),
             Name = "CSharp",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(cSharpTag);
@@ -41,8 +58,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Java",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(javaTag);
@@ -51,8 +69,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Azure",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = user2.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(azureTag);
@@ -61,8 +80,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "API",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(apiTag);
@@ -71,8 +91,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "ConsoleApp",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(consoleAppTag);
@@ -81,8 +102,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Scripting",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(scriptingTag);
@@ -91,8 +113,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Utility",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(utilityTag);
@@ -101,8 +124,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Python",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(pythonTag);
@@ -111,8 +135,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "JavaScript",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(javaScriptTag);
@@ -121,8 +146,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "WebDevelopment",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(webDevelopmentTag);
@@ -131,8 +157,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             Id = Guid.NewGuid().ToString(),
             Name = "Functions",
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            UseCount = 0
         };
 
         await tagsCollection.CreateItemAsync(functionsTag);
@@ -144,7 +171,9 @@ public class DbInitializer(CosmosDbContext dbContext)
             Id = Guid.NewGuid().ToString(),
             Name = "CSharpProjectFolder",
             ParentId = null,
-            Type = FileType.Folder
+            Type = FileType.Folder,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         await foldersCollection.CreateItemAsync(folder1);
 
@@ -154,6 +183,8 @@ public class DbInitializer(CosmosDbContext dbContext)
             Name = "Program.cs",
             ParentId = folder1.Id,
             Type = FileType.CodeFile,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
             Text = @"
 using System;
 
@@ -178,13 +209,15 @@ namespace HelloWorldApp
             Name = "CSharp Project",
             Description = "A simple C# project demonstrating basic syntax.",
             RootFolderId = folder1.Id,
-            PrimaryCodeFileId = codeFile1.Id,
+            PrimaryCodeFile = codeFile1,
             AssetType = AssetTypes.Private,
             Language = Languages.csharp,
             Tags = new List<Tag>
             {
                 cSharpTag, consoleAppTag
-            }
+            },
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         codeAssets.Add(codeAsset1);
 
@@ -193,7 +226,9 @@ namespace HelloWorldApp
             Id = Guid.NewGuid().ToString(),
             Name = "PythonProjectFolder",
             ParentId = null,
-            Type = FileType.Folder
+            Type = FileType.Folder,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         await foldersCollection.CreateItemAsync(folder2);
 
@@ -203,6 +238,8 @@ namespace HelloWorldApp
             Name = "script.py",
             ParentId = folder2.Id,
             Type = FileType.CodeFile,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
             Text = @"
 def greet(name):
     print(f'Hello, {name}! Welcome to the Python project.')
@@ -225,13 +262,15 @@ if __name__ == '__main__':
             Name = "Python Script",
             Description = "A Python script with a basic greeting and addition function.",
             RootFolderId = folder2.Id,
-            PrimaryCodeFileId = codeFile2.Id,
+            PrimaryCodeFile = codeFile2,
             AssetType = AssetTypes.Public,
             Language = Languages.python,
             Tags = new List<Tag>
             {
                 pythonTag, scriptingTag, utilityTag
-            }
+            },
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         codeAssets.Add(codeAsset2);
 
@@ -240,7 +279,9 @@ if __name__ == '__main__':
             Id = Guid.NewGuid().ToString(),
             Name = "JavaScriptProjectFolder",
             ParentId = null,
-            Type = FileType.Folder
+            Type = FileType.Folder,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         await foldersCollection.CreateItemAsync(folder3);
 
@@ -249,7 +290,9 @@ if __name__ == '__main__':
             Id = Guid.NewGuid().ToString(),
             Name = "Utils",
             ParentId = folder3.Id,
-            Type = FileType.Folder
+            Type = FileType.Folder,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         await foldersCollection.CreateItemAsync(subFolder3_1);
 
@@ -259,6 +302,8 @@ if __name__ == '__main__':
             Name = "app.js",
             ParentId = folder3.Id,
             Type = FileType.CodeFile,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
             Text = @"
 function greet(name) {
     console.log(`Hello, ${name}!`);
@@ -282,6 +327,8 @@ console.log(`The product of 6 and 7 is ${result}`);
             Name = "mathUtils.js",
             ParentId = subFolder3_1.Id,
             Type = FileType.CodeFile,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
             Text = @"
 export function add(a, b) {
     return a + b;
@@ -300,13 +347,15 @@ export function subtract(a, b) {
             Name = "JavaScript Project",
             Description = "A JavaScript project with multiple utility functions.",
             RootFolderId = folder3.Id,
-            PrimaryCodeFileId = codeFile3_1.Id,
+            PrimaryCodeFile = codeFile3_1,
             AssetType = AssetTypes.Corporate,
             Language = Languages.javascript,
             Tags = new List<Tag>
             {
                 javaScriptTag, functionsTag, utilityTag, webDevelopmentTag
-            }
+            },
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         codeAssets.Add(codeAsset3);
 
@@ -315,7 +364,9 @@ export function subtract(a, b) {
             Id = Guid.NewGuid().ToString(),
             Name = "AnotherCSharpProjectFolder",
             ParentId = null,
-            Type = FileType.Folder
+            Type = FileType.Folder,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         await foldersCollection.CreateItemAsync(folder4);
 
@@ -324,7 +375,9 @@ export function subtract(a, b) {
             Id = Guid.NewGuid().ToString(),
             Name = "Services",
             ParentId = folder4.Id,
-            Type = FileType.Folder
+            Type = FileType.Folder,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         await foldersCollection.CreateItemAsync(subFolder4_1);
 
@@ -334,6 +387,8 @@ export function subtract(a, b) {
             Name = "AnotherProgram.cs",
             ParentId = folder4.Id,
             Type = FileType.CodeFile,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
             Text = @"
 using System;
 
@@ -365,6 +420,8 @@ namespace AnotherCSharpApp
             Name = "MathService.cs",
             ParentId = subFolder4_1.Id,
             Type = FileType.CodeFile,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
             Text = @"
 using System;
 
@@ -388,15 +445,35 @@ namespace AnotherCSharpApp.Services
             Name = "Another CSharp Project",
             Description = "Another C# project with a service and utility methods.",
             RootFolderId = folder4.Id,
-            PrimaryCodeFileId = codeFile4_1.Id,
+            PrimaryCodeFile = codeFile4_1,
             AssetType = AssetTypes.Private,
             Language = Languages.csharp,
             Tags = new List<Tag>
             {
                 cSharpTag, utilityTag, consoleAppTag
-            }
+            },
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
         codeAssets.Add(codeAsset4);
+
+        cSharpTag.UseCount = 2;
+        consoleAppTag.UseCount = 2;
+        scriptingTag.UseCount = 1;
+        utilityTag.UseCount = 3;
+        pythonTag.UseCount = 1; 
+        javaScriptTag.UseCount = 1;
+        webDevelopmentTag.UseCount = 1;
+        functionsTag.UseCount = 1;
+
+        await tagsCollection.ReplaceItemAsync(cSharpTag, cSharpTag.Id);
+        await tagsCollection.ReplaceItemAsync(consoleAppTag, consoleAppTag.Id);
+        await tagsCollection.ReplaceItemAsync(scriptingTag, scriptingTag.Id);
+        await tagsCollection.ReplaceItemAsync(utilityTag, utilityTag.Id);
+        await tagsCollection.ReplaceItemAsync(pythonTag, pythonTag.Id);
+        await tagsCollection.ReplaceItemAsync(javaScriptTag, javaScriptTag.Id);
+        await tagsCollection.ReplaceItemAsync(webDevelopmentTag, webDevelopmentTag.Id);
+        await tagsCollection.ReplaceItemAsync(functionsTag, functionsTag.Id);
 
         foreach (var codeAsset in codeAssets)
         {
@@ -602,6 +679,11 @@ namespace AnotherCSharpApp.Services
     public async Task InitializeCompaniesAsync()
     {
         var companiesCollection = await _dbContext.GetContainerAsync("Companies");
+        var usersCollection = await _dbContext.GetContainerAsync("Users");
+        var admin = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
+                .Where(u => u.Id == "652c3b89ae02a3135d6408fc")
+                .AsEnumerable()
+                .FirstOrDefault();
 
         var companies = new List<Company>
     {
@@ -610,7 +692,7 @@ namespace AnotherCSharpApp.Services
             Id = Guid.NewGuid().ToString(),
             Name = "Tech Corp",
             Description = "A leading tech company.",
-            CreatedById = string.Empty,
+            CreatedById = admin.Id,
             CreatedDateUtc = DateTime.UtcNow
         },
         new Company
@@ -618,7 +700,7 @@ namespace AnotherCSharpApp.Services
             Id = Guid.NewGuid().ToString(),
             Name = "Innovative Solutions",
             Description = "Provides cutting-edge solutions for AI and machine learning.",
-            CreatedById = string.Empty,
+            CreatedById = admin.Id,
             CreatedDateUtc = DateTime.UtcNow
         },
         new Company
@@ -626,7 +708,7 @@ namespace AnotherCSharpApp.Services
             Id = Guid.NewGuid().ToString(),
             Name = "Green Energy Inc.",
             Description = "Focused on renewable energy solutions.",
-            CreatedById = string.Empty,
+            CreatedById = admin.Id,
             CreatedDateUtc = DateTime.UtcNow
         }
     };

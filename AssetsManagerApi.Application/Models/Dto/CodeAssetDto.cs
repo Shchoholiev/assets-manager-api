@@ -21,5 +21,5 @@ public class CodeAssetDto
 
     public string? CompanyId { get; set; }
 
-    public string PrimaryCodeFileId { get; set; }
+    public CodeFileDto PrimaryCodeFile { get; set; }
 }
