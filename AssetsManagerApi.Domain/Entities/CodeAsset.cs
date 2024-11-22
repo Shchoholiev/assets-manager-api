@@ -1,4 +1,5 @@
-﻿using AssetsManagerApi.Domain.Enums;
+﻿using AssetsManagerApi.Domain.Entities.Identity;
+using AssetsManagerApi.Domain.Enums;
 
 namespace AssetsManagerApi.Domain.Entities;
 public class CodeAsset : EntityBase
@@ -18,4 +19,6 @@ public class CodeAsset : EntityBase
     public string? CompanyId { get; set; }
 
     public CodeFile PrimaryCodeFile { get; set; }
+
+    public User User { get; set; }
 }
