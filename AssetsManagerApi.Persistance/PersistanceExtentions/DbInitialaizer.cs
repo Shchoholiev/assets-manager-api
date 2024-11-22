@@ -216,6 +216,7 @@ namespace HelloWorldApp
             {
                 cSharpTag, consoleAppTag
             },
+            User = admin,
             CreatedById = admin.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -269,6 +270,7 @@ if __name__ == '__main__':
             {
                 pythonTag, scriptingTag, utilityTag
             },
+            User = admin,
             CreatedById = admin.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -354,6 +356,7 @@ export function subtract(a, b) {
             {
                 javaScriptTag, functionsTag, utilityTag, webDevelopmentTag
             },
+            User = admin,
             CreatedById = admin.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -365,7 +368,7 @@ export function subtract(a, b) {
             Name = "AnotherCSharpProjectFolder",
             ParentId = null,
             Type = FileType.Folder,
-            CreatedById = admin.Id,
+            CreatedById = user1.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
         await foldersCollection.CreateItemAsync(folder4);
@@ -376,7 +379,7 @@ export function subtract(a, b) {
             Name = "Services",
             ParentId = folder4.Id,
             Type = FileType.Folder,
-            CreatedById = admin.Id,
+            CreatedById = user1.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
         await foldersCollection.CreateItemAsync(subFolder4_1);
@@ -387,7 +390,7 @@ export function subtract(a, b) {
             Name = "AnotherProgram.cs",
             ParentId = folder4.Id,
             Type = FileType.CodeFile,
-            CreatedById = admin.Id,
+            CreatedById = user1.Id,
             CreatedDateUtc = DateTime.UtcNow,
             Text = @"
 using System;
@@ -420,7 +423,7 @@ namespace AnotherCSharpApp
             Name = "MathService.cs",
             ParentId = subFolder4_1.Id,
             Type = FileType.CodeFile,
-            CreatedById = admin.Id,
+            CreatedById = user1.Id,
             CreatedDateUtc = DateTime.UtcNow,
             Text = @"
 using System;
@@ -452,18 +455,471 @@ namespace AnotherCSharpApp.Services
             {
                 cSharpTag, utilityTag, consoleAppTag
             },
-            CreatedById = admin.Id,
+            User = user1,
+            CreatedById = user1.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
         codeAssets.Add(codeAsset4);
 
-        cSharpTag.UseCount = 2;
+        var folder5 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "AdvancedPythonProjectFolder",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await foldersCollection.CreateItemAsync(folder5);
+
+        var codeFile5 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "data_analysis.py",
+            ParentId = folder5.Id,
+            Type = FileType.CodeFile,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Text = @"
+import pandas as pd
+
+def analyze_data(file_path):
+    data = pd.read_csv(file_path)
+    summary = data.describe()
+    print('Data Summary:')
+    print(summary)
+
+if __name__ == '__main__':
+    analyze_data('data.csv')
+",
+            Language = Languages.python,
+        };
+        await codeFilesCollection.CreateItemAsync(codeFile5);
+
+        var codeAsset5 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Advanced Python Analysis",
+            Description = "A Python script for analyzing data using pandas.",
+            RootFolderId = folder5.Id,
+            PrimaryCodeFile = codeFile5,
+            AssetType = AssetTypes.Corporate,
+            Language = Languages.python,
+            Tags = new List<Tag>
+    {
+        pythonTag, utilityTag, scriptingTag
+    },
+            User = admin,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        codeAssets.Add(codeAsset5);
+
+        var folder6 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "DataProcessingCSharpFolder",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await foldersCollection.CreateItemAsync(folder6);
+
+        var codeFile6 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "DataProcessor.cs",
+            ParentId = folder6.Id,
+            Type = FileType.CodeFile,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Text = @"
+using System;
+using System.IO;
+
+class DataProcessor
+{
+    static void Main(string[] args)
+    {
+        string filePath = ""data.txt"";
+        if (File.Exists(filePath))
+        {
+            var lines = File.ReadAllLines(filePath);
+            Console.WriteLine(""File Content:"");
+            foreach (var line in lines)
+            {
+                Console.WriteLine(line);
+            }
+        }
+        else
+        {
+            Console.WriteLine(""File not found!"");
+        }
+    }
+}
+",
+            Language = Languages.csharp,
+        };
+        await codeFilesCollection.CreateItemAsync(codeFile6);
+
+        var codeAsset6 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "CSharp Data Processor",
+            Description = "A C# project for processing text files.",
+            RootFolderId = folder6.Id,
+            PrimaryCodeFile = codeFile6,
+            AssetType = AssetTypes.Private,
+            Language = Languages.csharp,
+            Tags = new List<Tag>
+    {
+        cSharpTag, utilityTag
+    },
+            User = user1,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        codeAssets.Add(codeAsset6);
+
+        var folder7 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "WebAppJavaScriptFolder",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = user2.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await foldersCollection.CreateItemAsync(folder7);
+
+        var codeFile7 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "index.js",
+            ParentId = folder7.Id,
+            Type = FileType.CodeFile,
+            CreatedById = user2.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Text = @"
+document.addEventListener('DOMContentLoaded', () => {
+    const greetUser = (name) => {
+        alert(`Welcome, ${name}!`);
+    };
+
+    greetUser('Developer');
+});
+",
+            Language = Languages.javascript,
+        };
+        await codeFilesCollection.CreateItemAsync(codeFile7);
+
+        var codeAsset7 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "JavaScript Web App",
+            Description = "A simple JavaScript project for web interactions.",
+            RootFolderId = folder7.Id,
+            PrimaryCodeFile = codeFile7,
+            AssetType = AssetTypes.Corporate,
+            Language = Languages.javascript,
+            Tags = new List<Tag>
+    {
+        javaScriptTag, webDevelopmentTag
+    },
+            User = user2,
+            CreatedById = user2.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        codeAssets.Add(codeAsset7);
+
+        var folder8 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "PythonApiFolder",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await foldersCollection.CreateItemAsync(folder8);
+
+        var codeFile8 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "api.py",
+            ParentId = folder8.Id,
+            Type = FileType.CodeFile,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Text = @"
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.route('/api/greet', methods=['GET'])
+def greet():
+    return jsonify(message='Hello, API user!')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+",
+            Language = Languages.python,
+        };
+        await codeFilesCollection.CreateItemAsync(codeFile8);
+
+        var codeAsset8 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Python API",
+            Description = "A simple Python API using Flask.",
+            RootFolderId = folder8.Id,
+            PrimaryCodeFile = codeFile8,
+            AssetType = AssetTypes.Public,
+            Language = Languages.python,
+            Tags = new List<Tag>
+    {
+        pythonTag, apiTag, utilityTag
+    },
+            User = admin,
+            CreatedById = admin.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        codeAssets.Add(codeAsset8);
+
+        var folder9 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "CSharpAppFolder3",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await foldersCollection.CreateItemAsync(folder9);
+
+        var codeFile9 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "App3.cs",
+            ParentId = folder9.Id,
+            Type = FileType.CodeFile,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Text = @"
+using System;
+
+namespace CSharpApp3
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(""Welcome to C# application number 3!"");
+            var result = Divide(20, 4);
+            Console.WriteLine($""The result of division is: {result}"");
+        }
+
+        static int Divide(int a, int b)
+        {
+            return a / b;
+        }
+    }
+}",
+            Language = Languages.csharp,
+        };
+        await codeFilesCollection.CreateItemAsync(codeFile9);
+
+        var codeAsset9 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "C# Division App",
+            Description = "A simple C# app that demonstrates division.",
+            RootFolderId = folder9.Id,
+            PrimaryCodeFile = codeFile9,
+            AssetType = AssetTypes.Private,
+            Language = Languages.csharp,
+            Tags = new List<Tag>
+    {
+        cSharpTag, utilityTag
+    },
+            User = user1,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await codeAssetsCollection.CreateItemAsync(codeAsset9);
+
+        var folder10 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "PythonProjectFolder2",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = user2.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await foldersCollection.CreateItemAsync(folder10);
+
+        var codeFile10 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "math_operations.py",
+            ParentId = folder10.Id,
+            Type = FileType.CodeFile,
+            CreatedById = user2.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Text = @"
+def subtract(a, b):
+    return a - b
+
+def multiply(a, b):
+    return a * b
+
+if __name__ == '__main__':
+    result_subtract = subtract(10, 5)
+    print(f'Subtraction result: {result_subtract}')
+    result_multiply = multiply(3, 7)
+    print(f'Multiplication result: {result_multiply}')
+",
+            Language = Languages.python,
+        };
+        await codeFilesCollection.CreateItemAsync(codeFile10);
+
+        var codeAsset10 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Python Math Operations",
+            Description = "A Python script that demonstrates subtraction and multiplication.",
+            RootFolderId = folder10.Id,
+            PrimaryCodeFile = codeFile10,
+            AssetType = AssetTypes.Public,
+            Language = Languages.python,
+            Tags = new List<Tag>
+    {
+        pythonTag, utilityTag
+    },
+            User = user2,
+            CreatedById = user2.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await codeAssetsCollection.CreateItemAsync(codeAsset10);
+
+        var folder11 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "JavaScriptProjectFolder2",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await foldersCollection.CreateItemAsync(folder11);
+
+        var codeFile11 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "functions.js",
+            ParentId = folder11.Id,
+            Type = FileType.CodeFile,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Text = @"
+function divide(a, b) {
+    return a / b;
+}
+
+function power(a, b) {
+    return Math.pow(a, b);
+}
+
+console.log(divide(20, 4));
+console.log(power(2, 3));
+",
+            Language = Languages.javascript,
+        };
+        await codeFilesCollection.CreateItemAsync(codeFile11);
+
+        var codeAsset11 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "JavaScript Math Functions",
+            Description = "A JavaScript project demonstrating division and exponentiation.",
+            RootFolderId = folder11.Id,
+            PrimaryCodeFile = codeFile11,
+            AssetType = AssetTypes.Public,
+            Language = Languages.javascript,
+            Tags = new List<Tag>
+    {
+        javaScriptTag, utilityTag
+    },
+            User = user1,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await codeAssetsCollection.CreateItemAsync(codeAsset11);
+
+        var folder12 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "PythonProjectFolder3",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await foldersCollection.CreateItemAsync(folder12);
+
+        var codeFile12 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "simple_math.py",
+            ParentId = folder12.Id,
+            Type = FileType.CodeFile,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Text = @"
+def add(a, b):
+    return a + b
+
+def divide(a, b):
+    return a / b
+
+if __name__ == '__main__':
+    sum_result = add(15, 25)
+    print(f'The sum is: {sum_result}')
+    division_result = divide(50, 10)
+    print(f'The result of division is: {division_result}')
+",
+            Language = Languages.python,
+        };
+        await codeFilesCollection.CreateItemAsync(codeFile12);
+
+        var codeAsset12 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Python Simple Math",
+            Description = "A Python script that demonstrates basic addition and division.",
+            RootFolderId = folder12.Id,
+            PrimaryCodeFile = codeFile12,
+            AssetType = AssetTypes.Public,
+            Language = Languages.python,
+            Tags = new List<Tag>
+    {
+        pythonTag, utilityTag
+    },
+            User = user1,
+            CreatedById = user1.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await codeAssetsCollection.CreateItemAsync(codeAsset12);
+
+        cSharpTag.UseCount = 4;
         consoleAppTag.UseCount = 2;
-        scriptingTag.UseCount = 1;
-        utilityTag.UseCount = 3;
-        pythonTag.UseCount = 1; 
-        javaScriptTag.UseCount = 1;
-        webDevelopmentTag.UseCount = 1;
+        scriptingTag.UseCount = 2;
+        utilityTag.UseCount = 10;
+        pythonTag.UseCount = 5; 
+        javaScriptTag.UseCount = 3;
+        webDevelopmentTag.UseCount = 2;
         functionsTag.UseCount = 1;
 
         await tagsCollection.ReplaceItemAsync(cSharpTag, cSharpTag.Id);
