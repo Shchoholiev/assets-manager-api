@@ -14,5 +14,7 @@ public interface ICodeAssetsService
 
     Task<PagedList<CodeAssetResult>> GetCodeAssetsByTagsPage(List<string> tagIds, int pageNumber, int pageSize, CancellationToken cancellationToken);
 
+    Task<PagedList<CodeAssetResult>> SearchCodeAssetsPage(string input, int pageNumber, int pageSize, CancellationToken cancellationToken);
+
     Task<CodeAssetResult> GetCodeAssetById(string codeAssetId, CancellationToken cancellationToken);
 }

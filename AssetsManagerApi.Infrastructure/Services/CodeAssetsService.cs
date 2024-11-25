@@ -1,13 +1,9 @@
 ﻿using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Application.IServices;
-using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Application.Paging;
-using AssetsManagerApi.Domain.Entities;
-using AssetsManagerApi.Domain.Enums;
+using AssetsManagerApi.Domain.Entities.Identity;
 using AutoMapper;
-using System.Linq;
-using System.Linq.Expressions;
 
 namespace AssetsManagerApi.Infrastructure.Services;
 public class CodeAssetsService : ICodeAssetsService
@@ -50,5 +46,13 @@ public class CodeAssetsService : ICodeAssetsService
     {
         var entity = await this._codeAssetsRepository.GetOneAsync(codeAssetId, cancellationToken);
         return _mapper.Map<CodeAssetResult>(entity);
+    }
+
+    public async Task<PagedList<CodeAssetResult>> SearchCodeAssetsPage(string input, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var entities = await this._codeAssetsRepository.GetPageAsync(pageNumber, pageSize, c => c.Name.Contains(input) || c.Description.Contains(input), cancellationToken);
+        var dtos = _mapper.Map<List<CodeAssetResult>>(entities);
+        var totalCount = await this._codeAssetsRepository.GetCountAsync(c => c.Name.Contains(input) || c.Description.Contains(input), cancellationToken);
+        return new PagedList<CodeAssetResult>(dtos, pageNumber, pageSize, totalCount);
     }
 }
