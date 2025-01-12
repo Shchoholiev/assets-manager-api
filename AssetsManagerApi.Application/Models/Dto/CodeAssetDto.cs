@@ -17,7 +17,7 @@ public class CodeAssetDto
 
     public Languages Language { get; set; }
 
-    public string RootFolderId { get; set; }
+    public Folder RootFolder { get; set; }
 
     public string? CompanyId { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using AssetsManagerApi.Domain.Enums;
+﻿using AssetsManagerApi.Domain.Entities;
+using AssetsManagerApi.Domain.Enums;
 
 namespace AssetsManagerApi.Application.Models.Dto;
 
@@ -8,7 +9,7 @@ public class FileSystemNodeDto
 
     public string Name { get; set; }
 
-    public string ParentId { get; set; }
+    public Folder ParentFolder { get; set; }
 
     public FileType Type { get; set; }
 }
