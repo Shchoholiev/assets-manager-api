@@ -114,4 +114,14 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
         var response = await query.ReadNextAsync(cancellationToken);
         return response.ToList();
     }
+
+    public async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
+    {
+        var query = _container.GetItemLinqQueryable<TEntity>()
+            .Where(predicate)
+            .ToFeedIterator();
+
+        var response = await query.ReadNextAsync(cancellationToken);
+        return response.ToList();
+    }
 }

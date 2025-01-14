@@ -17,9 +17,13 @@ public class CodeAssetResult
 
     public string Language { get; set; }
 
-    public string RootFolderId { get; set; }
+    public FolderDto RootFolder { get; set; }
 
     public string? CompanyId { get; set; }
 
     public CodeFileDto PrimaryCodeFile { get; set; }
+
+    public List<FolderDto> Folders { get; set; }
+
+    public List<CodeFileDto> Files {  get; set; }
 }
