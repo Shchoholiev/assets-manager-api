@@ -22,4 +22,6 @@ public interface IBaseRepository<TEntity> where TEntity : EntityBase
     Task<int> GetCountAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 
     Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken);
+
+    Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 }

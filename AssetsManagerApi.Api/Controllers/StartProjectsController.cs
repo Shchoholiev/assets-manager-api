@@ -40,7 +40,14 @@ public class StartProjectsController : ApiController
                     ],
                     AssetType = AssetTypes.Public,
                     Language = "CSharp",
-                    RootFolderId = Guid.NewGuid().ToString(),
+                    RootFolder = 
+                    new FolderDto
+                    {
+                        Id = "07efeec7-e902-4294-be0a-070f693472bb",
+                        Name = "",
+                        ParentFolder = null,
+                        Type = FileType.Folder,
+                    },
                     PrimaryCodeFile = new CodeFileDto
                     {
                         Id = Guid.NewGuid().ToString(),
