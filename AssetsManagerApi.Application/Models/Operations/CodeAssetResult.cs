@@ -26,4 +26,6 @@ public class CodeAssetResult
     public List<FolderDto> Folders { get; set; }
 
     public List<CodeFileDto> Files {  get; set; }
+
+    public UserDto User { get; set; }
 }

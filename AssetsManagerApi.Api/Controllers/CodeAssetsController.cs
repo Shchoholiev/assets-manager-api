@@ -3,6 +3,7 @@ using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Application.Paging;
 using AssetsManagerApi.Domain.Entities;
+using AssetsManagerApi.Domain.Entities.Identity;
 using AssetsManagerApi.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,8 +20,6 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService) : ApiCon
         var codeAssets = await this._codeAssetsService.GetCodeAssetsPage(pageNumber, pageSize, cancellationToken);
         return Ok(codeAssets);
     }
-
-
 
     [HttpGet("{codeAssetId}")]
     public ActionResult<CodeAssetResult> GetCodeAssetByIdPage(string codeAssetId)
@@ -180,23 +179,16 @@ export function subtract(a, b) {
 }",
                     Language = Languages.javascript,
                 }
+            },
+            User = 
+            new UserDto
+            {
+                Id = "652c3b89ae02a3135d6409fc",
+                Email = "test@gmail.com",
+                Name = "Test user"
             }
         };
         return Ok(dummy);
-    }
-
-    [HttpGet("byUser")]
-    public async Task<ActionResult<PagedList<CodeAssetResult>>> GetUsersCodeAssetsPage([FromQuery] string userId, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
-    {
-        var codeAssets = await this._codeAssetsService.GetUsersCodeAssetsPage(userId, pageNumber, pageSize, cancellationToken);
-        return Ok(codeAssets);
-    }
-
-    [HttpGet("byTags")]
-    public async Task<ActionResult<PagedList<CodeAssetResult>>> GetCodeAssetsByTagsPage([FromQuery] List<string> tagIds, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
-    {
-        var codeAssets = await this._codeAssetsService.GetCodeAssetsByTagsPage(tagIds, pageNumber, pageSize, cancellationToken);
-        return Ok(codeAssets);
     }
 
     [HttpGet("search")]
