@@ -2,6 +2,7 @@ using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AssetsManagerApi.Api.Controllers;
@@ -17,6 +18,7 @@ public class StartProjectsController : ApiController
     /// </summary>
     /// <param name="startProject">Prompt with project description</param>
     /// <returns>A newly created start project with associated assets.</returns>
+    [Authorize(Roles = "User")]
     [HttpPost("")]
     [Produces("application/json")]
     public async Task<ActionResult<StartProjectDto>> CreateStartProjectAsync([FromBody] StartProjectCreateDto startProject, CancellationToken cancellationToken)
