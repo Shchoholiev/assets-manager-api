@@ -9,7 +9,5 @@ public class FileSystemNodeDto
 
     public string Name { get; set; }
 
-    public FolderDto? ParentFolder { get; set; }
-
     public FileType Type { get; set; }
 }
