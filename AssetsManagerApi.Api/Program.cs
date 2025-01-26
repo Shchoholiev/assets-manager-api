@@ -54,6 +54,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<GlobalUserCustomMiddleware>();
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 

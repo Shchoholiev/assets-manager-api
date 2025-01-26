@@ -372,13 +372,14 @@ public class UserManager(
         };
     }
 
-    private IEnumerable<Claim> GetClaims(User user)
+    private List<Claim> GetClaims(User user)
     {
         var claims = new List<Claim>()
         {
             new (ClaimTypes.Name, user.Name ?? string.Empty),
             new (ClaimTypes.NameIdentifier, user.Id.ToString()),
             new (ClaimTypes.Email, user.Email ?? string.Empty),
+            new (ClaimTypes.GroupSid, user.CompanyId ?? string.Empty),
         };
 
         foreach (var role in user.Roles)
