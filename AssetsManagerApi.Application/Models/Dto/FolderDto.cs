@@ -2,4 +2,5 @@
 
 public class FolderDto : FileSystemNodeDto
 {
+    public List<FileSystemNodeDto>? Items { get; set; } = [];
 }

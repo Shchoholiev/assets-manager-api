@@ -15,9 +15,9 @@ public class CodeAssetDto
 
     public AssetTypes AssetType { get; set; }
 
-    public Languages Language { get; set; }
+    public string Language { get; set; }
 
-    public Folder RootFolder { get; set; }
+    public FolderDto RootFolder { get; set; }
 
     public string? CompanyId { get; set; }
 

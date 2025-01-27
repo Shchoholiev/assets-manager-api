@@ -6,5 +6,5 @@ public class StartProjectDto
 {
     public string Id { get; set; }
 
-    public List<CodeAssetResult> CodeAssets { get; set; }
+    public List<CodeAssetDto> CodeAssets { get; set; }
 }
