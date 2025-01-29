@@ -6,6 +6,7 @@ using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Domain.Entities.Identity;
 using AssetsManagerApi.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace AssetsManagerApi.Api.Controllers;
 
@@ -15,16 +16,16 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService) : ApiCon
     private readonly ICodeAssetsService _codeAssetsService = codeAssetsService;
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<CodeAssetResult>>> GetCodeAssetsPage([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedList<CodeAssetDto>>> GetCodeAssetsPage([FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
     {
         var codeAssets = await this._codeAssetsService.GetCodeAssetsPage(pageNumber, pageSize, cancellationToken);
         return Ok(codeAssets);
     }
 
     [HttpGet("{codeAssetId}")]
-    public ActionResult<CodeAssetResult> GetCodeAssetByIdPage(string codeAssetId)
+    public ActionResult<CodeAssetDto> GetCodeAssetByIdPage(string codeAssetId)
     {
-        var dummy = new CodeAssetResult
+        var dummy = new CodeAssetDto
         {
             Id = "ecb7e985-5d24-463b-ab62-6368395584e2",
             Name = "JavaScript Project",
@@ -34,22 +35,61 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService) : ApiCon
             {
                 Id = "20e56a85-3b18-4645-9193-9f71a565dbc2",
                 Name = "JavaScriptProjectFolder",
-                ParentFolder = null,
                 Type = FileType.Folder,
+                Items = new List<FileSystemNodeDto>()
+                {
+                    new FolderDto
+                    {
+                        Id = "41ce016c-2f03-4125-855e-0acdb8a51d4b",
+                        Name = "Utils",
+                        Type = FileType.Folder,
+                        Items = new List<FileSystemNodeDto>()
+                        {
+                            new CodeFileDto
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                Name = "mathUtils.js",
+                                Type = FileType.CodeFile,
+                                Text = @"
+export function add(a, b) {
+    return a + b;
+}
+
+export function subtract(a, b) {
+    return a - b;
+}",
+                                Language = Languages.javascript,
+                            }
+                        }
+                    },
+
+                    new CodeFileDto
+                    {
+                        Id = "f17532e3-db92-479e-a867-ec729a697eeb",
+                        Name = "app.js",
+                        Type = FileType.CodeFile,
+                        Text = @"
+function greet(name) {
+    console.log(`Hello, ${name}!`);
+}
+
+function multiply(a, b) {
+    return a * b;
+}
+
+greet('Developer');
+const result = multiply(6, 7);
+console.log(`The product of 6 and 7 is ${result}`);
+",
+                        Language = Languages.javascript,
+                    },
+                }
             },
             PrimaryCodeFile =
             new CodeFileDto
             {
                 Id = "325e4359-f428-4f21-8dc6-f63924531cf5",
                 Name = "app.js",
-                ParentFolder =
-                new FolderDto
-                {
-                    Id = "20e56a85-3b18-4645-9193-9f71a565dbc2",
-                    Name = "JavaScriptProjectFolder",
-                    ParentFolder = null,
-                    Type = FileType.Folder,
-                },
                 Type = FileType.CodeFile,
                 Text = @"
 function greet(name) {
@@ -91,108 +131,27 @@ console.log(`The product of 6 and 7 is ${result}`);
                     Name = "WebDevelopment",
                 },
             },
-
-            Folders = new List<FolderDto>()
-            {
-                new FolderDto
-                {
-                    Id = "20e56a85-3b18-4645-9193-9f71a565dbc2",
-                    Name = "JavaScriptProjectFolder",
-                    ParentFolder = null,
-                    Type = FileType.Folder,
-                },
-
-                new FolderDto
-                {
-                    Id = "41ce016c-2f03-4125-855e-0acdb8a51d4b",
-                    Name = "Utils",
-                    ParentFolder =
-                    new FolderDto
-                    {
-                        Id = "20e56a85-3b18-4645-9193-9f71a565dbc2",
-                        Name = "JavaScriptProjectFolder",
-                        ParentFolder = null,
-                        Type = FileType.Folder,
-                    },
-                    Type = FileType.Folder,
-                },
-            },
-
-            Files = new List<CodeFileDto>()
-            {
-                new CodeFileDto
-                {
-                    Id = "f17532e3-db92-479e-a867-ec729a697eeb",
-                    Name = "app.js",
-                    ParentFolder =
-                    new FolderDto
-                    {
-                        Id = "20e56a85-3b18-4645-9193-9f71a565dbc2",
-                        Name = "JavaScriptProjectFolder",
-                        ParentFolder = null,
-                        Type = FileType.Folder,
-                    },
-                    Type = FileType.CodeFile,
-                    Text = @"
-function greet(name) {
-    console.log(`Hello, ${name}!`);
-}
-
-function multiply(a, b) {
-    return a * b;
-}
-
-greet('Developer');
-const result = multiply(6, 7);
-console.log(`The product of 6 and 7 is ${result}`);
-",
-                    Language = Languages.javascript,
-                },
-
-                new CodeFileDto
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "mathUtils.js",
-                    ParentFolder =
-                    new FolderDto
-                    {
-                        Id = "41ce016c-2f03-4125-855e-0acdb8a51d4b",
-                        Name = "Utils",
-                        ParentFolder =
-                        new FolderDto
-                        {
-                            Id = "20e56a85-3b18-4645-9193-9f71a565dbc2",
-                            Name = "JavaScriptProjectFolder",
-                            ParentFolder = null,
-                            Type = FileType.Folder,
-                        },
-                        Type = FileType.Folder,
-                    },
-                    Type = FileType.CodeFile,
-                    Text = @"
-export function add(a, b) {
-    return a + b;
-}
-
-export function subtract(a, b) {
-    return a - b;
-}",
-                    Language = Languages.javascript,
-                }
-            },
-            User = 
-            new UserDto
-            {
-                Id = "652c3b89ae02a3135d6409fc",
-                Email = "test@gmail.com",
-                Name = "Test user"
-            }
         };
+
         return Ok(dummy);
     }
 
+    [HttpGet("byUser")]
+    public async Task<ActionResult<PagedList<CodeAssetDto>>> GetUsersCodeAssetsPage([FromQuery] string userId, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    {
+        var codeAssets = await this._codeAssetsService.GetUsersCodeAssetsPage(userId, pageNumber, pageSize, cancellationToken);
+        return Ok(codeAssets);
+    }
+
+    [HttpGet("byTags")]
+    public async Task<ActionResult<PagedList<CodeAssetDto>>> GetCodeAssetsByTagsPage([FromQuery] List<string> tagIds, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    {
+        var codeAssets = await this._codeAssetsService.GetCodeAssetsByTagsPage(tagIds, pageNumber, pageSize, cancellationToken);
+        return Ok(codeAssets);
+    }
+
     [HttpGet("search")]
-    public async Task<ActionResult<PagedList<CodeAssetResult>>> SearchCodeAssetsPage([FromQuery] string input, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedList<CodeAssetDto>>> SearchCodeAssetsPage([FromQuery] string input, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
     {
         var codeAssets = await this._codeAssetsService.SearchCodeAssetsPage(input, pageNumber, pageSize, cancellationToken);
         return Ok(codeAssets);

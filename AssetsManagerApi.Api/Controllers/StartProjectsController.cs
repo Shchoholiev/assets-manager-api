@@ -2,6 +2,7 @@ using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AssetsManagerApi.Api.Controllers;
@@ -17,6 +18,7 @@ public class StartProjectsController : ApiController
     /// </summary>
     /// <param name="startProject">Prompt with project description</param>
     /// <returns>A newly created start project with associated assets.</returns>
+    [Authorize(Roles = "User")]
     [HttpPost("")]
     [Produces("application/json")]
     public async Task<ActionResult<StartProjectDto>> CreateStartProjectAsync([FromBody] StartProjectCreateDto startProject, CancellationToken cancellationToken)
@@ -25,7 +27,7 @@ public class StartProjectsController : ApiController
         {
             Id = Guid.NewGuid().ToString(),
             CodeAssets = [
-                new CodeAssetResult
+                new CodeAssetDto
                 {
                     Id = Guid.NewGuid().ToString(),
                     Name = "Jwt Authentication",
@@ -45,8 +47,26 @@ public class StartProjectsController : ApiController
                     {
                         Id = "07efeec7-e902-4294-be0a-070f693472bb",
                         Name = "",
-                        ParentFolder = null,
                         Type = FileType.Folder,
+                        Items = new List<FileSystemNodeDto>()
+                        {
+                            new CodeFileDto
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                Name = "Jwt.cs",
+                                Language = Languages.csharp,
+                                Text = @"
+                                    public string GenerateAccessToken(IEnumerable<Claim> claims)
+                                    {
+                                        var tokenOptions = GetTokenOptions(claims);
+                                        var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+                                        this._logger.LogInformation(""Generated new access token."");
+
+                                        return tokenString;
+                                    }"
+                            }
+                        }
                     },
                     PrimaryCodeFile = new CodeFileDto
                     {

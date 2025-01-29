@@ -10,16 +10,9 @@ public class CodeAssetProfile : Profile
 {
     public CodeAssetProfile()
     {
-        CreateMap<CodeAssetDto, CodeAsset>().ReverseMap();
-
-        CreateMap<CodeAssetDto, CodeAssetResult>()
+        CreateMap<CodeAsset, CodeAssetDto>()
             .ForMember(dest => dest.Language, opt => opt.MapFrom(src => LanguagesExtensions.LanguageToString(src.Language)));
-        CreateMap<CodeAssetResult, CodeAssetDto>()
-            .ForMember(dest => dest.Language, opt => opt.MapFrom(src => LanguagesExtensions.StringToLanguage(src.Language)));
-
-        CreateMap<CodeAsset, CodeAssetResult>()
-            .ForMember(dest => dest.Language, opt => opt.MapFrom(src => LanguagesExtensions.LanguageToString(src.Language)));
-        CreateMap<CodeAssetResult, CodeAsset>()
+        CreateMap<CodeAssetDto, CodeAsset>()
             .ForMember(dest => dest.Language, opt => opt.MapFrom(src => LanguagesExtensions.StringToLanguage(src.Language)));
     }
 }
