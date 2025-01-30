@@ -54,7 +54,7 @@ public class StartProjectsController : ApiController
                             {
                                 Id = Guid.NewGuid().ToString(),
                                 Name = "Jwt.cs",
-                                Language = Languages.csharp,
+                                Language = "Csharp",
                                 Text = @"
                                     public string GenerateAccessToken(IEnumerable<Claim> claims)
                                     {
@@ -72,7 +72,7 @@ public class StartProjectsController : ApiController
                     {
                         Id = Guid.NewGuid().ToString(),
                         Name = "Jwt.cs",
-                        Language = Languages.csharp,
+                        Language = "Csharp",
                         Text = @"
                             public string GenerateAccessToken(IEnumerable<Claim> claims)
                             {

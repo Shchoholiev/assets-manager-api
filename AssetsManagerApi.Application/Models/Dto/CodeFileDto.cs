@@ -6,5 +6,5 @@ public class CodeFileDto : FileSystemNodeDto
 {
     public string Text { get; set; }
 
-    public Languages Language { get; set; }
+    public string Language { get; set; }
 }
