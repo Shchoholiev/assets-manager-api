@@ -30,24 +30,23 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService) : ApiCon
             Id = "ecb7e985-5d24-463b-ab62-6368395584e2",
             Name = "JavaScript Project",
             Description = "A JavaScript project with multiple utility functions.",
-            RootFolder =
-            new FolderDto
+            RootFolder = new FolderDto
             {
-                Id = "20e56a85-3b18-4645-9193-9f71a565dbc2",
+                Id = "b2c3d4e5-f678-9012-abcd-ef2345678901",
                 Name = "JavaScriptProjectFolder",
                 Type = FileType.Folder,
                 Items = new List<FileSystemNodeDto>()
                 {
                     new FolderDto
                     {
-                        Id = "41ce016c-2f03-4125-855e-0acdb8a51d4b",
+                        Id = "c3d4e5f6-7890-1234-abcd-ef3456789012",
                         Name = "Utils",
                         Type = FileType.Folder,
                         Items = new List<FileSystemNodeDto>()
                         {
                             new CodeFileDto
                             {
-                                Id = Guid.NewGuid().ToString(),
+                                Id = "d4e5f678-9012-3456-abcd-ef4567890123",
                                 Name = "mathUtils.js",
                                 Type = FileType.CodeFile,
                                 Text = @"
@@ -58,14 +57,141 @@ export function add(a, b) {
 export function subtract(a, b) {
     return a - b;
 }",
-                                Language = Languages.javascript,
+                                Language = "Javascript",
+                            },
+                            new CodeFileDto
+                            {
+                                Id = "e5f67890-1234-5678-abcd-ef5678901234",
+                                Name = "stringUtils.js",
+                                Type = FileType.CodeFile,
+                                Text = @"
+export function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function lowercase(str) {
+    return str.toLowerCase();
+}",
+                                Language = "Javascript",
+                            },
+                            new CodeFileDto
+                            {
+                                Id = "f6f67890-2234-5678-abcd-ef6678901234",
+                                Name = "arrayUtils.js",
+                                Type = FileType.CodeFile,
+                                Text = @"
+export function firstElement(arr) {
+    return arr.length > 0 ? arr[0] : null;
+}
+
+export function lastElement(arr) {
+    return arr.length > 0 ? arr[arr.length - 1] : null;
+}",
+                                Language = "Javascript",
                             }
                         }
                     },
+                    new FolderDto
+                    {
+                        Id = "f6789012-3456-7890-abcd-ef6789012345",
+                        Name = "Components",
+                        Type = FileType.Folder,
+                        Items = new List<FileSystemNodeDto>()
+                        {
+                            new CodeFileDto
+                            {
+                                Id = "67890123-4567-8901-abcd-ef7890123456",
+                                Name = "header.js",
+                                Type = FileType.CodeFile,
+                                Text = @"
+export function Header() {
+    return `<header>Welcome</header>`;
+}",
+                                Language = "Javascript",
+                            },
+                            new CodeFileDto
+                            {
+                                Id = "78901234-5678-9012-abcd-ef8901234567",
+                                Name = "footer.js",
+                                Type = FileType.CodeFile,
+                                Text = @"
+export function Footer() {
+    return `<footer>Goodbye</footer>`;
+}",
+                                Language = "Javascript",
+                            },
+                            new FolderDto
+                            {
+                                Id = "8a901234-5678-9012-abcd-ef9901234567",
+                                Name = "Buttons",
+                                Type = FileType.Folder,
+                                Items = new List<FileSystemNodeDto>()
+                                {
+                                    new CodeFileDto
+                                    {
+                                        Id = "9b901234-5678-9012-abcd-efaa01234567",
+                                        Name = "primaryButton.js",
+                                        Type = FileType.CodeFile,
+                                        Text = @"
+export function PrimaryButton() {
+    return `<button class='primary'>Click me</button>`;
+}",
+                                        Language = "Javascript",
+                                    },
+                                    new CodeFileDto
+                                    {
+                                        Id = "ac901234-5678-9012-abcd-efbb01234567",
+                                        Name = "secondaryButton.js",
+                                        Type = FileType.CodeFile,
+                                        Text = @"
+export function SecondaryButton() {
+    return `<button class='secondary'>Click me</button>`;
+}",
+                                        Language = "Javascript",
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    new FolderDto
+                    {
+                        Id = "431e3321-a436-4f1f-9118-916dca3841c3",
+                        Name = "Others",
+                        Type = FileType.Folder,
+                        Items = new List<FileSystemNodeDto>()
+                        {
+                            new CodeFileDto
+                            {
+                                Id = "bc901234-5678-9012-abcd-efcc01234567",
+                                Name = "config.js",
+                                Type = FileType.CodeFile,
+                                Text = @"
+export const CONFIG = {
+    apiUrl: 'https://api.example.com',
+    timeout: 5000
+};",
+                                Language = "Javascript",
+                            },
+                            new CodeFileDto
+                            {
+                                Id = "cd901234-5678-9012-abcd-efdd01234567",
+                                Name = "logger.js",
+                                Type = FileType.CodeFile,
+                                Text = @"
+export function logInfo(message) {
+    console.log(`INFO: ${message}`);
+}
 
+export function logError(message) {
+    console.error(`ERROR: ${message}`);
+}",
+                                Language = "Javascript",
+                            }
+                        }
+                    },
                     new CodeFileDto
                     {
-                        Id = "f17532e3-db92-479e-a867-ec729a697eeb",
+                        Id = "89012345-6789-0123-abcd-ef9012345678",
                         Name = "app.js",
                         Type = FileType.CodeFile,
                         Text = @"
@@ -81,14 +207,14 @@ greet('Developer');
 const result = multiply(6, 7);
 console.log(`The product of 6 and 7 is ${result}`);
 ",
-                        Language = Languages.javascript,
-                    },
+                        Language = "Javascript",
+                    }
                 }
             },
-            PrimaryCodeFile =
-            new CodeFileDto
+
+            PrimaryCodeFile = new CodeFileDto
             {
-                Id = "325e4359-f428-4f21-8dc6-f63924531cf5",
+                Id = "90123456-7890-1234-abcd-ef0123456789",
                 Name = "app.js",
                 Type = FileType.CodeFile,
                 Text = @"
@@ -104,7 +230,7 @@ greet('Developer');
 const result = multiply(6, 7);
 console.log(`The product of 6 and 7 is ${result}`);
 ",
-                Language = Languages.javascript,
+                Language = "Javascript",
             },
             AssetType = AssetTypes.Corporate,
             Language = "Javascript",
