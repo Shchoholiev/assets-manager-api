@@ -6,6 +6,7 @@ using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Domain.Entities.Identity;
 using AssetsManagerApi.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace AssetsManagerApi.Api.Controllers;
@@ -262,24 +263,10 @@ console.log(`The product of 6 and 7 is ${result}`);
         return Ok(dummy);
     }
 
-    [HttpGet("byUser")]
-    public async Task<ActionResult<PagedList<CodeAssetDto>>> GetUsersCodeAssetsPage([FromQuery] string userId, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
+    [HttpGet("test")]
+    public ActionResult<PagedList<CodeAssetDto>> Test([FromQuery] Expression<Func<CodeAssetDto, bool>> predicate, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
-        var codeAssets = await this._codeAssetsService.GetUsersCodeAssetsPage(userId, pageNumber, pageSize, cancellationToken);
-        return Ok(codeAssets);
-    }
-
-    [HttpGet("byTags")]
-    public async Task<ActionResult<PagedList<CodeAssetDto>>> GetCodeAssetsByTagsPage([FromQuery] List<string> tagIds, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
-    {
-        var codeAssets = await this._codeAssetsService.GetCodeAssetsByTagsPage(tagIds, pageNumber, pageSize, cancellationToken);
-        return Ok(codeAssets);
-    }
-
-    [HttpGet("search")]
-    public async Task<ActionResult<PagedList<CodeAssetDto>>> SearchCodeAssetsPage([FromQuery] string input, [FromQuery] int pageNumber, [FromQuery] int pageSize, CancellationToken cancellationToken)
-    {
-        var codeAssets = await this._codeAssetsService.SearchCodeAssetsPage(input, pageNumber, pageSize, cancellationToken);
-        return Ok(codeAssets);
+        var predicatee = predicate; 
+        return Ok();
     }
 }

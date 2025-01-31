@@ -10,11 +10,7 @@ public interface ICodeAssetsService
 {
     Task<PagedList<CodeAssetDto>> GetCodeAssetsPage(int pageNumber, int pageSize, CancellationToken cancellationToken);
 
-    Task<PagedList<CodeAssetDto>> GetUsersCodeAssetsPage(string userId, int pageNumber, int pageSize, CancellationToken cancellationToken);
-
-    Task<PagedList<CodeAssetDto>> GetCodeAssetsByTagsPage(List<string> tagIds, int pageNumber, int pageSize, CancellationToken cancellationToken);
-
-    Task<PagedList<CodeAssetDto>> SearchCodeAssetsPage(string input, int pageNumber, int pageSize, CancellationToken cancellationToken);
+    Task<PagedList<CodeAssetDto>> GetCodeAssetsPage(Expression<Func<CodeAssetDto, bool>> predicate, int pageNumber, int pageSize, CancellationToken cancellationToken);
 
     Task<CodeAssetDto> GetCodeAssetById(string codeAssetId, CancellationToken cancellationToken);
 }
