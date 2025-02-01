@@ -17,7 +17,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
         {
             Prompt = "I am creating a .NET project with JWT authentication",
         };
-        await LoginAsync("test@gmail.com", "Yuiop12345");
+        await LoginAsync("enterprise@gmail.com", "Yuiop12345");
 
         // Act
         var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}", request);

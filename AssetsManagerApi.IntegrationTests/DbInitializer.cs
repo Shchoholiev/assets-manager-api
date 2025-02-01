@@ -29,6 +29,13 @@ public class DbInitializer(CosmosDbContext dbContext)
         };
         await rolesCollection.CreateItemAsync(userRole);
 
+        var enterpriseRole = new Role
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Enterprise"
+        };
+        await rolesCollection.CreateItemAsync(enterpriseRole);
+
         var adminRole = new Role
         {
             Id = Guid.NewGuid().ToString(),
@@ -53,6 +60,17 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedDateUtc = DateTime.UtcNow
         };
         await usersCollection.CreateItemAsync(testUser);
+
+        var enterpriseUser = new User
+        {
+            Id = "6852c3b89ae02a3135d6409fc",
+            Email = "enterprise@gmail.com",
+            Roles = [userRole, enterpriseRole],
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await usersCollection.CreateItemAsync(enterpriseUser);
 
         var updateTestUser = new User
         {
