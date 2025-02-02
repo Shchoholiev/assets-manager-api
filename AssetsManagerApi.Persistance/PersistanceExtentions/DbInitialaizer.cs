@@ -26,915 +26,402 @@ public class DbInitializer(CosmosDbContext dbContext)
         var codeAssetsCollection = await _dbContext.GetContainerAsync("CodeAssets");
         var foldersCollection = await _dbContext.GetContainerAsync("Folders");
         var codeFilesCollection = await _dbContext.GetContainerAsync("CodeFiles");
-
         var usersCollection = await _dbContext.GetContainerAsync("Users");
+
         var admin = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
                                    .Where(u => u.Id == "652c3b89ae02a3135d6408fc")
                                    .AsEnumerable()
                                    .FirstOrDefault();
 
-        var user1 = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
-                                   .Where(u => u.Id == "652c3b89ae02a3135d6439fc")
-                                   .AsEnumerable()
-                                   .FirstOrDefault();
+        var enterpriseUser = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
+                                            .Where(u => u.Id == "679e7985716a8576abe04445")
+                                            .AsEnumerable()
+                                            .FirstOrDefault();
 
-        var user2 = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
-                                   .Where(u => u.Id == "652c3b89ae02a3135d6432fc")
-                                   .AsEnumerable()
-                                   .FirstOrDefault();
+        #region Tags
 
-        var cSharpTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "CSharp",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(cSharpTag);
-
-        var javaTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Java",
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(javaTag);
-
-        var azureTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Azure",
-            CreatedById = user2.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(azureTag);
-
-        var apiTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "API",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(apiTag);
-
-        var consoleAppTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "ConsoleApp",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(consoleAppTag);
-
-        var scriptingTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Scripting",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(scriptingTag);
-
-        var utilityTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Utility",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(utilityTag);
-
-        var pythonTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Python",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(pythonTag);
-
-        var javaScriptTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "JavaScript",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(javaScriptTag);
-
-        var webDevelopmentTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "WebDevelopment",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(webDevelopmentTag);
-
-        var functionsTag = new Tag
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Functions",
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            UseCount = 0
-        };
-
-        await tagsCollection.CreateItemAsync(functionsTag);
-
-        var codeAssets = new List<CodeAsset>();
-
-        var folder1 = new Folder
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "CSharpProjectFolder",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder1);
-
-        var codeFile1 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Program.cs",
-            ParentId = folder1.Id,
-            Type = FileType.CodeFile,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-using System;
-
-namespace HelloWorldApp
-{
-    class Program
+        var tags = new List<Tag>
     {
-        static void Main(string[] args)
+        new Tag { Id = Guid.NewGuid().ToString(), Name = "CSharp", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+        new Tag { Id = Guid.NewGuid().ToString(), Name = "JavaScript", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+        new Tag { Id = Guid.NewGuid().ToString(), Name = "Python", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+        new Tag { Id = Guid.NewGuid().ToString(), Name = "WebDevelopment", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+        new Tag { Id = Guid.NewGuid().ToString(), Name = "MachineLearning", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+        new Tag { Id = Guid.NewGuid().ToString(), Name = "Database", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 }
+    };
+
+        foreach (var tag in tags)
         {
-            Console.WriteLine(""Hello, World!"");
-            Console.WriteLine(""This is a C# project demonstrating basic syntax."");
+            await tagsCollection.CreateItemAsync(tag);
         }
-    }
-}",
-            Language = Languages.csharp,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile1);
 
-        var codeAsset1 = new CodeAsset
+        #endregion
+
+        #region CodeAssets
+
+        // Create root folder 1
+        var rootFolder1 = new Folder
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "CSharp Project",
-            Description = "A simple C# project demonstrating basic syntax.",
-            RootFolderId = folder1.Id,
-            PrimaryCodeFile = codeFile1,
-            AssetType = AssetTypes.Private,
-            Language = Languages.csharp,
-            Tags = new List<Tag>
-            {
-                cSharpTag, consoleAppTag
-            },
-            User = admin,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        codeAssets.Add(codeAsset1);
-
-        var folder2 = new Folder
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "PythonProjectFolder",
+            Name = "Machine Learning",
             ParentId = null,
             Type = FileType.Folder,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder2);
-
-        var codeFile2 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "script.py",
-            ParentId = folder2.Id,
-            Type = FileType.CodeFile,
-            CreatedById = admin.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-def greet(name):
-    print(f'Hello, {name}! Welcome to the Python project.')
-
-def add_numbers(a, b):
-    return a + b
-
-if __name__ == '__main__':
-    greet('User')
-    result = add_numbers(5, 10)
-    print(f'The sum of 5 and 10 is {result}')
-",
-            Language = Languages.python,
+            Items = new List<FileSystemNode>()
         };
-        await codeFilesCollection.CreateItemAsync(codeFile2);
 
-        var codeAsset2 = new CodeAsset
+        // Add subfolders and files to root folder 1
+        var subFolder1_1 = new Folder
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "Python Script",
-            Description = "A Python script with a basic greeting and addition function.",
-            RootFolderId = folder2.Id,
-            PrimaryCodeFile = codeFile2,
-            AssetType = AssetTypes.Public,
-            Language = Languages.python,
-            Tags = new List<Tag>
-            {
-                pythonTag, scriptingTag, utilityTag
-            },
-            User = admin,
-            CreatedById = admin.Id,
+            Name = "Subfolder1",
+            ParentId = rootFolder1.Id,
+            Type = FileType.Folder,
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
+        };
+
+        var subFile1_1 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Machine_Learning_Sub1.cs",
+            Text = "// Code for Machine Learning in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = subFolder1_1.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-        codeAssets.Add(codeAsset2);
 
-        var folder3 = new Folder
+        subFolder1_1.Items.Add(subFile1_1);
+        rootFolder1.Items.Add(subFolder1_1);
+
+        await codeFilesCollection.CreateItemAsync(subFile1_1);
+        await foldersCollection.CreateItemAsync(subFolder1_1);
+        await foldersCollection.CreateItemAsync(rootFolder1);
+
+        // Create code asset 1
+        var asset1 = new CodeAsset
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "JavaScriptProjectFolder",
+            Name = "Machine Learning Project",
+            Description = "Python machine learning model",
+            AssetType = AssetTypes.Corporate,
+            CompanyId = enterpriseUser.CompanyId,
+            Language = Languages.python,
+            RootFolderId = rootFolder1.Id,
+            PrimaryCodeFile = subFile1_1,
+            Tags = new List<Tag> { tags[4] },
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(asset1);
+
+        // Create root folder 2
+        var rootFolder2 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Database Scripts",
             ParentId = null,
             Type = FileType.Folder,
-            CreatedById = admin.Id,
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
+        };
+
+        // Add subfolders and files to root folder 2
+        var subFolder2_1 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Subfolder1",
+            ParentId = rootFolder2.Id,
+            Type = FileType.Folder,
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
+        };
+
+        var subFile2_1 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Database_Scripts_Sub1.cs",
+            Text = "// Code for Database Scripts in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = subFolder2_1.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-        await foldersCollection.CreateItemAsync(folder3);
 
+        subFolder2_1.Items.Add(subFile2_1);
+        rootFolder2.Items.Add(subFolder2_1);
+
+        await codeFilesCollection.CreateItemAsync(subFile2_1);
+        await foldersCollection.CreateItemAsync(subFolder2_1);
+        await foldersCollection.CreateItemAsync(rootFolder2);
+
+        // Create code asset 2
+        var asset2 = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Database Management",
+            Description = "SQL database scripts",
+            AssetType = AssetTypes.Public,
+            Language = Languages.csharp,
+            RootFolderId = rootFolder2.Id,
+            PrimaryCodeFile = subFile2_1,
+            Tags = new List<Tag> { tags[5] },
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(asset2);
+
+        // Create root folder 3
+        var rootFolder3 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Web Development",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
+        };
+
+        // Add subfolders and files to root folder 3
         var subFolder3_1 = new Folder
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "Utils",
-            ParentId = folder3.Id,
+            Name = "Subfolder1",
+            ParentId = rootFolder3.Id,
             Type = FileType.Folder,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(subFolder3_1);
-
-        var codeFile3_1 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "app.js",
-            ParentId = folder3.Id,
-            Type = FileType.CodeFile,
-            CreatedById = admin.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-function greet(name) {
-    console.log(`Hello, ${name}!`);
-}
-
-function multiply(a, b) {
-    return a * b;
-}
-
-greet('Developer');
-const result = multiply(6, 7);
-console.log(`The product of 6 and 7 is ${result}`);
-",
-            Language = Languages.javascript,
+            Items = new List<FileSystemNode>()
         };
-        await codeFilesCollection.CreateItemAsync(codeFile3_1);
 
-        var codeFile3_2 = new CodeFile
+        var subFile3_1 = new CodeFile
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "mathUtils.js",
+            Name = "Web_Development_Sub1.cs",
+            Text = "// Code for Web Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
             ParentId = subFolder3_1.Id,
-            Type = FileType.CodeFile,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-export function add(a, b) {
-    return a + b;
-}
-
-export function subtract(a, b) {
-    return a - b;
-}",
-            Language = Languages.javascript,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile3_2);
-
-        var codeAsset3 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "JavaScript Project",
-            Description = "A JavaScript project with multiple utility functions.",
-            RootFolderId = folder3.Id,
-            PrimaryCodeFile = codeFile3_1,
-            AssetType = AssetTypes.Corporate,
-            Language = Languages.javascript,
-            Tags = new List<Tag>
-            {
-                javaScriptTag, functionsTag, utilityTag, webDevelopmentTag
-            },
-            User = admin,
-            CreatedById = admin.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-        codeAssets.Add(codeAsset3);
 
-        var folder4 = new Folder
+        subFolder3_1.Items.Add(subFile3_1);
+        rootFolder3.Items.Add(subFolder3_1);
+
+        await codeFilesCollection.CreateItemAsync(subFile3_1);
+        await foldersCollection.CreateItemAsync(subFolder3_1);
+        await foldersCollection.CreateItemAsync(rootFolder3);
+
+        // Create code asset 3
+        var asset3 = new CodeAsset
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "AnotherCSharpProjectFolder",
+            Name = "Web Application",
+            Description = "JavaScript frontend development",
+            AssetType = AssetTypes.Private,
+            Language = Languages.javascript,
+            RootFolderId = rootFolder3.Id,
+            PrimaryCodeFile = subFile3_1,
+            Tags = new List<Tag> { tags[3] },
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(asset3);
+
+        // Create root folder 4
+        var rootFolder4 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Mobile App",
             ParentId = null,
             Type = FileType.Folder,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
         };
-        await foldersCollection.CreateItemAsync(folder4);
 
+        // Add subfolders and files to root folder 4
         var subFolder4_1 = new Folder
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "Services",
-            ParentId = folder4.Id,
+            Name = "Subfolder1",
+            ParentId = rootFolder4.Id,
             Type = FileType.Folder,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(subFolder4_1);
-
-        var codeFile4_1 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "AnotherProgram.cs",
-            ParentId = folder4.Id,
-            Type = FileType.CodeFile,
-            CreatedById = user1.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-using System;
-
-namespace AnotherCSharpApp
-{
-    class AnotherProgram
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine(""Hello from another C# project!"");
-
-            int result = AddNumbers(10, 20);
-            Console.WriteLine($""The sum of 10 and 20 is {result}"");
-        }
-
-        static int AddNumbers(int a, int b)
-        {
-            return a + b;
-        }
-    }
-}",
-            Language = Languages.csharp,
+            Items = new List<FileSystemNode>()
         };
-        await codeFilesCollection.CreateItemAsync(codeFile4_1);
 
-        var codeFile4_2 = new CodeFile
+        var subFile4_1 = new CodeFile
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "MathService.cs",
+            Name = "Mobile_App_Sub1.cs",
+            Text = "// Code for Mobile App in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
             ParentId = subFolder4_1.Id,
-            Type = FileType.CodeFile,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-using System;
-
-namespace AnotherCSharpApp.Services
-{
-    public class MathService
-    {
-        public int Multiply(int a, int b)
-        {
-            return a * b;
-        }
-    }
-}",
-            Language = Languages.csharp,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile4_2);
-
-        var codeAsset4 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Another CSharp Project",
-            Description = "Another C# project with a service and utility methods.",
-            RootFolderId = folder4.Id,
-            PrimaryCodeFile = codeFile4_1,
-            AssetType = AssetTypes.Private,
-            Language = Languages.csharp,
-            Tags = new List<Tag>
-            {
-                cSharpTag, utilityTag, consoleAppTag
-            },
-            User = user1,
-            CreatedById = user1.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-        codeAssets.Add(codeAsset4);
 
-        var folder5 = new Folder
+        subFolder4_1.Items.Add(subFile4_1);
+        rootFolder4.Items.Add(subFolder4_1);
+
+        await codeFilesCollection.CreateItemAsync(subFile4_1);
+        await foldersCollection.CreateItemAsync(subFolder4_1);
+        await foldersCollection.CreateItemAsync(rootFolder4);
+
+        // Create code asset 4
+        var asset4 = new CodeAsset
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "AdvancedPythonProjectFolder",
+            Name = "Mobile Application",
+            Description = "Kotlin mobile app development",
+            AssetType = AssetTypes.Private,
+            Language = Languages.python,
+            RootFolderId = rootFolder4.Id,
+            PrimaryCodeFile = subFile4_1,
+            Tags = new List<Tag> { tags[2] },
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(asset4);
+
+        // Create root folder 5
+        var rootFolder5 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Game Development",
             ParentId = null,
             Type = FileType.Folder,
-            CreatedById = admin.Id,
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
+        };
+
+        // Add subfolders and files to root folder 5
+        var subFolder5_1 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Subfolder1",
+            ParentId = rootFolder5.Id,
+            Type = FileType.Folder,
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
+        };
+
+        var subFile5_1 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Game_Development_Sub1.cs",
+            Text = "// Code for Game Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = subFolder5_1.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-        await foldersCollection.CreateItemAsync(folder5);
 
-        var codeFile5 = new CodeFile
+        subFolder5_1.Items.Add(subFile5_1);
+        rootFolder5.Items.Add(subFolder5_1);
+
+        await codeFilesCollection.CreateItemAsync(subFile5_1);
+        await foldersCollection.CreateItemAsync(subFolder5_1);
+        await foldersCollection.CreateItemAsync(rootFolder5);
+
+        // Create code asset 5
+        var asset5 = new CodeAsset
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "data_analysis.py",
-            ParentId = folder5.Id,
-            Type = FileType.CodeFile,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-import pandas as pd
-
-def analyze_data(file_path):
-    data = pd.read_csv(file_path)
-    summary = data.describe()
-    print('Data Summary:')
-    print(summary)
-
-if __name__ == '__main__':
-    analyze_data('data.csv')
-",
-            Language = Languages.python,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile5);
-
-        var codeAsset5 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Advanced Python Analysis",
-            Description = "A Python script for analyzing data using pandas.",
-            RootFolderId = folder5.Id,
-            PrimaryCodeFile = codeFile5,
+            Name = "Game Development Project",
+            Description = "C# game development project",
             AssetType = AssetTypes.Corporate,
-            Language = Languages.python,
-            Tags = new List<Tag>
-    {
-        pythonTag, utilityTag, scriptingTag
-    },
-            User = admin,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        codeAssets.Add(codeAsset5);
-
-        var folder6 = new Folder
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "DataProcessingCSharpFolder",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder6);
-
-        var codeFile6 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "DataProcessor.cs",
-            ParentId = folder6.Id,
-            Type = FileType.CodeFile,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-using System;
-using System.IO;
-
-class DataProcessor
-{
-    static void Main(string[] args)
-    {
-        string filePath = ""data.txt"";
-        if (File.Exists(filePath))
-        {
-            var lines = File.ReadAllLines(filePath);
-            Console.WriteLine(""File Content:"");
-            foreach (var line in lines)
-            {
-                Console.WriteLine(line);
-            }
-        }
-        else
-        {
-            Console.WriteLine(""File not found!"");
-        }
-    }
-}
-",
+            CompanyId = enterpriseUser.CompanyId,
             Language = Languages.csharp,
+            RootFolderId = rootFolder5.Id,
+            PrimaryCodeFile = subFile5_1,
+            Tags = new List<Tag> { tags[0] },
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
         };
-        await codeFilesCollection.CreateItemAsync(codeFile6);
 
-        var codeAsset6 = new CodeAsset
+        await codeAssetsCollection.CreateItemAsync(asset5);
+
+        // Create root folder 6
+        var rootFolder6 = new Folder
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "CSharp Data Processor",
-            Description = "A C# project for processing text files.",
-            RootFolderId = folder6.Id,
-            PrimaryCodeFile = codeFile6,
-            AssetType = AssetTypes.Private,
+            Name = "AI Research",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
+        };
+
+        // Add subfolders and files to root folder 6
+        var subFolder6_1 = new Folder
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Subfolder1",
+            ParentId = rootFolder6.Id,
+            Type = FileType.Folder,
+            CreatedById = enterpriseUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Items = new List<FileSystemNode>()
+        };
+
+        var subFile6_1 = new CodeFile
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "AI_Research_Sub1.cs",
+            Text = "// Code for AI Research in Subfolder1",
             Language = Languages.csharp,
-            Tags = new List<Tag>
-    {
-        cSharpTag, utilityTag
-    },
-            User = user1,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        codeAssets.Add(codeAsset6);
-
-        var folder7 = new Folder
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "WebAppJavaScriptFolder",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = user2.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder7);
-
-        var codeFile7 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "index.js",
-            ParentId = folder7.Id,
             Type = FileType.CodeFile,
-            CreatedById = user2.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-document.addEventListener('DOMContentLoaded', () => {
-    const greetUser = (name) => {
-        alert(`Welcome, ${name}!`);
-    };
-
-    greetUser('Developer');
-});
-",
-            Language = Languages.javascript,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile7);
-
-        var codeAsset7 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "JavaScript Web App",
-            Description = "A simple JavaScript project for web interactions.",
-            RootFolderId = folder7.Id,
-            PrimaryCodeFile = codeFile7,
-            AssetType = AssetTypes.Corporate,
-            Language = Languages.javascript,
-            Tags = new List<Tag>
-    {
-        javaScriptTag, webDevelopmentTag
-    },
-            User = user2,
-            CreatedById = user2.Id,
+            ParentId = subFolder6_1.Id,
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-        codeAssets.Add(codeAsset7);
 
-        var folder8 = new Folder
+        subFolder6_1.Items.Add(subFile6_1);
+        rootFolder6.Items.Add(subFolder6_1);
+
+        await codeFilesCollection.CreateItemAsync(subFile6_1);
+        await foldersCollection.CreateItemAsync(subFolder6_1);
+        await foldersCollection.CreateItemAsync(rootFolder6);
+
+        // Create code asset 6
+        var asset6 = new CodeAsset
         {
             Id = Guid.NewGuid().ToString(),
-            Name = "PythonApiFolder",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder8);
-
-        var codeFile8 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "api.py",
-            ParentId = folder8.Id,
-            Type = FileType.CodeFile,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-from flask import Flask, jsonify
-
-app = Flask(__name__)
-
-@app.route('/api/greet', methods=['GET'])
-def greet():
-    return jsonify(message='Hello, API user!')
-
-if __name__ == '__main__':
-    app.run(debug=True)
-",
-            Language = Languages.python,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile8);
-
-        var codeAsset8 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Python API",
-            Description = "A simple Python API using Flask.",
-            RootFolderId = folder8.Id,
-            PrimaryCodeFile = codeFile8,
+            Name = "AI Research Project",
+            Description = "AI research data and models",
             AssetType = AssetTypes.Public,
-            Language = Languages.python,
-            Tags = new List<Tag>
-    {
-        pythonTag, apiTag, utilityTag
-    },
-            User = admin,
-            CreatedById = admin.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        codeAssets.Add(codeAsset8);
-
-        var folder9 = new Folder
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "CSharpAppFolder3",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder9);
-
-        var codeFile9 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "App3.cs",
-            ParentId = folder9.Id,
-            Type = FileType.CodeFile,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-using System;
-
-namespace CSharpApp3
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine(""Welcome to C# application number 3!"");
-            var result = Divide(20, 4);
-            Console.WriteLine($""The result of division is: {result}"");
-        }
-
-        static int Divide(int a, int b)
-        {
-            return a / b;
-        }
-    }
-}",
             Language = Languages.csharp,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile9);
-
-        var codeAsset9 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "C# Division App",
-            Description = "A simple C# app that demonstrates division.",
-            RootFolderId = folder9.Id,
-            PrimaryCodeFile = codeFile9,
-            AssetType = AssetTypes.Private,
-            Language = Languages.csharp,
-            Tags = new List<Tag>
-    {
-        cSharpTag, utilityTag
-    },
-            User = user1,
-            CreatedById = user1.Id,
+            RootFolderId = rootFolder6.Id,
+            PrimaryCodeFile = subFile6_1,
+            Tags = new List<Tag> { tags[4] },
+            CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-        await codeAssetsCollection.CreateItemAsync(codeAsset9);
 
-        var folder10 = new Folder
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "PythonProjectFolder2",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = user2.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder10);
+        await codeAssetsCollection.CreateItemAsync(asset6);
 
-        var codeFile10 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "math_operations.py",
-            ParentId = folder10.Id,
-            Type = FileType.CodeFile,
-            CreatedById = user2.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-def subtract(a, b):
-    return a - b
-
-def multiply(a, b):
-    return a * b
-
-if __name__ == '__main__':
-    result_subtract = subtract(10, 5)
-    print(f'Subtraction result: {result_subtract}')
-    result_multiply = multiply(3, 7)
-    print(f'Multiplication result: {result_multiply}')
-",
-            Language = Languages.python,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile10);
-
-        var codeAsset10 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Python Math Operations",
-            Description = "A Python script that demonstrates subtraction and multiplication.",
-            RootFolderId = folder10.Id,
-            PrimaryCodeFile = codeFile10,
-            AssetType = AssetTypes.Public,
-            Language = Languages.python,
-            Tags = new List<Tag>
-    {
-        pythonTag, utilityTag
-    },
-            User = user2,
-            CreatedById = user2.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await codeAssetsCollection.CreateItemAsync(codeAsset10);
-
-        var folder11 = new Folder
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "JavaScriptProjectFolder2",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder11);
-
-        var codeFile11 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "functions.js",
-            ParentId = folder11.Id,
-            Type = FileType.CodeFile,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-function divide(a, b) {
-    return a / b;
-}
-
-function power(a, b) {
-    return Math.pow(a, b);
-}
-
-console.log(divide(20, 4));
-console.log(power(2, 3));
-",
-            Language = Languages.javascript,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile11);
-
-        var codeAsset11 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "JavaScript Math Functions",
-            Description = "A JavaScript project demonstrating division and exponentiation.",
-            RootFolderId = folder11.Id,
-            PrimaryCodeFile = codeFile11,
-            AssetType = AssetTypes.Public,
-            Language = Languages.javascript,
-            Tags = new List<Tag>
-    {
-        javaScriptTag, utilityTag
-    },
-            User = user1,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await codeAssetsCollection.CreateItemAsync(codeAsset11);
-
-        var folder12 = new Folder
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "PythonProjectFolder3",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await foldersCollection.CreateItemAsync(folder12);
-
-        var codeFile12 = new CodeFile
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "simple_math.py",
-            ParentId = folder12.Id,
-            Type = FileType.CodeFile,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Text = @"
-def add(a, b):
-    return a + b
-
-def divide(a, b):
-    return a / b
-
-if __name__ == '__main__':
-    sum_result = add(15, 25)
-    print(f'The sum is: {sum_result}')
-    division_result = divide(50, 10)
-    print(f'The result of division is: {division_result}')
-",
-            Language = Languages.python,
-        };
-        await codeFilesCollection.CreateItemAsync(codeFile12);
-
-        var codeAsset12 = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Python Simple Math",
-            Description = "A Python script that demonstrates basic addition and division.",
-            RootFolderId = folder12.Id,
-            PrimaryCodeFile = codeFile12,
-            AssetType = AssetTypes.Public,
-            Language = Languages.python,
-            Tags = new List<Tag>
-    {
-        pythonTag, utilityTag
-    },
-            User = user1,
-            CreatedById = user1.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-        await codeAssetsCollection.CreateItemAsync(codeAsset12);
-
-        cSharpTag.UseCount = 4;
-        consoleAppTag.UseCount = 2;
-        scriptingTag.UseCount = 2;
-        utilityTag.UseCount = 10;
-        pythonTag.UseCount = 5; 
-        javaScriptTag.UseCount = 3;
-        webDevelopmentTag.UseCount = 2;
-        functionsTag.UseCount = 1;
-
-        await tagsCollection.ReplaceItemAsync(cSharpTag, cSharpTag.Id);
-        await tagsCollection.ReplaceItemAsync(consoleAppTag, consoleAppTag.Id);
-        await tagsCollection.ReplaceItemAsync(scriptingTag, scriptingTag.Id);
-        await tagsCollection.ReplaceItemAsync(utilityTag, utilityTag.Id);
-        await tagsCollection.ReplaceItemAsync(pythonTag, pythonTag.Id);
-        await tagsCollection.ReplaceItemAsync(javaScriptTag, javaScriptTag.Id);
-        await tagsCollection.ReplaceItemAsync(webDevelopmentTag, webDevelopmentTag.Id);
-        await tagsCollection.ReplaceItemAsync(functionsTag, functionsTag.Id);
-
-        foreach (var codeAsset in codeAssets)
-        {
-            await codeAssetsCollection.CreateItemAsync(codeAsset);
-        }
+        #endregion
     }
 
     public async Task InitializeUsersAsync()
@@ -957,6 +444,20 @@ if __name__ == '__main__':
         };
         await rolesCollection.CreateItemAsync(adminRole);
 
+        var enterpriseRole = new Role
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Enterprise"
+        };
+        await rolesCollection.CreateItemAsync(enterpriseRole);
+
+        var guestRole = new Role
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Guest"
+        };
+        await rolesCollection.CreateItemAsync(guestRole);
+
         #endregion
 
         #region Users
@@ -967,6 +468,7 @@ if __name__ == '__main__':
         var testUser = new User
         {
             Id = "652c3b89ae02a3135d6409fc",
+            Name = "testUser",
             Email = "test@gmail.com",
             Roles = new List<Role> { userRole },
             PasswordHash = passwordHasher.Hash("Yuiop12345"),
@@ -974,6 +476,30 @@ if __name__ == '__main__':
             CreatedDateUtc = DateTime.UtcNow
         };
         await usersCollection.CreateItemAsync(testUser);
+
+        var enterpriseUser = new User
+        {
+            Id = "679e7985716a8576abe04445",
+            Name = "enterpriseUser",
+            Email = "enterprise@gmail.com",
+            Roles = new List<Role> { userRole, enterpriseRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await usersCollection.CreateItemAsync(enterpriseUser);
+
+        var guestUser = new User
+        {
+            Id = "679e799ed675c86f0b45581e",
+            Name = "guestUser",
+            Email = "guest@gmail.com",
+            Roles = new List<Role> { guestRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await usersCollection.CreateItemAsync(guestUser);
 
         var updateTestUser = new User
         {
@@ -1012,6 +538,7 @@ if __name__ == '__main__':
         {
             Id = "652c3b89ae02a3135d6408fc",
             Email = "admin@gmail.com",
+            Name = "admin",
             Roles = new List<Role> { userRole, adminRole },
             PasswordHash = passwordHasher.Hash("Yuiop12345"),
             CreatedById = string.Empty,
@@ -1141,6 +668,11 @@ if __name__ == '__main__':
                 .AsEnumerable()
                 .FirstOrDefault();
 
+        var enterpriseUser = usersCollection.GetItemLinqQueryable<User>(allowSynchronousQueryExecution: true)
+                .Where(u => u.Id == "679e7985716a8576abe04445")
+                .AsEnumerable()
+                .FirstOrDefault();
+
         var companies = new List<Company>
     {
         new Company
@@ -1173,6 +705,9 @@ if __name__ == '__main__':
         {
             await companiesCollection.CreateItemAsync(company);
         }
+
+        enterpriseUser.CompanyId = companies[0].Id;
+        await usersCollection.ReplaceItemAsync(enterpriseUser, enterpriseUser.Id);
     }
 
     private async Task CleanDatabase()
