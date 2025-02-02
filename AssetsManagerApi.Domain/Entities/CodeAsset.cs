@@ -2,6 +2,7 @@
 using AssetsManagerApi.Domain.Enums;
 
 namespace AssetsManagerApi.Domain.Entities;
+
 public class CodeAsset : EntityBase
 {
     public string Description { get; set; }
@@ -18,6 +19,9 @@ public class CodeAsset : EntityBase
 
     public string? CompanyId { get; set; }
 
+    /// <summary>
+    /// Used to display main code file in assets search and details
+    /// </summary>
     public CodeFile PrimaryCodeFile { get; set; }
 
     public User User { get; set; }
