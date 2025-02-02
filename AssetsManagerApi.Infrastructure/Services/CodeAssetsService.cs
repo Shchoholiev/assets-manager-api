@@ -1,9 +1,14 @@
 ﻿using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.Dto;
+using AssetsManagerApi.Application.Models.Global;
 using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Application.Paging;
+using AssetsManagerApi.Domain.Entities;
+using AssetsManagerApi.Domain.Enums;
 using AutoMapper;
+using LinqKit;
+using System.Linq.Expressions;
 
 namespace AssetsManagerApi.Infrastructure.Services;
 public class CodeAssetsService : ICodeAssetsService
@@ -12,55 +17,92 @@ public class CodeAssetsService : ICodeAssetsService
 
     private readonly IFoldersRepository _foldersRepository;
 
+    private readonly IUsersRepository _usersRepository;
+
     private readonly IMapper _mapper;
 
-    public CodeAssetsService(ICodeAssetsRepository codeAssetsRepository, IFoldersRepository foldersRepository, IMapper mapper)
+    public CodeAssetsService(ICodeAssetsRepository codeAssetsRepository, IFoldersRepository foldersRepository, IUsersRepository usersRepository, IMapper mapper)
     {
         _codeAssetsRepository = codeAssetsRepository;
         _foldersRepository = foldersRepository;
+        _usersRepository = usersRepository;
         _mapper = mapper;
-    }
-
-    public async Task<PagedList<CodeAssetDto>> GetCodeAssetsPage(int pageNumber, int pageSize, CancellationToken cancellationToken)
-    {
-        var entities = await this._codeAssetsRepository.GetPageAsync(pageNumber, pageSize, cancellationToken);
-        var dtos = _mapper.Map<List<CodeAssetDto>>(entities);
-        for (var i = 0; i < entities.Count; i++)
-        {
-            var folder = await _foldersRepository.GetOneAsync(entities[i].RootFolderId, cancellationToken);
-            dtos[i].RootFolder = _mapper.Map<FolderDto>(folder);
-        }
-        var totalCount = await this._codeAssetsRepository.GetCountAsync(cancellationToken);
-        return new PagedList<CodeAssetDto>(dtos, pageNumber, pageSize, totalCount);
-    }
-
-    public async Task<PagedList<CodeAssetDto>> GetUsersCodeAssetsPage(string userId, int pageNumber, int pageSize, CancellationToken cancellationToken)
-    {
-        var entities = await this._codeAssetsRepository.GetPageAsync(pageNumber, pageSize, c => c.CreatedById == userId, cancellationToken);
-        var dtos = _mapper.Map<List<CodeAssetDto>>(entities);
-        var totalCount = await this._codeAssetsRepository.GetCountAsync(c => c.CreatedById == userId, cancellationToken);
-        return new PagedList<CodeAssetDto>(dtos, pageNumber, pageSize, totalCount);
-    }
-
-    public async Task<PagedList<CodeAssetDto>> GetCodeAssetsByTagsPage(List<string> tagIds, int pageNumber, int pageSize, CancellationToken cancellationToken)
-    {
-        var entities = await this._codeAssetsRepository.GetPageAsync(pageNumber, pageSize, c => c.Tags.Any(tag => tagIds.Contains(tag.Id)), cancellationToken);
-        var dtos = _mapper.Map<List<CodeAssetDto>>(entities);
-        var totalCount = await this._codeAssetsRepository.GetCountAsync(c => c.Tags.Any(tag => tagIds.Contains(tag.Id)), cancellationToken);
-        return new PagedList<CodeAssetDto>(dtos, pageNumber, pageSize, totalCount);
     }
 
     public async Task<CodeAssetDto> GetCodeAssetById(string codeAssetId, CancellationToken cancellationToken)
     {
         var entity = await this._codeAssetsRepository.GetOneAsync(codeAssetId, cancellationToken);
-        return _mapper.Map<CodeAssetDto>(entity);
+        var folder = await this._foldersRepository.GetFolderAsync(entity.RootFolderId, cancellationToken);
+        var user = await this._usersRepository.GetOneAsync(entity.CreatedById, cancellationToken);
+        
+        var dto = _mapper.Map<CodeAssetDto>(entity);
+
+        dto.RootFolder = _mapper.Map<FolderDto>(folder);
+        dto.User = _mapper.Map<UserDto>(user);
+
+        return dto;
     }
 
-    public async Task<PagedList<CodeAssetDto>> SearchCodeAssetsPage(string input, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedList<CodeAssetDto>> GetCodeAssetsPage(CodeAssetFilterModel filterModel, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        var entities = await this._codeAssetsRepository.GetPageAsync(pageNumber, pageSize, c => c.Name.Contains(input) || c.Description.Contains(input), cancellationToken);
+        Expression<Func<CodeAsset, bool>> predicate = codeAsset => codeAsset.AssetType == filterModel.AssetType;
+
+        if (filterModel.AssetType == AssetTypes.Private)
+        {
+            predicate.And(codeAsset => codeAsset.CreatedById == GlobalUser.Id);
+        }
+
+        if (filterModel.AssetType == AssetTypes.Public)
+        {
+            predicate.And(codeAsset => codeAsset.CompanyId == null);
+        }
+
+        if (filterModel.AssetType == AssetTypes.Corporate)
+        {
+            predicate.And(codeAsset => codeAsset.CompanyId == GlobalUser.CompanyId);
+        }
+
+        if (filterModel.TagIds != null)
+        {
+            predicate.And(codeAsset => codeAsset.Tags.Any(tag => filterModel.TagIds.Contains(tag.Id)));
+        }
+
+        if (filterModel.SearchString != null)
+        {
+            var input = filterModel.SearchString.ToLower();
+            predicate.And(codeAsset => codeAsset.Name.ToLower().Contains(input) || codeAsset.Description.ToLower().Contains(input));
+        }
+
+        switch(filterModel.Language)
+        {
+            case "Javascript":
+                predicate.And(codeAsset => codeAsset.Language == Languages.javascript);
+                break;
+
+            case "Csharp":
+                predicate.And(codeAsset => codeAsset.Language == Languages.csharp);
+                break;
+
+            case "Python":
+                predicate.And(codeAsset => codeAsset.Language == Languages.python);
+                break;
+        }
+
+        var entities = await _codeAssetsRepository.GetPageAsync(pageNumber, pageSize, predicate, cancellationToken);
+
         var dtos = _mapper.Map<List<CodeAssetDto>>(entities);
-        var totalCount = await this._codeAssetsRepository.GetCountAsync(c => c.Name.Contains(input) || c.Description.Contains(input), cancellationToken);
+
+        for (var i = 0; i < entities.Count; i++)
+        {
+            var folder = await _foldersRepository.GetFolderAsync(entities[i].RootFolderId, cancellationToken);
+            dtos[i].RootFolder = _mapper.Map<FolderDto>(folder);
+
+            var user = await _usersRepository.GetOneAsync(entities[i].CreatedById, cancellationToken);
+            dtos[i].User = _mapper.Map<UserDto>(user);
+        }
+
+        var totalCount = await this._codeAssetsRepository.GetCountAsync(cancellationToken);
+
         return new PagedList<CodeAssetDto>(dtos, pageNumber, pageSize, totalCount);
     }
 }

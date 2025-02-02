@@ -10,7 +10,7 @@ public class UserDto
 
     public string? Email { get; set; }
 
-    public string? GroupId { get; set; }
+    public string? CompanyId { get; set; }
 
     public List<RoleDto> Roles { get; set; }
 }
