@@ -23,6 +23,4 @@ public class CodeAsset : EntityBase
     /// Used to display main code file in assets search and details
     /// </summary>
     public CodeFile PrimaryCodeFile { get; set; }
-
-    public User User { get; set; }
 }

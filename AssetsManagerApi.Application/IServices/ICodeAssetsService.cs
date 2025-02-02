@@ -8,13 +8,7 @@ namespace AssetsManagerApi.Application.IServices;
 
 public interface ICodeAssetsService
 {
-    Task<PagedList<CodeAssetDto>> GetCodeAssetsPage(int pageNumber, int pageSize, CancellationToken cancellationToken);
-
-    Task<PagedList<CodeAssetDto>> GetUsersCodeAssetsPage(string userId, int pageNumber, int pageSize, CancellationToken cancellationToken);
-
-    Task<PagedList<CodeAssetDto>> GetCodeAssetsByTagsPage(List<string> tagIds, int pageNumber, int pageSize, CancellationToken cancellationToken);
-
-    Task<PagedList<CodeAssetDto>> SearchCodeAssetsPage(string input, int pageNumber, int pageSize, CancellationToken cancellationToken);
+    Task<PagedList<CodeAssetDto>> GetCodeAssetsPage(CodeAssetFilterModel filterModel, int pageNumber, int pageSize, CancellationToken cancellationToken);
 
     Task<CodeAssetDto> GetCodeAssetById(string codeAssetId, CancellationToken cancellationToken);
 }
