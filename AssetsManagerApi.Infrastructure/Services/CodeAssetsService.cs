@@ -32,7 +32,7 @@ public class CodeAssetsService : ICodeAssetsService
     public async Task<CodeAssetDto> GetCodeAssetById(string codeAssetId, CancellationToken cancellationToken)
     {
         var entity = await this._codeAssetsRepository.GetOneAsync(codeAssetId, cancellationToken);
-        var folder = await this._foldersRepository.GetOneAsync(entity.RootFolderId, cancellationToken);
+        var folder = await this._foldersRepository.GetFolderAsync(entity.RootFolderId, cancellationToken);
         var user = await this._usersRepository.GetOneAsync(entity.CreatedById, cancellationToken);
         
         var dto = _mapper.Map<CodeAssetDto>(entity);
@@ -94,7 +94,7 @@ public class CodeAssetsService : ICodeAssetsService
 
         for (var i = 0; i < entities.Count; i++)
         {
-            var folder = await _foldersRepository.GetOneAsync(entities[i].RootFolderId, cancellationToken);
+            var folder = await _foldersRepository.GetFolderAsync(entities[i].RootFolderId, cancellationToken);
             dtos[i].RootFolder = _mapper.Map<FolderDto>(folder);
 
             var user = await _usersRepository.GetOneAsync(entities[i].CreatedById, cancellationToken);
