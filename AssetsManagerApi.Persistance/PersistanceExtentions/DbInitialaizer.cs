@@ -67,8 +67,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = null,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         // Add subfolders and files to root folder 1
@@ -79,8 +78,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = rootFolder1.Id,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         var subFile1_1 = new CodeFile
@@ -94,9 +92,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-
-        subFolder1_1.Items.Add(subFile1_1);
-        rootFolder1.Items.Add(subFolder1_1);
 
         await codeFilesCollection.CreateItemAsync(subFile1_1);
         await foldersCollection.CreateItemAsync(subFolder1_1);
@@ -112,7 +107,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             CompanyId = enterpriseUser.CompanyId,
             Language = Languages.python,
             RootFolderId = rootFolder1.Id,
-            PrimaryCodeFile = subFile1_1,
+            PrimaryCodeFileId = subFile1_1.Id,
             Tags = new List<Tag> { tags[4] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
@@ -128,8 +123,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = null,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         // Add subfolders and files to root folder 2
@@ -140,8 +134,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = rootFolder2.Id,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         var subFile2_1 = new CodeFile
@@ -156,9 +149,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedDateUtc = DateTime.UtcNow
         };
 
-        subFolder2_1.Items.Add(subFile2_1);
-        rootFolder2.Items.Add(subFolder2_1);
-
         await codeFilesCollection.CreateItemAsync(subFile2_1);
         await foldersCollection.CreateItemAsync(subFolder2_1);
         await foldersCollection.CreateItemAsync(rootFolder2);
@@ -172,7 +162,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             AssetType = AssetTypes.Public,
             Language = Languages.csharp,
             RootFolderId = rootFolder2.Id,
-            PrimaryCodeFile = subFile2_1,
+            PrimaryCodeFileId = subFile2_1.Id,
             Tags = new List<Tag> { tags[5] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
@@ -188,8 +178,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = null,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         // Add subfolders and files to root folder 3
@@ -200,8 +189,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = rootFolder3.Id,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         var subFile3_1 = new CodeFile
@@ -216,9 +204,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedDateUtc = DateTime.UtcNow
         };
 
-        subFolder3_1.Items.Add(subFile3_1);
-        rootFolder3.Items.Add(subFolder3_1);
-
         await codeFilesCollection.CreateItemAsync(subFile3_1);
         await foldersCollection.CreateItemAsync(subFolder3_1);
         await foldersCollection.CreateItemAsync(rootFolder3);
@@ -232,7 +217,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             AssetType = AssetTypes.Private,
             Language = Languages.javascript,
             RootFolderId = rootFolder3.Id,
-            PrimaryCodeFile = subFile3_1,
+            PrimaryCodeFileId = subFile3_1.Id,
             Tags = new List<Tag> { tags[3] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
@@ -248,8 +233,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = null,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         // Add subfolders and files to root folder 4
@@ -260,8 +244,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = rootFolder4.Id,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         var subFile4_1 = new CodeFile
@@ -276,9 +259,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedDateUtc = DateTime.UtcNow
         };
 
-        subFolder4_1.Items.Add(subFile4_1);
-        rootFolder4.Items.Add(subFolder4_1);
-
         await codeFilesCollection.CreateItemAsync(subFile4_1);
         await foldersCollection.CreateItemAsync(subFolder4_1);
         await foldersCollection.CreateItemAsync(rootFolder4);
@@ -292,7 +272,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             AssetType = AssetTypes.Private,
             Language = Languages.python,
             RootFolderId = rootFolder4.Id,
-            PrimaryCodeFile = subFile4_1,
+            PrimaryCodeFileId = subFile4_1.Id,
             Tags = new List<Tag> { tags[2] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
@@ -308,8 +288,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = null,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         // Add subfolders and files to root folder 5
@@ -320,8 +299,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = rootFolder5.Id,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         var subFile5_1 = new CodeFile
@@ -335,9 +313,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
-
-        subFolder5_1.Items.Add(subFile5_1);
-        rootFolder5.Items.Add(subFolder5_1);
 
         await codeFilesCollection.CreateItemAsync(subFile5_1);
         await foldersCollection.CreateItemAsync(subFolder5_1);
@@ -353,7 +328,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             CompanyId = enterpriseUser.CompanyId,
             Language = Languages.csharp,
             RootFolderId = rootFolder5.Id,
-            PrimaryCodeFile = subFile5_1,
+            PrimaryCodeFileId = subFile5_1.Id,
             Tags = new List<Tag> { tags[0] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
@@ -369,8 +344,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = null,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         // Add subfolders and files to root folder 6
@@ -381,8 +355,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             ParentId = rootFolder6.Id,
             Type = FileType.Folder,
             CreatedById = enterpriseUser.Id,
-            CreatedDateUtc = DateTime.UtcNow,
-            Items = new List<FileSystemNode>()
+            CreatedDateUtc = DateTime.UtcNow
         };
 
         var subFile6_1 = new CodeFile
@@ -397,9 +370,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedDateUtc = DateTime.UtcNow
         };
 
-        subFolder6_1.Items.Add(subFile6_1);
-        rootFolder6.Items.Add(subFolder6_1);
-
         await codeFilesCollection.CreateItemAsync(subFile6_1);
         await foldersCollection.CreateItemAsync(subFolder6_1);
         await foldersCollection.CreateItemAsync(rootFolder6);
@@ -413,7 +383,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             AssetType = AssetTypes.Public,
             Language = Languages.csharp,
             RootFolderId = rootFolder6.Id,
-            PrimaryCodeFile = subFile6_1,
+            PrimaryCodeFileId = subFile6_1.Id,
             Tags = new List<Tag> { tags[4] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow

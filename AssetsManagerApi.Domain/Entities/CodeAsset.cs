@@ -18,5 +18,5 @@ public class CodeAsset : EntityBase
 
     public string? CompanyId { get; set; }
 
-    public CodeFile PrimaryCodeFile { get; set; }
+    public string PrimaryCodeFileId { get; set; }
 }
