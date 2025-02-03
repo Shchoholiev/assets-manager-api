@@ -23,5 +23,5 @@ public class CodeAssetDto
 
     public CodeFileDto PrimaryCodeFile { get; set; }
 
-    public UserDto User { get; set; }
+    public string? UserName { get; set; }
 }
