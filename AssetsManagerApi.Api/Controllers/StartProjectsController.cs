@@ -65,7 +65,8 @@ public class StartProjectsController : ApiController
                                         this._logger.LogInformation(""Generated new access token."");
 
                                         return tokenString;
-                                    }"
+                                    }",
+                                Type = FileType.CodeFile
                             }
                         ]
                     },
@@ -83,7 +84,8 @@ public class StartProjectsController : ApiController
                                 this._logger.LogInformation(""Generated new access token."");
 
                                 return tokenString;
-                            }"
+                            }",
+                        Type = FileType.CodeFile
                     }
                 }
             ]
@@ -247,7 +249,8 @@ public class StartProjectsController : ApiController
                                         this._logger.LogInformation(""Generated new access token."");
 
                                         return tokenString;
-                                    }"
+                                    }",
+                                Type = FileType.CodeFile
                             }
                         ]
                     },
@@ -265,7 +268,8 @@ public class StartProjectsController : ApiController
                         this._logger.LogInformation(""Generated new access token."");
 
                         return tokenString;
-                    }"
+                    }",
+                Type = FileType.CodeFile
             }
         };
         return Ok(codeAsset);
