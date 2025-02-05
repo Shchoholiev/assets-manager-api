@@ -434,7 +434,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Name = folder.Name,
             ParentId = folder.ParentId,
             Type = folder.Type,
-            Items = null  // Items should not be included in the folder document
+            // Items should not be included in the folder document
         };
 
         // Add the root folder to the Folders collection
@@ -442,13 +442,6 @@ public class DbInitializer(CosmosDbContext dbContext)
         Console.WriteLine($"Added root folder: {folder.Name}");
 
         // Recursively process nested items
-        if (folder.Items != null)
-        {
-            foreach (var item in folder.Items)
-            {
-                await ProcessNestedItemAsync(item);
-            }
-        }
     }
 
     private async Task ProcessNestedItemAsync(FileSystemNode item)
@@ -467,19 +460,13 @@ public class DbInitializer(CosmosDbContext dbContext)
                     Name = subFolder.Name,
                     ParentId = subFolder.ParentId,
                     Type = subFolder.Type,
-                    Items = null  // Items should not be included in the database
+                    // Items should not be included in the database
                 };
                 await foldersCollection.CreateItemAsync(subFolderCopy);
                 Console.WriteLine($"Added subfolder: {subFolder.Name}");
 
                 // Recursively process subfolder items
-                if (subFolder.Items != null)
-                {
-                    foreach (var nestedItem in subFolder.Items)
-                    {
-                        await ProcessNestedItemAsync(nestedItem);
-                    }
-                }
+
                 break;
 
             case FileType.CodeFile:
