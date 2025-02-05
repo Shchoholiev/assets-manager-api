@@ -24,4 +24,6 @@ public interface IBaseRepository<TEntity> where TEntity : EntityBase
     Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken);
 
     Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
+
+    Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken);
 }

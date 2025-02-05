@@ -124,4 +124,10 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
         var response = await query.ReadNextAsync(cancellationToken);
         return response.ToList();
     }
+
+    public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken)
+    {
+        var response = await _container.ReplaceItemAsync(entity, entity.Id, new PartitionKey(entity.Id), cancellationToken: cancellationToken);
+        return response.Resource;
+    }
 }
