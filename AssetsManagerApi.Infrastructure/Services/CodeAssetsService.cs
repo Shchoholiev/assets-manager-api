@@ -17,28 +17,32 @@ public class CodeAssetsService : ICodeAssetsService
 
     private readonly IFoldersRepository _foldersRepository;
 
+    private readonly ICodeFilesRepository _codeFilesRepository;
+
     private readonly IUsersRepository _usersRepository;
 
     private readonly IMapper _mapper;
 
-    public CodeAssetsService(ICodeAssetsRepository codeAssetsRepository, IFoldersRepository foldersRepository, IUsersRepository usersRepository, IMapper mapper)
+    public CodeAssetsService(ICodeAssetsRepository codeAssetsRepository, IFoldersRepository foldersRepository, IUsersRepository usersRepository, ICodeFilesRepository codeFilesRepository, IMapper mapper)
     {
         _codeAssetsRepository = codeAssetsRepository;
         _foldersRepository = foldersRepository;
         _usersRepository = usersRepository;
+        _codeFilesRepository = codeFilesRepository;
         _mapper = mapper;
     }
 
     public async Task<CodeAssetDto> GetCodeAssetById(string codeAssetId, CancellationToken cancellationToken)
     {
         var entity = await this._codeAssetsRepository.GetOneAsync(codeAssetId, cancellationToken);
-        var folder = await this._foldersRepository.GetFolderAsync(entity.RootFolderId, cancellationToken);
+        var primaryCodeFile = await this._codeFilesRepository.GetOneAsync(entity.PrimaryCodeFileId, cancellationToken);
+        var folder = await this._foldersRepository.GetOneAsync(entity.RootFolderId, cancellationToken);
         var user = await this._usersRepository.GetOneAsync(entity.CreatedById, cancellationToken);
-        
-        var dto = _mapper.Map<CodeAssetDto>(entity);
 
-        dto.RootFolder = _mapper.Map<FolderDto>(folder);
-        dto.User = _mapper.Map<UserDto>(user);
+        var dto = _mapper.Map<CodeAssetDto>(entity);
+        dto.UserName = user.Name;
+        dto.PrimaryCodeFile = _mapper.Map<CodeFileDto>(primaryCodeFile);
+        dto.RootFolder = await ComposeRootFolder(folder, cancellationToken);
 
         return dto;
     }
@@ -49,42 +53,42 @@ public class CodeAssetsService : ICodeAssetsService
 
         if (filterModel.AssetType == AssetTypes.Private)
         {
-            predicate.And(codeAsset => codeAsset.CreatedById == GlobalUser.Id);
+            predicate = predicate.And(codeAsset => codeAsset.CreatedById == GlobalUser.Id);
         }
 
         if (filterModel.AssetType == AssetTypes.Public)
         {
-            predicate.And(codeAsset => codeAsset.CompanyId == null);
+            predicate = predicate.And(codeAsset => codeAsset.CompanyId == null);
         }
 
         if (filterModel.AssetType == AssetTypes.Corporate)
         {
-            predicate.And(codeAsset => codeAsset.CompanyId == GlobalUser.CompanyId);
+            predicate = predicate.And(codeAsset => codeAsset.CompanyId == GlobalUser.CompanyId);
         }
 
         if (filterModel.TagIds != null)
         {
-            predicate.And(codeAsset => codeAsset.Tags.Any(tag => filterModel.TagIds.Contains(tag.Id)));
+            predicate = predicate.And(codeAsset => codeAsset.Tags.Any(tag => filterModel.TagIds.Contains(tag.Id)));
         }
 
         if (filterModel.SearchString != null)
         {
             var input = filterModel.SearchString.ToLower();
-            predicate.And(codeAsset => codeAsset.Name.ToLower().Contains(input) || codeAsset.Description.ToLower().Contains(input));
+            predicate = predicate.And(codeAsset => codeAsset.Name.ToLower().Contains(input) || codeAsset.Description.ToLower().Contains(input));
         }
 
         switch(filterModel.Language)
         {
             case "Javascript":
-                predicate.And(codeAsset => codeAsset.Language == Languages.javascript);
+                predicate = predicate.And(codeAsset => codeAsset.Language == Languages.javascript);
                 break;
 
             case "Csharp":
-                predicate.And(codeAsset => codeAsset.Language == Languages.csharp);
+                predicate = predicate.And(codeAsset => codeAsset.Language == Languages.csharp);
                 break;
 
             case "Python":
-                predicate.And(codeAsset => codeAsset.Language == Languages.python);
+                predicate = predicate.And(codeAsset => codeAsset.Language == Languages.python);
                 break;
         }
 
@@ -94,15 +98,42 @@ public class CodeAssetsService : ICodeAssetsService
 
         for (var i = 0; i < entities.Count; i++)
         {
-            var folder = await _foldersRepository.GetFolderAsync(entities[i].RootFolderId, cancellationToken);
-            dtos[i].RootFolder = _mapper.Map<FolderDto>(folder);
+            var primaryCodeFile = await this._codeFilesRepository.GetOneAsync(entities[i].PrimaryCodeFileId, cancellationToken);
+            var folder = await this._foldersRepository.GetOneAsync(entities[i].RootFolderId, cancellationToken);
+            var user = await this._usersRepository.GetOneAsync(entities[i].CreatedById, cancellationToken);
 
-            var user = await _usersRepository.GetOneAsync(entities[i].CreatedById, cancellationToken);
-            dtos[i].User = _mapper.Map<UserDto>(user);
+            dtos[i].UserName = user.Name;
+            dtos[i].PrimaryCodeFile = _mapper.Map<CodeFileDto>(primaryCodeFile);
+            dtos[i].RootFolder = await ComposeRootFolder(folder, cancellationToken);
         }
 
         var totalCount = await this._codeAssetsRepository.GetCountAsync(cancellationToken);
 
         return new PagedList<CodeAssetDto>(dtos, pageNumber, pageSize, totalCount);
+    }
+
+    private async Task<FolderDto> ComposeRootFolder(Folder rootFolder, CancellationToken cancellationToken)
+    {
+        var result = _mapper.Map<FolderDto>(rootFolder);
+        result.Items ??= new List<FileSystemNodeDto>();
+
+        var childCodeFiles = await _codeFilesRepository.GetAllAsync(codeFile => codeFile.ParentId == rootFolder.Id, cancellationToken);
+        if (childCodeFiles?.Any() == true)
+        {
+            var childCodeFilesDtos = _mapper.Map<List<CodeFileDto>>(childCodeFiles);
+            result.Items.AddRange(childCodeFilesDtos);
+        }
+
+        var childFolders = await _foldersRepository.GetAllAsync(folder => folder.ParentId == rootFolder.Id, cancellationToken);
+        if (childFolders?.Any() == true)
+        {
+            foreach (var folder in childFolders)
+            {
+                var proceededFolder = await ComposeRootFolder(folder, cancellationToken);
+                result.Items.Add(proceededFolder);
+            }
+        }
+
+        return result;
     }
 }

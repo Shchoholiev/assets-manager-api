@@ -19,8 +19,5 @@ public class CodeAsset : EntityBase
 
     public string? CompanyId { get; set; }
 
-    /// <summary>
-    /// Used to display main code file in assets search and details
-    /// </summary>
-    public CodeFile PrimaryCodeFile { get; set; }
+    public string PrimaryCodeFileId { get; set; }
 }
