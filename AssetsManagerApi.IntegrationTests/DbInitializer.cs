@@ -1,7 +1,14 @@
+using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Domain.Entities.Identity;
 using AssetsManagerApi.Infrastructure.Services.Identity;
 using AssetsManagerApi.Persistance.Db;
 using Microsoft.Extensions.Logging;
+using CsvHelper;
+using CsvHelper.Configuration;
+using System.Globalization;
+using AssetsManagerApi.Domain.Enums;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AssetsManagerApi.IntegrationTests;
 
@@ -14,6 +21,8 @@ public class DbInitializer(CosmosDbContext dbContext)
         CleanDatabase().Wait();
         
         InitializeUsersAsync().Wait();
+        // Use only when needed, dont run on every test run due to a big volume of data
+        // InitializeCodeAssetsAsync().Wait();
     }
 
     public async Task InitializeUsersAsync()
@@ -247,6 +256,269 @@ public class DbInitializer(CosmosDbContext dbContext)
 
                 await container.DeleteContainerAsync();
             }
+        }
+    }
+
+    /// <summary>
+    /// Add code assets to the database from Digital Bank company 
+    /// </summary>
+    public async Task InitializeCodeAssetsAsync()
+    {
+        #region Company
+        var companiesCollection = await _dbContext.GetContainerAsync("Companies");
+        var digitalBank = new Company
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Digital Bank",
+            Description = "All online banking services",
+            CreatedById = "placeholder",
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        #endregion
+        
+        #region Users
+
+        var rolesCollection = await _dbContext.GetContainerAsync("Roles");
+        var enterpriseRole = rolesCollection.GetItemLinqQueryable<Role>(true)
+            .Where(r => r.Name == "Enterprise")
+            .AsEnumerable()
+            .FirstOrDefault();
+
+        var passwordHasher = new PasswordHasher(new Logger<PasswordHasher>(new LoggerFactory()));
+
+        var usersCollection = await _dbContext.GetContainerAsync("Users");
+
+        string csvFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "10_digital_bank_users.csv");
+        var users = ReadUsersFromCsv(csvFilePath);
+        foreach (var user in users)
+        {
+            user.Roles = [enterpriseRole];
+            user.PasswordHash = passwordHasher.Hash("Yuiop12345");
+            user.CompanyId = digitalBank.Id;
+            user.CreatedById = string.Empty;
+            user.CreatedDateUtc = DateTime.UtcNow;
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+
+            await usersCollection.CreateItemAsync(user);
+        }
+
+        #endregion
+
+        #region Tags
+        var tagsCollection = await _dbContext.GetContainerAsync("Tags");
+
+        string tagsCsvFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "20_digital_bank_tags.csv");
+        List<Tag> tags = ReadTagsFromCsv(tagsCsvFilePath);
+
+        foreach (var tag in tags)
+        {
+            tag.UseCount = 0;
+            await tagsCollection.CreateItemAsync(tag);
+        }
+        #endregion
+
+        #region Folders / CodeFiles
+        
+        string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "FileSystemNodes.json");
+        var rootFolders = ReadFileSystemNodesFromJson(jsonFilePath);
+
+        foreach (var rootFolder in rootFolders)
+        {
+            await AddFolderAndNestedItemsAsync(rootFolder);
+        }
+
+        #endregion 
+
+        #region CodeAssets
+        var codeAssetsCollection = await _dbContext.GetContainerAsync("CodeAssets");
+
+        string codeAssetsJsonFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "CodeAssets.json");
+        var codeAssets = ReadCodeAssetsFromJson(codeAssetsJsonFilePath);
+
+        // Add each code asset to the database
+        foreach (var codeAsset in codeAssets)
+        {
+            codeAsset.CompanyId = digitalBank.Id;
+            await codeAssetsCollection.CreateItemAsync(codeAsset);
+        }
+
+
+        #endregion
+    }
+
+    private static List<CodeAsset> ReadCodeAssetsFromJson(string filePath)
+    {
+        string jsonContent = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<List<CodeAsset>>(jsonContent, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        }) ?? new List<CodeAsset>();
+    }
+
+    private static List<User> ReadUsersFromCsv(string filePath)
+    {
+        var users = new List<User>();
+
+        using (var reader = new StreamReader(filePath))
+        using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = true
+        }))
+        {
+            csv.Read();
+            csv.ReadHeader();
+            while (csv.Read())
+            {
+                var user = new User
+                {
+                    Id = csv.GetField("Id"),
+                    Name = csv.GetField("Name"),
+                    Email = csv.GetField("Email")
+                };
+                users.Add(user);
+            }
+        }
+
+        return users;
+    }
+
+    private static List<Tag> ReadTagsFromCsv(string filePath)
+    {
+        var tags = new List<Tag>();
+
+        using (var reader = new StreamReader(filePath))
+        using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = true
+        }))
+        {
+            csv.Read();        // Move to the first row
+            csv.ReadHeader();  // Read the header row
+
+            while (csv.Read())
+            {
+                var tag = new Tag
+                {
+                    Id = csv.GetField("Id"),
+                    Name = csv.GetField("Name")
+                };
+                tags.Add(tag);
+            }
+        }
+
+        return tags;
+    }
+
+    private static List<Folder> ReadFileSystemNodesFromJson(string filePath)
+    {
+        string jsonContent = File.ReadAllText(filePath);
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new FileSystemNodeConverter() }
+        };
+
+        return JsonSerializer.Deserialize<List<Folder>>(jsonContent, options) ?? new List<Folder>();
+    }
+
+    private async Task AddFolderAndNestedItemsAsync(Folder folder)
+    {
+        var foldersCollection = await _dbContext.GetContainerAsync("Folders");
+
+        var folderCopy = new Folder
+        {
+            Id = folder.Id,
+            Name = folder.Name,
+            ParentId = folder.ParentId,
+            Type = folder.Type,
+            // Items should not be included in the folder document
+        };
+
+        // Add the root folder to the Folders collection
+        await foldersCollection.CreateItemAsync(folderCopy);
+        Console.WriteLine($"Added root folder: {folder.Name}");
+
+        // Recursively process nested items
+    }
+
+    private async Task ProcessNestedItemAsync(FileSystemNode item)
+    {
+        var foldersCollection = await _dbContext.GetContainerAsync("Folders");
+        var codeFilesCollection = await _dbContext.GetContainerAsync("CodeFiles");
+
+        switch (item.Type)
+        {
+            case FileType.Folder:
+                // Cast to Folder and insert into Folders collection
+                var subFolder = (Folder)item;
+                var subFolderCopy = new Folder
+                {
+                    Id = subFolder.Id,
+                    Name = subFolder.Name,
+                    ParentId = subFolder.ParentId,
+                    Type = subFolder.Type,
+                    // Items should not be included in the database
+                };
+                await foldersCollection.CreateItemAsync(subFolderCopy);
+                Console.WriteLine($"Added subfolder: {subFolder.Name}");
+
+                // Recursively process subfolder items
+
+                break;
+
+            case FileType.CodeFile:
+                // Cast to CodeFile and insert into CodeFiles collection
+                var codeFile = new CodeFile
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    ParentId = item.ParentId,
+                    Type = item.Type,
+                    Text = ((CodeFile)item).Text,
+                    Language = ((CodeFile)item).Language
+                };
+                await codeFilesCollection.CreateItemAsync(codeFile);
+                Console.WriteLine($"Added code file: {codeFile.Name}");
+                break;
+
+            default:
+                Console.WriteLine($"Unknown file type for item: {item.Name}");
+                break;
+        }
+    }
+    
+    public class FileSystemNodeConverter : JsonConverter<FileSystemNode>
+    {
+        public override FileSystemNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            // Parse the JSON object
+            using (JsonDocument document = JsonDocument.ParseValue(ref reader))
+            {
+                JsonElement root = document.RootElement;
+                FileType type = (FileType)root.GetProperty("Type").GetInt32();
+
+                // Deserialize based on the type
+                if (type == FileType.Folder)
+                {
+                    return JsonSerializer.Deserialize<Folder>(root.GetRawText(), options);
+                }
+                else if (type == FileType.CodeFile)
+                {
+                    return JsonSerializer.Deserialize<CodeFile>(root.GetRawText(), options);
+                }
+                else
+                {
+                    throw new NotSupportedException($"Unsupported file type: {type}");
+                }
+            }
+        }
+
+        public override void Write(Utf8JsonWriter writer, FileSystemNode value, JsonSerializerOptions options)
+        {
+            JsonSerializer.Serialize(writer, value, value.GetType(), options);
         }
     }
 }

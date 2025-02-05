@@ -2,6 +2,7 @@
 using AssetsManagerApi.Domain.Enums;
 
 namespace AssetsManagerApi.Domain.Entities;
+
 public class CodeAsset : EntityBase
 {
     public string Description { get; set; }
