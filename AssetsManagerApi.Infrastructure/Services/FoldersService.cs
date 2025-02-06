@@ -53,7 +53,7 @@ public class FoldersService : IFoldersService
     {
         var folder = await _foldersRepository.GetOneAsync(folderId, cancellationToken);
 
-        if (folderId == null)
+        if (folder == null)
         {
             throw new EntityNotFoundException("Folder not found");
         }

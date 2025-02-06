@@ -1,6 +1,7 @@
 ﻿using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
+using AssetsManagerApi.Application.Models.UpdateDto;
 using AssetsManagerApi.Application.Paging;
 using AssetsManagerApi.Domain.Entities;
 using System.Linq.Expressions;
@@ -16,4 +17,6 @@ public interface ICodeAssetsService
     Task<CodeAssetDto> DeleteCodeAssetAsync(string codeAssetId, CancellationToken cancellationToken);
 
     Task<CodeAssetDto> CreateCodeAssetAsync(CodeAssetCreateDto createDto, CancellationToken cancellationToken);
+
+    Task<CodeAssetDto> UpdateCodeAssetAsync(CodeAssetUpdateDto dto, CancellationToken cancellationToken);
 }

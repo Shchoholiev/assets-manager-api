@@ -5,11 +5,13 @@ using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Global;
 using AssetsManagerApi.Application.Models.Operations;
+using AssetsManagerApi.Application.Models.UpdateDto;
 using AssetsManagerApi.Application.Paging;
 using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Domain.Enums;
 using AutoMapper;
 using LinqKit;
+using Microsoft.AspNetCore.Http.HttpResults;
 using System.Linq.Expressions;
 
 namespace AssetsManagerApi.Infrastructure.Services;
@@ -42,6 +44,21 @@ public class CodeAssetsService : ICodeAssetsService
 
     public async Task<CodeAssetDto> CreateCodeAssetAsync(CodeAssetCreateDto createDto, CancellationToken cancellationToken)
     {
+        if (createDto.AssetType == AssetTypes.Corporate && !GlobalUser.Roles.Contains("Enterprise"))
+        {
+            throw new AccessViolationException("You are not enterprise user");
+        }
+
+        if (createDto.AssetType == AssetTypes.Private && !GlobalUser.Roles.Contains("User"))
+        {
+            throw new AccessViolationException("You are not registered user");
+        }
+
+        if (!(createDto.AssetType == AssetTypes.Corporate) && GlobalUser.Roles.Contains("Enterprise"))
+        {
+            throw new AccessViolationException("Enterprise users can create only corporate assets");
+        }
+
         var folder = await _foldersRepository.GetOneAsync(createDto.RootFolderId, cancellationToken);
 
         if (folder == null)
@@ -84,7 +101,9 @@ public class CodeAssetsService : ICodeAssetsService
             }
         }
 
-        return _mapper.Map<CodeAssetDto>(entity);
+        var result = await _codeAssetsRepository.AddAsync(entity, cancellationToken);
+
+        return _mapper.Map<CodeAssetDto>(result);
     }
 
     public async Task<CodeAssetDto> DeleteCodeAssetAsync(string codeAssetId, CancellationToken cancellationToken)
@@ -96,6 +115,11 @@ public class CodeAssetsService : ICodeAssetsService
         }
 
         var folder = await _foldersService.DeleteFolderAsync(asset.RootFolderId, cancellationToken);
+        if (folder == null)
+        {
+            throw new EntityNotFoundException("Root folder not found");
+        }
+
         await _codeAssetsRepository.DeleteAsync(asset, cancellationToken);
 
         return _mapper.Map<CodeAssetDto>(asset);
@@ -179,6 +203,37 @@ public class CodeAssetsService : ICodeAssetsService
         var totalCount = await this._codeAssetsRepository.GetCountAsync(predicate, cancellationToken);
 
         return new PagedList<CodeAssetDto>(dtos, pageNumber, pageSize, totalCount);
+    }
+
+    public async Task<CodeAssetDto> UpdateCodeAssetAsync(CodeAssetUpdateDto dto, CancellationToken cancellationToken)
+    {
+        var codeAsset = await _codeAssetsRepository.GetOneAsync(dto.Id, cancellationToken);
+
+        if (codeAsset == null)
+        {
+            throw new EntityNotFoundException("Code asset not found");
+        }
+
+        codeAsset.Description = dto.Description;    
+        codeAsset.Name = dto.Name;
+        codeAsset.AssetType = dto.AssetType;
+        codeAsset.RootFolderId = dto.RootFolderId;
+        codeAsset.PrimaryCodeFileId = dto.PrimaryCodeFileId;
+        codeAsset.Language = LanguagesExtensions.StringToLanguage(dto.Language);
+        codeAsset.Tags = new List<Tag>();
+        codeAsset.LastModifiedById = GlobalUser.Id;
+        codeAsset.LastModifiedDateUtc = DateTime.UtcNow;
+
+        foreach (var tagId in dto.TagsIds)
+        {
+            var tag = await _tagsRepository.GetOneAsync(tagId, cancellationToken)
+                      ?? throw new EntityNotFoundException($"Tag with ID {tagId} not found");
+            codeAsset.Tags.Add(tag);
+        }
+
+        var entity = await _codeAssetsRepository.UpdateAsync(codeAsset, cancellationToken);
+
+        return _mapper.Map<CodeAssetDto>(entity);
     }
 
     private async Task<FolderDto> ComposeRootFolder(Folder rootFolder, CancellationToken cancellationToken)
