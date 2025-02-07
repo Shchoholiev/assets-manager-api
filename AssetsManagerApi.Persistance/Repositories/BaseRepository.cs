@@ -1,7 +1,9 @@
+using System;
 using System.Linq.Expressions;
 using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Persistance.Db;
+using LinqKit;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
@@ -23,9 +25,12 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
 
     public async Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        var response = await _container.DeleteItemAsync<TEntity>(
-            entity.Id, 
-            new PartitionKey(entity.Id), 
+        entity.IsDeleted = true;
+
+        var response = await _container.ReplaceItemAsync(
+            entity,
+            entity.Id,
+            new PartitionKey(entity.Id),
             cancellationToken: cancellationToken);
         return response.Resource;
     }
@@ -33,7 +38,7 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
     public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
     {
         var iterator = _container.GetItemLinqQueryable<TEntity>()
-            .Where(predicate)
+            .Where(predicate.And(entity => entity.IsDeleted == false))
             .Take(1)
             .ToFeedIterator();
 
@@ -43,13 +48,19 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
 
     public async Task<int> GetCountAsync(CancellationToken cancellationToken)
     {
-        var query = "SELECT VALUE COUNT(1) FROM c";
-        var queryDefinition = new QueryDefinition(query);
-        var queryResultSetIterator = _container.GetItemQueryIterator<int>(queryDefinition);
+        var countQuery = _container.GetItemLinqQueryable<TEntity>()
+            .Where(entity => entity.IsDeleted == false)
+            .Select(_ => 1)
+            .ToFeedIterator();
 
-        var currentResultSet = await queryResultSetIterator.ReadNextAsync(cancellationToken);
-        
-        return currentResultSet.Resource.FirstOrDefault();
+        var count = 0;
+        while (countQuery.HasMoreResults)
+        {
+            var response = await countQuery.ReadNextAsync(cancellationToken);
+            count += response.Resource.Count();
+        }
+
+        return count;
     }
 
     public async Task<int> GetCountAsync(
@@ -57,7 +68,7 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
         CancellationToken cancellationToken)
     {
         var countQuery = _container.GetItemLinqQueryable<TEntity>()
-            .Where(predicate)
+            .Where(predicate.And(entity => entity.IsDeleted == false))
             .Select(_ => 1) 
             .ToFeedIterator();
 
@@ -72,11 +83,13 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
     }
     public async Task<TEntity> GetOneAsync(string id, CancellationToken cancellationToken)
     {
-        var response = await _container.ReadItemAsync<TEntity>(
-            id, 
-            new PartitionKey(id), 
-            cancellationToken: cancellationToken);
-        return response.Resource;
+        var query = _container.GetItemLinqQueryable<TEntity>()
+            .Where(entity => entity.IsDeleted == false && entity.Id == id)
+            .Take(1)
+            .ToFeedIterator();
+
+        var response = await query.ReadNextAsync(cancellationToken);
+        return response.FirstOrDefault();
     }
 
     public async Task<TEntity> GetOneAsync(
@@ -84,7 +97,7 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
         CancellationToken cancellationToken)
     {
         var query = _container.GetItemLinqQueryable<TEntity>()
-            .Where(predicate)
+            .Where(predicate.And(entity => entity.IsDeleted == false))
             .Take(1)
             .ToFeedIterator();
 
@@ -95,6 +108,7 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
     public async Task<List<TEntity>> GetPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var query = _container.GetItemLinqQueryable<TEntity>()
+            .Where(entity => entity.IsDeleted == false)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToFeedIterator();
@@ -106,7 +120,7 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
     public async Task<List<TEntity>> GetPageAsync(int pageNumber, int pageSize, Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
     {
         var query = _container.GetItemLinqQueryable<TEntity>()
-            .Where(predicate)
+            .Where(predicate.And(entity => entity.IsDeleted == false))
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToFeedIterator();
@@ -118,10 +132,20 @@ public class BaseRepository<TEntity>(CosmosDbContext db, string containerName)
     public async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
     {
         var query = _container.GetItemLinqQueryable<TEntity>()
-            .Where(predicate)
+            .Where(predicate.And(entity => entity.IsDeleted == false))
             .ToFeedIterator();
 
         var response = await query.ReadNextAsync(cancellationToken);
         return response.ToList();
+    }
+
+    public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken)
+    {
+        var response = await _container.ReplaceItemAsync(
+            entity,
+            entity.Id,
+            new PartitionKey(entity.Id),
+            cancellationToken: cancellationToken);
+        return response.Resource;
     }
 }

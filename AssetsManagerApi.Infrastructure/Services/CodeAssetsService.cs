@@ -1,13 +1,17 @@
-﻿using AssetsManagerApi.Application.IRepositories;
+﻿using AssetsManagerApi.Application.Exceptions;
+using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Application.IServices;
+using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Global;
 using AssetsManagerApi.Application.Models.Operations;
+using AssetsManagerApi.Application.Models.UpdateDto;
 using AssetsManagerApi.Application.Paging;
 using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Domain.Enums;
 using AutoMapper;
 using LinqKit;
+using Microsoft.AspNetCore.Http.HttpResults;
 using System.Linq.Expressions;
 
 namespace AssetsManagerApi.Infrastructure.Services;
@@ -21,10 +25,16 @@ public class CodeAssetsService : ICodeAssetsService
 
     private readonly IUsersRepository _usersRepository;
 
+    private readonly IFoldersService _foldersService;
+
+    private readonly ITagsRepository _tagsRepository;
+
     private readonly IMapper _mapper;
 
-    public CodeAssetsService(ICodeAssetsRepository codeAssetsRepository, IFoldersRepository foldersRepository, IUsersRepository usersRepository, ICodeFilesRepository codeFilesRepository, IMapper mapper)
+    public CodeAssetsService(ICodeAssetsRepository codeAssetsRepository, IFoldersRepository foldersRepository, IUsersRepository usersRepository, ICodeFilesRepository codeFilesRepository, IFoldersService foldersService, ITagsRepository tagsRepository, IMapper mapper)
     {
+        _tagsRepository = tagsRepository;
+        _foldersService = foldersService;
         _codeAssetsRepository = codeAssetsRepository;
         _foldersRepository = foldersRepository;
         _usersRepository = usersRepository;
@@ -32,7 +42,90 @@ public class CodeAssetsService : ICodeAssetsService
         _mapper = mapper;
     }
 
-    public async Task<CodeAssetDto> GetCodeAssetById(string codeAssetId, CancellationToken cancellationToken)
+    public async Task<CodeAssetDto> CreateCodeAssetAsync(CodeAssetCreateDto createDto, CancellationToken cancellationToken)
+    {
+        if (createDto.AssetType == AssetTypes.Corporate && !GlobalUser.Roles.Contains("Enterprise"))
+        {
+            throw new AccessViolationException("You are not enterprise user");
+        }
+
+        if (createDto.AssetType == AssetTypes.Private && !GlobalUser.Roles.Contains("User"))
+        {
+            throw new AccessViolationException("You are not registered user");
+        }
+
+        if (!(createDto.AssetType == AssetTypes.Corporate) && GlobalUser.Roles.Contains("Enterprise"))
+        {
+            throw new AccessViolationException("Enterprise users can create only corporate assets");
+        }
+
+        var folder = await _foldersRepository.GetOneAsync(createDto.RootFolderId, cancellationToken);
+
+        if (folder == null)
+        {
+            throw new EntityNotFoundException("Root folder not found");
+        }
+
+        var primaryCodeFIle = await _codeFilesRepository.GetOneAsync(createDto.PrimaryCodeFileId, cancellationToken);
+
+        if (primaryCodeFIle == null)
+        {
+            throw new EntityNotFoundException("Primary code file not found");
+        }
+
+        var entity = new CodeAsset()
+        {
+            Description = createDto.Description,
+            Name = createDto.Name,
+            AssetType = createDto.AssetType,
+            CreatedById = GlobalUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            Language = LanguagesExtensions.StringToLanguage(createDto.Language),
+            PrimaryCodeFileId = primaryCodeFIle.Id,
+            RootFolderId = folder.Id,
+        };
+
+        if (GlobalUser.CompanyId != null)
+        {
+            entity.CompanyId = GlobalUser.CompanyId;
+        }
+
+        if (createDto.TagsIds != null)
+        {
+            entity.Tags = new List<Tag>();
+            foreach (var tagId in createDto.TagsIds)
+            {
+                var tag = await _tagsRepository.GetOneAsync(tagId, cancellationToken)
+                          ?? throw new EntityNotFoundException($"Tag with ID {tagId} not found");
+                entity.Tags.Add(tag);
+            }
+        }
+
+        var result = await _codeAssetsRepository.AddAsync(entity, cancellationToken);
+
+        return _mapper.Map<CodeAssetDto>(result);
+    }
+
+    public async Task<CodeAssetDto> DeleteCodeAssetAsync(string codeAssetId, CancellationToken cancellationToken)
+    {
+        var asset = await _codeAssetsRepository.GetOneAsync(codeAssetId, cancellationToken);
+        if (asset == null)
+        {
+            throw new EntityNotFoundException("Code asset not found");
+        }
+
+        var folder = await _foldersService.DeleteFolderAsync(asset.RootFolderId, cancellationToken);
+        if (folder == null)
+        {
+            throw new EntityNotFoundException("Root folder not found");
+        }
+
+        await _codeAssetsRepository.DeleteAsync(asset, cancellationToken);
+
+        return _mapper.Map<CodeAssetDto>(asset);
+    }
+
+    public async Task<CodeAssetDto> GetCodeAssetAsync(string codeAssetId, CancellationToken cancellationToken)
     {
         var entity = await this._codeAssetsRepository.GetOneAsync(codeAssetId, cancellationToken);
         var primaryCodeFile = await this._codeFilesRepository.GetOneAsync(entity.PrimaryCodeFileId, cancellationToken);
@@ -47,7 +140,7 @@ public class CodeAssetsService : ICodeAssetsService
         return dto;
     }
 
-    public async Task<PagedList<CodeAssetDto>> GetCodeAssetsPage(CodeAssetFilterModel filterModel, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedList<CodeAssetDto>> GetCodeAssetsPageAsync(CodeAssetFilterModel filterModel, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         Expression<Func<CodeAsset, bool>> predicate = codeAsset => codeAsset.AssetType == filterModel.AssetType;
 
@@ -77,7 +170,7 @@ public class CodeAssetsService : ICodeAssetsService
             predicate = predicate.And(codeAsset => codeAsset.Name.ToLower().Contains(input) || codeAsset.Description.ToLower().Contains(input));
         }
 
-        switch(filterModel.Language)
+        switch (filterModel.Language)
         {
             case "Javascript":
                 predicate = predicate.And(codeAsset => codeAsset.Language == Languages.javascript);
@@ -107,9 +200,40 @@ public class CodeAssetsService : ICodeAssetsService
             dtos[i].RootFolder = await ComposeRootFolder(folder, cancellationToken);
         }
 
-        var totalCount = await this._codeAssetsRepository.GetCountAsync(cancellationToken);
+        var totalCount = await this._codeAssetsRepository.GetCountAsync(predicate, cancellationToken);
 
         return new PagedList<CodeAssetDto>(dtos, pageNumber, pageSize, totalCount);
+    }
+
+    public async Task<CodeAssetDto> UpdateCodeAssetAsync(CodeAssetUpdateDto dto, CancellationToken cancellationToken)
+    {
+        var codeAsset = await _codeAssetsRepository.GetOneAsync(dto.Id, cancellationToken);
+
+        if (codeAsset == null)
+        {
+            throw new EntityNotFoundException("Code asset not found");
+        }
+
+        codeAsset.Description = dto.Description;    
+        codeAsset.Name = dto.Name;
+        codeAsset.AssetType = dto.AssetType;
+        codeAsset.RootFolderId = dto.RootFolderId;
+        codeAsset.PrimaryCodeFileId = dto.PrimaryCodeFileId;
+        codeAsset.Language = LanguagesExtensions.StringToLanguage(dto.Language);
+        codeAsset.Tags = new List<Tag>();
+        codeAsset.LastModifiedById = GlobalUser.Id;
+        codeAsset.LastModifiedDateUtc = DateTime.UtcNow;
+
+        foreach (var tagId in dto.TagsIds)
+        {
+            var tag = await _tagsRepository.GetOneAsync(tagId, cancellationToken)
+                      ?? throw new EntityNotFoundException($"Tag with ID {tagId} not found");
+            codeAsset.Tags.Add(tag);
+        }
+
+        var entity = await _codeAssetsRepository.UpdateAsync(codeAsset, cancellationToken);
+
+        return _mapper.Map<CodeAssetDto>(entity);
     }
 
     private async Task<FolderDto> ComposeRootFolder(Folder rootFolder, CancellationToken cancellationToken)

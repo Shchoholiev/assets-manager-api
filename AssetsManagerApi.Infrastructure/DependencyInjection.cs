@@ -21,6 +21,8 @@ public static class DependencyInjection
         services.AddScoped<IEmailsService, GmailSmtpEmailsService>();
         services.AddScoped<ICodeAssetsService, CodeAssetsService>();
         services.AddScoped<ITagsService, TagsService>();
+        services.AddScoped<IFoldersService, FoldersService>();
+        services.AddScoped<ICodeFilesService, CodeFilesService>();
 
         return services;
     }
