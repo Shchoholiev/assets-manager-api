@@ -9,6 +9,7 @@ using System.Globalization;
 using AssetsManagerApi.Domain.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AssetsManagerApi.IntegrationTests.Models;
 
 namespace AssetsManagerApi.IntegrationTests;
 
@@ -326,7 +327,7 @@ public class DbInitializer(CosmosDbContext dbContext)
 
         foreach (var rootFolder in rootFolders)
         {
-            await AddFolderAndNestedItemsAsync(rootFolder);
+            await ProcessNestedItemAsync(rootFolder);
         }
 
         #endregion 
@@ -411,7 +412,7 @@ public class DbInitializer(CosmosDbContext dbContext)
         return tags;
     }
 
-    private static List<Folder> ReadFileSystemNodesFromJson(string filePath)
+    private static List<FolderDataSeeding> ReadFileSystemNodesFromJson(string filePath)
     {
         string jsonContent = File.ReadAllText(filePath);
 
@@ -421,27 +422,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Converters = { new FileSystemNodeConverter() }
         };
 
-        return JsonSerializer.Deserialize<List<Folder>>(jsonContent, options) ?? new List<Folder>();
-    }
-
-    private async Task AddFolderAndNestedItemsAsync(Folder folder)
-    {
-        var foldersCollection = await _dbContext.GetContainerAsync("Folders");
-
-        var folderCopy = new Folder
-        {
-            Id = folder.Id,
-            Name = folder.Name,
-            ParentId = folder.ParentId,
-            Type = folder.Type,
-            // Items should not be included in the folder document
-        };
-
-        // Add the root folder to the Folders collection
-        await foldersCollection.CreateItemAsync(folderCopy);
-        Console.WriteLine($"Added root folder: {folder.Name}");
-
-        // Recursively process nested items
+        return JsonSerializer.Deserialize<List<FolderDataSeeding>>(jsonContent, options) ?? new List<FolderDataSeeding>();
     }
 
     private async Task ProcessNestedItemAsync(FileSystemNode item)
@@ -453,7 +434,7 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             case FileType.Folder:
                 // Cast to Folder and insert into Folders collection
-                var subFolder = (Folder)item;
+                var subFolder = (FolderDataSeeding)item;
                 var subFolderCopy = new Folder
                 {
                     Id = subFolder.Id,
@@ -466,6 +447,11 @@ public class DbInitializer(CosmosDbContext dbContext)
                 Console.WriteLine($"Added subfolder: {subFolder.Name}");
 
                 // Recursively process subfolder items
+                foreach (var nestedItem in subFolder.Items)
+                {
+                    Console.WriteLine($"Processing nested item: {nestedItem.Name}");
+                    await ProcessNestedItemAsync(nestedItem);
+                }
 
                 break;
 
@@ -503,7 +489,7 @@ public class DbInitializer(CosmosDbContext dbContext)
                 // Deserialize based on the type
                 if (type == FileType.Folder)
                 {
-                    return JsonSerializer.Deserialize<Folder>(root.GetRawText(), options);
+                    return JsonSerializer.Deserialize<FolderDataSeeding>(root.GetRawText(), options);
                 }
                 else if (type == FileType.CodeFile)
                 {
