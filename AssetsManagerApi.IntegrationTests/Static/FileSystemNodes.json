@@ -3782,84 +3782,88 @@
         "Name": "Controllers",
         "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
         "Type": 0,
-        "Items": []
-      },
-      {
-        "Id": "978b6712-b21c-4b7b-be2a-6cda3ccfb491",
-        "Name": "ChatSupportController.cs",
-        "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
-        "Type": 1,
-        "Text": "using Microsoft.AspNetCore.Mvc;\nusing System.Threading.Tasks;\nusing ChatSupportIntegration.Services;\nusing ChatSupportIntegration.Models;\n\nnamespace ChatSupportIntegration.Controllers\n{\n    [ApiController]\n    [Route(\"api/[controller]\")]\n    public class ChatSupportController : ControllerBase\n    {\n        private readonly IChatService _chatService;\n\n        public ChatSupportController(IChatService chatService)\n        {\n            _chatService = chatService;\n        }\n\n        [HttpGet(\"{sessionId}\")]\n        public async Task<ActionResult<ChatSession>> GetChatSession(string sessionId)\n        {\n            var session = await _chatService.GetChatSessionAsync(sessionId);\n            if (session == null) \n                return NotFound();\n            \n            return Ok(session);\n        }\n\n        [HttpPost]\n        public async Task<ActionResult<ChatMessage>> PostChatMessage([FromBody] ChatMessage message)\n        {\n            var processedMessage = await _chatService.ProcessChatMessageAsync(message);\n            return Ok(processedMessage);\n        }\n    }\n}\n",
-        "Language": 0
+        "Items": [
+          {
+            "Id": "978b6712-b21c-4b7b-be2a-6cda3ccfb491",
+            "Name": "ChatSupportController.cs",
+            "ParentId": "700541b0-4055-4978-a5fd-c8f991e0d04e",
+            "Type": 1,
+            "Text": "using Microsoft.AspNetCore.Mvc;\nusing System.Threading.Tasks;\nusing ChatSupportIntegration.Services;\nusing ChatSupportIntegration.Models;\n\nnamespace ChatSupportIntegration.Controllers\n{\n    [ApiController]\n    [Route(\"api/[controller]\")]\n    public class ChatSupportController : ControllerBase\n    {\n        private readonly IChatService _chatService;\n\n        public ChatSupportController(IChatService chatService)\n        {\n            _chatService = chatService;\n        }\n\n        [HttpGet(\"{sessionId}\")]\n        public async Task<ActionResult<ChatSession>> GetChatSession(string sessionId)\n        {\n            var session = await _chatService.GetChatSessionAsync(sessionId);\n            if (session == null) \n                return NotFound();\n            \n            return Ok(session);\n        }\n\n        [HttpPost]\n        public async Task<ActionResult<ChatMessage>> PostChatMessage([FromBody] ChatMessage message)\n        {\n            var processedMessage = await _chatService.ProcessChatMessageAsync(message);\n            return Ok(processedMessage);\n        }\n    }\n}\n",
+            "Language": 0
+          }
+        ]
       },
       {
         "Id": "594b8602-470f-4492-aded-f06e7291d378",
         "Name": "Services",
         "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
         "Type": 0,
-        "Items": []
-      },
-      {
-        "Id": "7acdcfc2-f1e2-4264-87e1-d933f4aa23d9",
-        "Name": "ChatService.cs",
-        "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
-        "Type": 1,
-        "Text": "using System;\nusing System.Threading.Tasks;\nusing ChatSupportIntegration.Models;\nusing ChatSupportIntegration.Infrastructure;\n\nnamespace ChatSupportIntegration.Services\n{\n    public interface IChatService\n    {\n        Task<ChatSession> GetChatSessionAsync(string sessionId);\n        Task<ChatMessage> ProcessChatMessageAsync(ChatMessage message);\n    }\n\n    public class ChatService : IChatService\n    {\n        private readonly IIntegrationService _integrationService;\n        private readonly IChatLogger _chatLogger;\n\n        public ChatService(IIntegrationService integrationService, IChatLogger chatLogger)\n        {\n            _integrationService = integrationService;\n            _chatLogger = chatLogger;\n        }\n\n        // In a production environment, persistent storage like a database would be used.\n        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, ChatSession> Sessions =\n            new System.Collections.Concurrent.ConcurrentDictionary<string, ChatSession>();\n\n        public async Task<ChatSession> GetChatSessionAsync(string sessionId)\n        {\n            Sessions.TryGetValue(sessionId, out ChatSession session);\n            return await Task.FromResult(session);\n        }\n\n        public async Task<ChatMessage> ProcessChatMessageAsync(ChatMessage message)\n        {\n            if (string.IsNullOrEmpty(message.SessionId))\n            {\n                // Create a new session if none exists.\n                message.SessionId = Guid.NewGuid().ToString();\n                var newSession = new ChatSession { SessionId = message.SessionId };\n                Sessions.TryAdd(newSession.SessionId, newSession);\n            }\n\n            Sessions.AddOrUpdate(message.SessionId,\n                new ChatSession { SessionId = message.SessionId, Messages = new System.Collections.Generic.List<ChatMessage> { message } },\n                (key, existingSession) =>\n                {\n                    existingSession.Messages.Add(message);\n                    return existingSession;\n                });\n\n            _chatLogger.LogInfo($\"Processing message for session {message.SessionId}\");\n            \n            // Integrate with the external live chat provider\n            var response = await _integrationService.SendMessageToLiveChatAsync(message);\n            \n            if (response != null)\n            {\n                Sessions.AddOrUpdate(message.SessionId,\n                    new ChatSession { SessionId = message.SessionId, Messages = new System.Collections.Generic.List<ChatMessage> { response } },\n                    (key, existingSession) =>\n                    {\n                        existingSession.Messages.Add(response);\n                        return existingSession;\n                    });\n            }\n\n            return response ?? message;\n        }\n    }\n}\n",
-        "Language": 0
-      },
-      {
-        "Id": "1883a679-a037-4eb1-88da-48b07fc29e38",
-        "Name": "IntegrationService.cs",
-        "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
-        "Type": 1,
-        "Text": "using System.Net.Http;\nusing System.Text.Json;\nusing System.Threading.Tasks;\nusing ChatSupportIntegration.Models;\nusing ChatSupportIntegration.Infrastructure;\n\nnamespace ChatSupportIntegration.Services\n{\n    public interface IIntegrationService\n    {\n        Task<ChatMessage> SendMessageToLiveChatAsync(ChatMessage message);\n    }\n\n    public class IntegrationService : IIntegrationService\n    {\n        private readonly HttpClient _httpClient;\n        private readonly IIntegrationAdapter _integrationAdapter;\n\n        public IntegrationService(IIntegrationAdapter integrationAdapter, IHttpClientFactory httpClientFactory)\n        {\n            _integrationAdapter = integrationAdapter;\n            _httpClient = httpClientFactory.CreateClient();\n        }\n\n        public async Task<ChatMessage> SendMessageToLiveChatAsync(ChatMessage message)\n        {\n            // Delegate the external communication to the adapter\n            return await _integrationAdapter.SendChatMessageAsync(message);\n        }\n    }\n}\n",
-        "Language": 0
+        "Items": [
+          {
+            "Id": "7acdcfc2-f1e2-4264-87e1-d933f4aa23d9",
+            "Name": "ChatService.cs",
+            "ParentId": "594b8602-470f-4492-aded-f06e7291d378",
+            "Type": 1,
+            "Text": "using System;\nusing System.Threading.Tasks;\nusing ChatSupportIntegration.Models;\nusing ChatSupportIntegration.Infrastructure;\n\nnamespace ChatSupportIntegration.Services\n{\n    public interface IChatService\n    {\n        Task<ChatSession> GetChatSessionAsync(string sessionId);\n        Task<ChatMessage> ProcessChatMessageAsync(ChatMessage message);\n    }\n\n    public class ChatService : IChatService\n    {\n        private readonly IIntegrationService _integrationService;\n        private readonly IChatLogger _chatLogger;\n\n        public ChatService(IIntegrationService integrationService, IChatLogger chatLogger)\n        {\n            _integrationService = integrationService;\n            _chatLogger = chatLogger;\n        }\n\n        // In a production environment, persistent storage like a database would be used.\n        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, ChatSession> Sessions =\n            new System.Collections.Concurrent.ConcurrentDictionary<string, ChatSession>();\n\n        public async Task<ChatSession> GetChatSessionAsync(string sessionId)\n        {\n            Sessions.TryGetValue(sessionId, out ChatSession session);\n            return await Task.FromResult(session);\n        }\n\n        public async Task<ChatMessage> ProcessChatMessageAsync(ChatMessage message)\n        {\n            if (string.IsNullOrEmpty(message.SessionId))\n            {\n                // Create a new session if none exists.\n                message.SessionId = Guid.NewGuid().ToString();\n                var newSession = new ChatSession { SessionId = message.SessionId };\n                Sessions.TryAdd(newSession.SessionId, newSession);\n            }\n\n            Sessions.AddOrUpdate(message.SessionId,\n                new ChatSession { SessionId = message.SessionId, Messages = new System.Collections.Generic.List<ChatMessage> { message } },\n                (key, existingSession) =>\n                {\n                    existingSession.Messages.Add(message);\n                    return existingSession;\n                });\n\n            _chatLogger.LogInfo($\"Processing message for session {message.SessionId}\");\n            \n            // Integrate with the external live chat provider\n            var response = await _integrationService.SendMessageToLiveChatAsync(message);\n            \n            if (response != null)\n            {\n                Sessions.AddOrUpdate(message.SessionId,\n                    new ChatSession { SessionId = message.SessionId, Messages = new System.Collections.Generic.List<ChatMessage> { response } },\n                    (key, existingSession) =>\n                    {\n                        existingSession.Messages.Add(response);\n                        return existingSession;\n                    });\n            }\n\n            return response ?? message;\n        }\n    }\n}\n",
+            "Language": 0
+          },
+          {
+            "Id": "1883a679-a037-4eb1-88da-48b07fc29e38",
+            "Name": "IntegrationService.cs",
+            "ParentId": "594b8602-470f-4492-aded-f06e7291d378",
+            "Type": 1,
+            "Text": "using System.Net.Http;\nusing System.Text.Json;\nusing System.Threading.Tasks;\nusing ChatSupportIntegration.Models;\nusing ChatSupportIntegration.Infrastructure;\n\nnamespace ChatSupportIntegration.Services\n{\n    public interface IIntegrationService\n    {\n        Task<ChatMessage> SendMessageToLiveChatAsync(ChatMessage message);\n    }\n\n    public class IntegrationService : IIntegrationService\n    {\n        private readonly HttpClient _httpClient;\n        private readonly IIntegrationAdapter _integrationAdapter;\n\n        public IntegrationService(IIntegrationAdapter integrationAdapter, IHttpClientFactory httpClientFactory)\n        {\n            _integrationAdapter = integrationAdapter;\n            _httpClient = httpClientFactory.CreateClient();\n        }\n\n        public async Task<ChatMessage> SendMessageToLiveChatAsync(ChatMessage message)\n        {\n            // Delegate the external communication to the adapter\n            return await _integrationAdapter.SendChatMessageAsync(message);\n        }\n    }\n}\n",
+            "Language": 0
+          }
+        ]
       },
       {
         "Id": "13196d76-6338-47de-98f7-aa5602e78a80",
         "Name": "Models",
         "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
         "Type": 0,
-        "Items": []
-      },
-      {
-        "Id": "ea93137b-cbce-405e-81a3-000c4519a25f",
-        "Name": "ChatMessage.cs",
-        "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
-        "Type": 1,
-        "Text": "using System;\n\nnamespace ChatSupportIntegration.Models\n{\n    public class ChatMessage\n    {\n        public string MessageId { get; set; } = Guid.NewGuid().ToString();\n        public string SessionId { get; set; }\n        public string UserId { get; set; }\n        public string Content { get; set; }\n        public DateTime Timestamp { get; set; } = DateTime.UtcNow;\n    }\n}\n",
-        "Language": 0
-      },
-      {
-        "Id": "9c608609-3d8e-472e-88c8-35cc581f5c5f",
-        "Name": "ChatSession.cs",
-        "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
-        "Type": 1,
-        "Text": "using System.Collections.Generic;\n\nnamespace ChatSupportIntegration.Models\n{\n    public class ChatSession\n    {\n        public string SessionId { get; set; }\n        public List<ChatMessage> Messages { get; set; } = new List<ChatMessage>();\n    }\n}\n",
-        "Language": 0
+        "Items": [
+          {
+            "Id": "ea93137b-cbce-405e-81a3-000c4519a25f",
+            "Name": "ChatMessage.cs",
+            "ParentId": "13196d76-6338-47de-98f7-aa5602e78a80",
+            "Type": 1,
+            "Text": "using System;\n\nnamespace ChatSupportIntegration.Models\n{\n    public class ChatMessage\n    {\n        public string MessageId { get; set; } = Guid.NewGuid().ToString();\n        public string SessionId { get; set; }\n        public string UserId { get; set; }\n        public string Content { get; set; }\n        public DateTime Timestamp { get; set; } = DateTime.UtcNow;\n    }\n}\n",
+            "Language": 0
+          },
+          {
+            "Id": "9c608609-3d8e-472e-88c8-35cc581f5c5f",
+            "Name": "ChatSession.cs",
+            "ParentId": "13196d76-6338-47de-98f7-aa5602e78a80",
+            "Type": 1,
+            "Text": "using System.Collections.Generic;\n\nnamespace ChatSupportIntegration.Models\n{\n    public class ChatSession\n    {\n        public string SessionId { get; set; }\n        public List<ChatMessage> Messages { get; set; } = new List<ChatMessage>();\n    }\n}\n",
+            "Language": 0
+          }
+        ]
       },
       {
         "Id": "4b51107c-d283-4adf-8510-d1f5abe13036",
         "Name": "Infrastructure",
         "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
         "Type": 0,
-        "Items": []
-      },
-      {
-        "Id": "67842e61-e624-4c1b-81ea-6d988bb7ae5c",
-        "Name": "ChatLogger.cs",
-        "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
-        "Type": 1,
-        "Text": "using System;\nusing Microsoft.Extensions.Logging;\n\nnamespace ChatSupportIntegration.Infrastructure\n{\n    public interface IChatLogger\n    {\n        void LogInfo(string message);\n        void LogError(string message, Exception ex);\n    }\n\n    public class ChatLogger : IChatLogger\n    {\n        private readonly ILogger<ChatLogger> _logger;\n\n        public ChatLogger(ILogger<ChatLogger> logger)\n        {\n            _logger = logger;\n        }\n\n        public void LogInfo(string message)\n        {\n            _logger.LogInformation(message);\n        }\n\n        public void LogError(string message, Exception ex)\n        {\n            _logger.LogError(ex, message);\n        }\n    }\n}\n",
-        "Language": 0
-      },
-      {
-        "Id": "90be2b99-cfd8-402e-80da-c1771d6761e2",
-        "Name": "IntegrationAdapter.cs",
-        "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
-        "Type": 1,
-        "Text": "using System.Net.Http;\nusing System.Text;\nusing System.Text.Json;\nusing System.Threading.Tasks;\nusing ChatSupportIntegration.Models;\n\nnamespace ChatSupportIntegration.Infrastructure\n{\n    public interface IIntegrationAdapter\n    {\n        Task<ChatMessage> SendChatMessageAsync(ChatMessage message);\n    }\n\n    public class IntegrationAdapter : IIntegrationAdapter\n    {\n        private readonly HttpClient _httpClient;\n\n        public IntegrationAdapter(IHttpClientFactory httpClientFactory)\n        {\n            _httpClient = httpClientFactory.CreateClient();\n        }\n\n        public async Task<ChatMessage> SendChatMessageAsync(ChatMessage message)\n        {\n            // Replace with actual live chat provider endpoint in production\n            string externalEndpoint = \"https://api.livechatprovider.com/send\";\n            \n            var jsonContent = JsonSerializer.Serialize(message);\n            var content = new StringContent(jsonContent, Encoding.UTF8, \"application/json\");\n            \n            var response = await _httpClient.PostAsync(externalEndpoint, content);\n            response.EnsureSuccessStatusCode();\n\n            var responseContent = await response.Content.ReadAsStringAsync();\n            var chatResponse = JsonSerializer.Deserialize<ChatMessage>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });\n            return chatResponse;\n        }\n    }\n}\n",
-        "Language": 0
+        "Items": [
+          {
+            "Id": "67842e61-e624-4c1b-81ea-6d988bb7ae5c",
+            "Name": "ChatLogger.cs",
+            "ParentId": "4b51107c-d283-4adf-8510-d1f5abe13036",
+            "Type": 1,
+            "Text": "using System;\nusing Microsoft.Extensions.Logging;\n\nnamespace ChatSupportIntegration.Infrastructure\n{\n    public interface IChatLogger\n    {\n        void LogInfo(string message);\n        void LogError(string message, Exception ex);\n    }\n\n    public class ChatLogger : IChatLogger\n    {\n        private readonly ILogger<ChatLogger> _logger;\n\n        public ChatLogger(ILogger<ChatLogger> logger)\n        {\n            _logger = logger;\n        }\n\n        public void LogInfo(string message)\n        {\n            _logger.LogInformation(message);\n        }\n\n        public void LogError(string message, Exception ex)\n        {\n            _logger.LogError(ex, message);\n        }\n    }\n}\n",
+            "Language": 0
+          },
+          {
+            "Id": "90be2b99-cfd8-402e-80da-c1771d6761e2",
+            "Name": "IntegrationAdapter.cs",
+            "ParentId": "4b51107c-d283-4adf-8510-d1f5abe13036",
+            "Type": 1,
+            "Text": "using System.Net.Http;\nusing System.Text;\nusing System.Text.Json;\nusing System.Threading.Tasks;\nusing ChatSupportIntegration.Models;\n\nnamespace ChatSupportIntegration.Infrastructure\n{\n    public interface IIntegrationAdapter\n    {\n        Task<ChatMessage> SendChatMessageAsync(ChatMessage message);\n    }\n\n    public class IntegrationAdapter : IIntegrationAdapter\n    {\n        private readonly HttpClient _httpClient;\n\n        public IntegrationAdapter(IHttpClientFactory httpClientFactory)\n        {\n            _httpClient = httpClientFactory.CreateClient();\n        }\n\n        public async Task<ChatMessage> SendChatMessageAsync(ChatMessage message)\n        {\n            // Replace with actual live chat provider endpoint in production\n            string externalEndpoint = \"https://api.livechatprovider.com/send\";\n            \n            var jsonContent = JsonSerializer.Serialize(message);\n            var content = new StringContent(jsonContent, Encoding.UTF8, \"application/json\");\n            \n            var response = await _httpClient.PostAsync(externalEndpoint, content);\n            response.EnsureSuccessStatusCode();\n\n            var responseContent = await response.Content.ReadAsStringAsync();\n            var chatResponse = JsonSerializer.Deserialize<ChatMessage>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });\n            return chatResponse;\n        }\n    }\n}\n",
+            "Language": 0
+          }
+        ]
       }
     ]
   },

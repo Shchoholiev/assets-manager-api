@@ -22,8 +22,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         CleanDatabase().Wait();
         
         InitializeUsersAsync().Wait();
+        InitializeCodeAssetsAsync().Wait();
         // Use only when needed, dont run on every test run due to a big volume of data
-        // InitializeCodeAssetsAsync().Wait();
+        // Initialize100CodeAssetsAsync().Wait();
     }
 
     public async Task InitializeUsersAsync()
@@ -260,10 +261,121 @@ public class DbInitializer(CosmosDbContext dbContext)
         }
     }
 
+    public async Task InitializeCodeAssetsAsync()
+    {
+        #region Company
+        var companiesCollection = await _dbContext.GetContainerAsync("Companies");
+        var digitalBank = new Company
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Digital Bank",
+            Description = "All online banking services",
+            CreatedById = "placeholder",
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        #endregion
+        
+        #region Users
+
+        var rolesCollection = await _dbContext.GetContainerAsync("Roles");
+        var enterpriseRole = rolesCollection.GetItemLinqQueryable<Role>(true)
+            .Where(r => r.Name == "Enterprise")
+            .AsEnumerable()
+            .FirstOrDefault();
+
+        var passwordHasher = new PasswordHasher(new Logger<PasswordHasher>(new LoggerFactory()));
+
+        var usersCollection = await _dbContext.GetContainerAsync("Users");
+        var startProjectUser = new User
+        {
+            Id = "d3aeadbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
+            Email = "start-project@gmail.com",
+            Roles = [enterpriseRole],
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = null,
+            EmailVerificationTokenExpiry = null,
+            CompanyId = digitalBank.Id
+        };
+        await usersCollection.CreateItemAsync(startProjectUser);
+
+        var noCompanyUser = new User
+        {
+            Id = "d2aeadbb-9c1f-4d2d-9e1a-ffb0f688fdc4",
+            Email = "no-company@gmail.com",
+            Roles = [enterpriseRole],
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = null,
+            EmailVerificationTokenExpiry = null
+        };
+        await usersCollection.CreateItemAsync(noCompanyUser);
+
+        string csvFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "10_digital_bank_users.csv");
+        var users = ReadUsersFromCsv(csvFilePath);
+        foreach (var user in users)
+        {
+            user.Roles = [enterpriseRole];
+            user.PasswordHash = passwordHasher.Hash("Yuiop12345");
+            user.CompanyId = digitalBank.Id;
+            user.CreatedById = string.Empty;
+            user.CreatedDateUtc = DateTime.UtcNow;
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+
+            await usersCollection.CreateItemAsync(user);
+        }
+
+        #endregion
+
+        #region Tags
+        var tagsCollection = await _dbContext.GetContainerAsync("Tags");
+
+        string tagsCsvFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "20_digital_bank_tags.csv");
+        List<Tag> tags = ReadTagsFromCsv(tagsCsvFilePath);
+
+        foreach (var tag in tags)
+        {
+            tag.UseCount = 0;
+            await tagsCollection.CreateItemAsync(tag);
+        }
+        #endregion
+
+        #region Folders / CodeFiles
+        
+        string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "file_system_nodes_integration_tests.json");
+        var rootFolders = ReadFileSystemNodesFromJson(jsonFilePath);
+
+        foreach (var rootFolder in rootFolders)
+        {
+            await ProcessNestedItemAsync(rootFolder);
+        }
+
+        #endregion 
+
+        #region CodeAssets
+        var codeAssetsCollection = await _dbContext.GetContainerAsync("CodeAssets");
+
+        string codeAssetsJsonFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "code_assets_integration_tests.json");
+        var codeAssets = ReadCodeAssetsFromJson(codeAssetsJsonFilePath);
+
+        foreach (var codeAsset in codeAssets)
+        {
+            codeAsset.CompanyId = digitalBank.Id;
+            await codeAssetsCollection.CreateItemAsync(codeAsset);
+        }
+
+        #endregion
+    }
+
     /// <summary>
     /// Add code assets to the database from Digital Bank company 
+    /// Do not use for integration tests, only for initial seeding
     /// </summary>
-    public async Task InitializeCodeAssetsAsync()
+    public async Task Initialize100CodeAssetsAsync()
     {
         #region Company
         var companiesCollection = await _dbContext.GetContainerAsync("Companies");
@@ -344,7 +456,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             codeAsset.CompanyId = digitalBank.Id;
             await codeAssetsCollection.CreateItemAsync(codeAsset);
         }
-
 
         #endregion
     }

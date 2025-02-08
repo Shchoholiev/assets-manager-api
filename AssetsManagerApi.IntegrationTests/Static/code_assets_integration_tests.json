@@ -1,0 +1,72 @@
+[
+    {
+        "Id": "4b32587b-5e64-435c-9ba8-69740845bd5a",
+        "CreatedById": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+        "CreatedDateUtc": "2025-02-08T18:15:24.687251Z",
+        "IsDeleted": false,
+        "LastModifiedById": null,
+        "LastModifiedDateUtc": null,
+        "Name": "Virtual Assistant Service",
+        "Description": "Implements an AI-driven assistant for customer inquiries.",
+        "Tags": [
+            {
+                "Id": "40404040-4040-4040-4040-404040404040",
+                "Name": "Integration"
+            },
+            {
+                "Id": "20202020-2020-2020-2020-202020202020",
+                "Name": "Analytics"
+            }
+        ],
+        "AssetType": 1,
+        "Language": 0,
+        "RootFolderId": "12db2329-424f-45d8-8c27-1d91eb600314",
+        "CompanyId": "DigitalBankCo",
+        "PrimaryCodeFile": {
+            "Id": "3e33e737-7980-46fa-af7a-12860640f16f",
+            "Name": "Program.cs",
+            "ParentId": "12db2329-424f-45d8-8c27-1d91eb600314",
+            "Type": 1,
+            "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace VirtualAssistantService\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}\n",
+            "Language": 0
+        },
+        "User": {
+            "Id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+            "Name": "Julia Roberts",
+            "Email": "julia.roberts@digitalbank.com"
+        }
+    },
+    {
+        "Id": "c4c8ec92-71cb-46d8-9b65-97c21aa6681f",
+        "CreatedById": "9b8a7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d",
+        "CreatedDateUtc": "2025-02-03T01:36:04.872078Z",
+        "IsDeleted": false,
+        "LastModifiedById": null,
+        "LastModifiedDateUtc": null,
+        "Name": "Chat Support Integration",
+        "Description": "Integrates live chat support into customer service platforms.",
+        "Tags": [
+            {
+                "Id": "40404040-4040-4040-4040-404040404040",
+                "Name": "Integration"
+            }
+        ],
+        "AssetType": 1,
+        "Language": 0,
+        "RootFolderId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
+        "CompanyId": "DigitalBankCo",
+        "PrimaryCodeFile": {
+            "Id": "f942c4d3-caf5-4580-a5b4-3a8265b64e93",
+            "Name": "Program.cs",
+            "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
+            "Type": 1,
+            "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace ChatSupportIntegration\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}",
+            "Language": 0
+        },
+        "User": {
+            "Id": "9b8a7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d",
+            "Name": "George King",
+            "Email": "george.king@digitalbank.com"
+        }
+    }
+]
