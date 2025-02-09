@@ -55,7 +55,10 @@ public class StartProjectsService(
         
         var startProject = new StartProject
         {
-            CodeAssetsIds = selectedAssets.Select(x => x.Id).ToList()
+            CodeAssetsIds = selectedAssets.Select(x => x.Id).ToList(),
+            CompanyId = GlobalUser.CompanyId,
+            CreatedDateUtc = DateTime.UtcNow,
+            CreatedById = GlobalUser.Id
         };
         var newStartProject = await _startProjectsRepository.AddAsync(startProject, cancellationToken);
 
