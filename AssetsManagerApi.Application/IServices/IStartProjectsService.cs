@@ -49,7 +49,7 @@ public interface IStartProjectsService
     /// <param name="folderDto">The DTO containing the folder details.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The created folder.</returns>
-    Task<FolderDto> CreateFolderAsync(string startProjectId, FolderDto folderDto, CancellationToken cancellationToken);
+    Task<FolderDto> CreateFolderAsync(string startProjectId, FolderCreateDto folderDto, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates an existing folder for the specified start project.
@@ -59,7 +59,11 @@ public interface IStartProjectsService
     /// <param name="folderDto">The updated folder details.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The updated folder.</returns>
-    Task<FolderDto> UpdateFolderAsync(string startProjectId, string folderId, FolderDto folderDto, CancellationToken cancellationToken);
+    Task<FolderDto> UpdateFolderAsync(
+        string startProjectId, 
+        string folderId, 
+        FolderUpdateDto folderDto, 
+        CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes an existing folder for the specified start project.

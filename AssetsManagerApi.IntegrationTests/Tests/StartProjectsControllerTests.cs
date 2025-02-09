@@ -172,4 +172,87 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     }
 
     #endregion
+
+
+    #region CreateFolder
+
+    [Fact]
+    public async Task CreateFolder_ValidInput_Returns201WithFolder()
+    {
+        // Arrange
+        var folder = new FolderCreateDto
+        {
+            Name = "HelloWorld",
+            ParentId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5"
+        };
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/{startProjectId}/folders", folder);
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var createdFolder = await response.Content.ReadFromJsonAsync<FolderDto>();
+        Assert.NotNull(createdFolder);
+        Assert.Equal(folder.Name, createdFolder.Name);
+    }
+
+    #endregion
+
+
+    #region UpdateFolder
+
+    [Fact]
+    public async Task UpdateFolder_ValidInput_Returns200WithCodeFile()
+    {
+        // Arrange
+        var folderId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5";
+        var folder = new FolderUpdateDto
+        {
+            Id = folderId,
+            Name = "HelloWorldRoot",
+        };
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.PutAsJsonAsync($"{ResourceUrl}/{startProjectId}/folders/{folderId}", folder);
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var updatedCodeFile = await response.Content.ReadFromJsonAsync<CodeFileDto>();
+        Assert.NotNull(updatedCodeFile);
+        Assert.Equal(folder.Name, updatedCodeFile.Name);
+    }
+
+    #endregion
+
+
+    #region DeleteFolder
+
+    [Fact]
+    public async Task DeleteFolder_ValidInput_Returns204NoContent()
+    {
+        // Arrange
+        var folderId = "f85eafbb-9c1f-4d2d-9e8a-ffb0f688aac5";
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.DeleteAsync($"{ResourceUrl}/{startProjectId}/folders/{folderId}");
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    #endregion
 }

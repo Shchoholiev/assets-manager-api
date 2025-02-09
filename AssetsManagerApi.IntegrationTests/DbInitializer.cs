@@ -389,7 +389,7 @@ public class DbInitializer(CosmosDbContext dbContext)
 
         var subFolder3_1 = new Folder
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "f85eafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
             Name = "Subfolder1",
             ParentId = rootFolder3.Id,
             Type = FileType.Folder,
@@ -404,7 +404,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Text = "// Code for Web Development in Subfolder1",
             Language = Languages.csharp,
             Type = FileType.CodeFile,
-            ParentId = subFolder3_1.Id,
+            ParentId = rootFolder3.Id,
             CreatedById = startProjectUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -416,7 +416,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Text = "// Code for Web Development in Subfolder1",
             Language = Languages.csharp,
             Type = FileType.CodeFile,
-            ParentId = subFolder3_1.Id,
+            ParentId = rootFolder3.Id,
             CreatedById = startProjectUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };

@@ -107,7 +107,8 @@ public class StartProjectsController(
         [FromBody] FolderCreateDto folderDto,
         CancellationToken cancellationToken)
     {
-        return Created("", folderDto);
+        var folder = await _startProjectsService.CreateFolderAsync(startProjectId, folderDto, cancellationToken);
+        return Created("", folder);
     }
 
     /// <summary>
@@ -124,10 +125,11 @@ public class StartProjectsController(
     public async Task<ActionResult<FolderDto>> UpdateFolderAsync(
         string startProjectId, // for future use
         string folderId,
-        [FromBody] FolderCreateDto folderDto,
+        [FromBody] FolderUpdateDto folderDto,
         CancellationToken cancellationToken)
     {
-        return Ok(folderDto);
+        var folder = await _startProjectsService.UpdateFolderAsync(startProjectId, folderId, folderDto, cancellationToken);
+        return Ok(folder);
     }
 
     /// <summary>
@@ -135,7 +137,7 @@ public class StartProjectsController(
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="folderId">The identifier of the folder to delete.</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
     /// <returns>No content if the deletion is successful.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpDelete("{startProjectId}/folders/{folderId}")]
@@ -145,6 +147,7 @@ public class StartProjectsController(
         string folderId,
         CancellationToken cancellationToken)
     {
+        await _startProjectsService.DeleteFolderAsync(startProjectId, folderId, cancellationToken);
         return NoContent();
     }
 

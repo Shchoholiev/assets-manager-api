@@ -16,6 +16,7 @@ public class StartProjectsService(
     IGenerativeAiService generativeAiService,
     IStartProjectsRepository startProjectsRepository,
     ICodeFilesService codeFilesService,
+    IFoldersService foldersService,
     ILogger<StartProjectsService> logger
 ) : IStartProjectsService
 {
@@ -26,6 +27,8 @@ public class StartProjectsService(
     private readonly IStartProjectsRepository _startProjectsRepository = startProjectsRepository;
 
     private readonly ICodeFilesService _codeFilesService = codeFilesService;
+
+    private readonly IFoldersService _foldersService = foldersService;
 
     private readonly ILogger<StartProjectsService> _logger = logger;
 
@@ -104,19 +107,35 @@ public class StartProjectsService(
         _logger.LogInformation("Deleted code file with ID {codeFileId}", codeFileId);
     }
 
-    public Task<FolderDto> CreateFolderAsync(string startProjectId, FolderDto folderDto, CancellationToken cancellationToken)
+    public async Task<FolderDto> CreateFolderAsync(string startProjectId, FolderCreateDto folderDto, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Creating folder for start project {startProjectId}", startProjectId);
+
+        var createdFolder = await _foldersService.CreateFolderAsync(folderDto, cancellationToken);
+
+        _logger.LogInformation("Created folder with ID {folderId}", createdFolder.Id);
+
+        return createdFolder;
     }
 
-    public Task<FolderDto> UpdateFolderAsync(string startProjectId, string folderId, FolderDto folderDto, CancellationToken cancellationToken)
+    public async Task<FolderDto> UpdateFolderAsync(string startProjectId, string folderId, FolderUpdateDto folderDto, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Updating folder {folderId} for start project {startProjectId}", folderId, startProjectId);
+
+        var updatedFolder = await _foldersService.UpdateFolderAsync(folderDto, cancellationToken);
+
+        _logger.LogInformation("Updated folder with ID {folderId}", updatedFolder.Id);
+
+        return updatedFolder;
     }
 
-    public Task DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken)
+    public async Task DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Deleting folder {folderId} for start project {startProjectId}", folderId, startProjectId);
+
+        await _foldersService.DeleteFolderAsync(folderId, cancellationToken);
+
+        _logger.LogInformation("Deleted folder with ID {folderId}", folderId);
     }
 
     public Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
