@@ -1,4 +1,6 @@
 using AssetsManagerApi.Application.IRepositories;
+using AssetsManagerApi.Application.IServices;
+using AssetsManagerApi.Infrastructure.Services;
 using AssetsManagerApi.Persistance.Db;
 using AssetsManagerApi.Persistance.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,8 @@ public static class DependencyInjection
         services.AddScoped<ITagsRepository, TagsRepository>();
         services.AddScoped<IFoldersRepository, FoldersRepository>();
         services.AddScoped<ICodeFilesRepository, CodeFilesRepository>();
+
+        services.AddScoped<IStartProjectsRepository, StartProjectsRepository>();
 
         return services;
     }

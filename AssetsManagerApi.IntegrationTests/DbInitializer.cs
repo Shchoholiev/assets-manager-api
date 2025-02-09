@@ -365,6 +365,7 @@ public class DbInitializer(CosmosDbContext dbContext)
         foreach (var codeAsset in codeAssets)
         {
             codeAsset.CompanyId = digitalBank.Id;
+            codeAsset.AssetType = AssetTypes.Corporate;
             await codeAssetsCollection.CreateItemAsync(codeAsset);
         }
 

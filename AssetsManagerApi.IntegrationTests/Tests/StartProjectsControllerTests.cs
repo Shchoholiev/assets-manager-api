@@ -17,7 +17,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
             Prompt = "I'm building a virtual assistant feature to handle customer inquiries with " + 
                      "an AI-driven solution, integrating chat support for smoother interaction."
         };
-        await LoginAsync("enterprise@gmail.com", "Yuiop12345");
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
 
         // Act
         var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}", request);
