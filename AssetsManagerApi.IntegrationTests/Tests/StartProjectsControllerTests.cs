@@ -9,7 +9,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     : TestsBase(factory, "start-projects")
 {
     [Fact]
-    public async Task CreateStartProjectAsync_ValidInput_ReturnsAssets()
+    public async Task CreateStartProject_ValidInput_ReturnsAssets()
     {
         // Arrange
         var request = new StartProjectCreateDto
@@ -37,7 +37,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     }
 
     [Fact]
-    public async Task CreateStartProjectAsync_UserWithoutCompany_Returns403Forbidden()
+    public async Task CreateStartProject_UserWithoutCompany_Returns403Forbidden()
     {
         // Arrange
         var request = new StartProjectCreateDto
@@ -55,7 +55,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     }
 
     [Fact]
-    public async Task CreateStartProjectAsync_MissingPrompt_Returns400BadRequest()
+    public async Task CreateStartProject_MissingPrompt_Returns400BadRequest()
     {
         // Arrange
         var request = new StartProjectCreateDto();
@@ -69,7 +69,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     }
 
     [Fact]
-    public async Task CreateStartProjectAsync_NotAuthorized_Returns401Unauthorized()
+    public async Task CreateStartProject_NotAuthorized_Returns401Unauthorized()
     {
         // Arrange
         var request = new StartProjectCreateDto();
@@ -80,4 +80,34 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+    #region CreateCodeFile
+
+    [Fact]
+    public async Task CreateCodeFile_ValidInput_Returns201WithCodeFile()
+    {
+        // Arrange
+        var codeFile = new CodeFileCreateDto
+        {
+            Text = "Console.WriteLine(\"Hello, World!\");",
+            Language = "Csharp",
+            Name = "HelloWorld.cs",
+            ParentId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5"
+        };
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/{startProjectId}/code-files", codeFile);
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var createdCodeFile = await response.Content.ReadFromJsonAsync<CodeFileDto>();
+        Assert.NotNull(createdCodeFile);
+    }
+
+    #endregion
 }
