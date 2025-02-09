@@ -409,7 +409,20 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedDateUtc = DateTime.UtcNow
         };
 
+        var subFile3_2 = new CodeFile
+        {
+            Id = "d3faafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
+            Name = "Web_Development_Sub1.cs",
+            Text = "// Code for Web Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = subFolder3_1.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
         await codeFilesCollection.CreateItemAsync(subFile3_1);
+        await codeFilesCollection.CreateItemAsync(subFile3_2);
         await foldersCollection.CreateItemAsync(subFolder3_1);
         await foldersCollection.CreateItemAsync(rootFolder3);
 

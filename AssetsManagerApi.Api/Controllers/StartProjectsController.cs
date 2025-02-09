@@ -88,6 +88,7 @@ public class StartProjectsController(
         string codeFileId,
         CancellationToken cancellationToken)
     {
+        await _startProjectsService.DeleteCodeFileAsync(startProjectId, codeFileId, cancellationToken);
         return NoContent();
     }
 

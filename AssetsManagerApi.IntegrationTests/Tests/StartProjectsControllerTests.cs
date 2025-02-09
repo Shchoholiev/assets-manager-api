@@ -119,7 +119,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     #region UpdateCodeFile
 
     [Fact]
-    public async Task UpdateCodeFile_ValidInput_Returns201WithCodeFile()
+    public async Task UpdateCodeFile_ValidInput_Returns200WithCodeFile()
     {
         // Arrange
         var codeFileId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f618aac0";
@@ -147,6 +147,28 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
         Assert.Equal(codeFile.Name, updatedCodeFile.Name);
         Assert.Equal(codeFile.Language, updatedCodeFile.Language);
         Assert.Equal(codeFile.Text, updatedCodeFile.Text);
+    }
+
+    #endregion
+
+
+    #region DeleteCodeFile
+
+    [Fact]
+    public async Task DeleteCodeFile_ValidInput_Returns204NoContent()
+    {
+        // Arrange
+        var codeFileId = "d3faafbb-9c1f-4d2d-9e8a-ffb0f618aac0";
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.DeleteAsync($"{ResourceUrl}/{startProjectId}/code-files/{codeFileId}");
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     #endregion

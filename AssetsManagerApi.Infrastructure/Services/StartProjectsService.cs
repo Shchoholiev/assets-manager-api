@@ -95,17 +95,21 @@ public class StartProjectsService(
         return updatedCodeFile;
     }
 
+    public async Task DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Deleting code file {codeFileId} for start project {startProjectId}", codeFileId, startProjectId);
+
+        await _codeFilesService.DeleteCodeFileAsync(codeFileId, cancellationToken);
+
+        _logger.LogInformation("Deleted code file with ID {codeFileId}", codeFileId);
+    }
+
     public Task<FolderDto> CreateFolderAsync(string startProjectId, FolderDto folderDto, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
     public Task<FolderDto> UpdateFolderAsync(string startProjectId, string folderId, FolderDto folderDto, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
