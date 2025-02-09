@@ -2,6 +2,7 @@ using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
+using AssetsManagerApi.Application.Models.UpdateDto;
 using AssetsManagerApi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -65,10 +66,12 @@ public class StartProjectsController(
     public async Task<ActionResult<CodeFileDto>> UpdateCodeFileAsync(
         string startProjectId, // for future use
         string codeFileId,
-        [FromBody] CodeFileCreateDto codeFileDto,
+        [FromBody] CodeFileUpdateDto codeFileDto,
         CancellationToken cancellationToken)
     {
-        return Ok(codeFileDto);
+        codeFileDto.Id = string.IsNullOrEmpty(codeFileDto.Id) ? codeFileId : codeFileDto.Id;
+        var updatedCodeFile = await _codeFilesService.UpdateCodeFileAsync(codeFileDto, cancellationToken);
+        return Ok(updatedCodeFile);
     }
 
     /// <summary>

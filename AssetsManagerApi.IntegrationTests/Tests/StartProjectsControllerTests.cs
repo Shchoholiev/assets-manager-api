@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
+using AssetsManagerApi.Application.Models.UpdateDto;
 
 namespace AssetsManagerApi.IntegrationTests.Tests;
 
@@ -107,6 +108,45 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
 
         var createdCodeFile = await response.Content.ReadFromJsonAsync<CodeFileDto>();
         Assert.NotNull(createdCodeFile);
+        Assert.Equal(codeFile.Name, createdCodeFile.Name);
+        Assert.Equal(codeFile.Language, createdCodeFile.Language);
+        Assert.Equal(codeFile.Text, createdCodeFile.Text);
+    }
+
+    #endregion
+
+
+    #region UpdateCodeFile
+
+    [Fact]
+    public async Task UpdateCodeFile_ValidInput_Returns201WithCodeFile()
+    {
+        // Arrange
+        var codeFileId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f618aac0";
+        var codeFile = new CodeFileUpdateDto
+        {
+            Id = codeFileId,
+            Text = "Console.WriteLine(\"Hello, World!\");",
+            Language = "Csharp",
+            Name = "HelloWorld.cs",
+            ParentId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5"
+        };
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.PutAsJsonAsync($"{ResourceUrl}/{startProjectId}/code-files/{codeFileId}", codeFile);
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var updatedCodeFile = await response.Content.ReadFromJsonAsync<CodeFileDto>();
+        Assert.NotNull(updatedCodeFile);
+        Assert.Equal(codeFile.Name, updatedCodeFile.Name);
+        Assert.Equal(codeFile.Language, updatedCodeFile.Language);
+        Assert.Equal(codeFile.Text, updatedCodeFile.Text);
     }
 
     #endregion

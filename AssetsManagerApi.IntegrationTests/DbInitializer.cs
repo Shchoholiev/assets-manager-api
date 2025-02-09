@@ -399,7 +399,7 @@ public class DbInitializer(CosmosDbContext dbContext)
 
         var subFile3_1 = new CodeFile
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
             Name = "Web_Development_Sub1.cs",
             Text = "// Code for Web Development in Subfolder1",
             Language = Languages.csharp,
