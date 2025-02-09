@@ -14,18 +14,16 @@ namespace AssetsManagerApi.Api.Controllers;
 /// </summary>
 [Route("start-projects")]
 public class StartProjectsController(
-    IStartProjectsService startProjectsService,
-    ICodeFilesService codeFilesService
+    IStartProjectsService startProjectsService
 ) : ApiController
 {
     private readonly IStartProjectsService _startProjectsService = startProjectsService;
-
-    private readonly ICodeFilesService _codeFilesService = codeFilesService;
     
     /// <summary>
     /// Initializes a new start project and finds assets based on the provided project description.
     /// </summary>
     /// <param name="startProject">Prompt with project description</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A newly created start project with associated assets.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpPost("")]
@@ -40,6 +38,7 @@ public class StartProjectsController(
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="codeFileDto">The details of the code file to create.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The created code file.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpPost("{startProjectId}/code-files")]
@@ -49,7 +48,7 @@ public class StartProjectsController(
         [FromBody] CodeFileCreateDto codeFileDto,
         CancellationToken cancellationToken)
     {
-        var createdCodeFile = await _codeFilesService.CreateCodeFileAsync(codeFileDto, cancellationToken);
+        var createdCodeFile = await _startProjectsService.CreateCodeFileAsync(startProjectId, codeFileDto, cancellationToken);
         return Created("", createdCodeFile);
     }
 
@@ -59,6 +58,7 @@ public class StartProjectsController(
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="codeFileId">The identifier of the code file to update.</param>
     /// <param name="codeFileDto">The updated code file details.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The updated code file.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpPut("{startProjectId}/code-files/{codeFileId}")]
@@ -69,8 +69,7 @@ public class StartProjectsController(
         [FromBody] CodeFileUpdateDto codeFileDto,
         CancellationToken cancellationToken)
     {
-        codeFileDto.Id = string.IsNullOrEmpty(codeFileDto.Id) ? codeFileId : codeFileDto.Id;
-        var updatedCodeFile = await _codeFilesService.UpdateCodeFileAsync(codeFileDto, cancellationToken);
+        var updatedCodeFile = await _startProjectsService.UpdateCodeFileAsync(startProjectId, codeFileId, codeFileDto, cancellationToken);
         return Ok(updatedCodeFile);
     }
 
@@ -79,6 +78,7 @@ public class StartProjectsController(
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="codeFileId">The identifier of the code file to delete.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>No content if the deletion is successful.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpDelete("{startProjectId}/code-files/{codeFileId}")]
@@ -96,6 +96,7 @@ public class StartProjectsController(
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="folderDto">The details of the folder to create.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The created folder.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpPost("{startProjectId}/folders")]
@@ -114,6 +115,7 @@ public class StartProjectsController(
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="folderId">The identifier of the folder to update.</param>
     /// <param name="folderDto">The updated folder details.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The updated folder.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpPut("{startProjectId}/folders/{folderId}")]
@@ -132,6 +134,7 @@ public class StartProjectsController(
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="folderId">The identifier of the folder to delete.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>No content if the deletion is successful.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpDelete("{startProjectId}/folders/{folderId}")]
@@ -149,6 +152,7 @@ public class StartProjectsController(
     /// Combines the code assets of a start project into a single project.
     /// </summary>
     /// <param name="id">The ID of the start project to combine.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>Code Asset similar to Code Asset endpoints</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpPost("{id}/combine")]
@@ -223,6 +227,7 @@ public class StartProjectsController(
     /// Compiles a start project and returns the compilation result.
     /// </summary>
     /// <param name="id">The ID of the start project to compile.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The result of the compilation, including any errors if they occurred.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpPost("{id}/compile")]
@@ -240,6 +245,7 @@ public class StartProjectsController(
     /// Downloads the start project as a zip file.
     /// </summary>
     /// <param name="id">The ID of the start project to download.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A zip file containing the project assets.</returns>
     [Authorize(Roles = "Enterprise")]
     [HttpGet("{id}/download")]

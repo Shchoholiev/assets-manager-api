@@ -1,10 +1,10 @@
-using System.Text.Json;
 using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Global;
 using AssetsManagerApi.Application.Models.Operations;
+using AssetsManagerApi.Application.Models.UpdateDto;
 using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Domain.Enums;
 using Microsoft.Extensions.Logging;
@@ -15,6 +15,7 @@ public class StartProjectsService(
     ICodeAssetsService codeAssetsService,
     IGenerativeAiService generativeAiService,
     IStartProjectsRepository startProjectsRepository,
+    ICodeFilesService codeFilesService,
     ILogger<StartProjectsService> logger
 ) : IStartProjectsService
 {
@@ -23,6 +24,8 @@ public class StartProjectsService(
     private readonly IGenerativeAiService _generativeAiService = generativeAiService;
 
     private readonly IStartProjectsRepository _startProjectsRepository = startProjectsRepository;
+
+    private readonly ICodeFilesService _codeFilesService = codeFilesService;
 
     private readonly ILogger<StartProjectsService> _logger = logger;
 
@@ -69,17 +72,30 @@ public class StartProjectsService(
         };
     }
 
-    public Task<CodeFileDto> CreateCodeFileAsync(string startProjectId, CodeFileDto codeFileDto, CancellationToken cancellationToken)
+    public async Task<CodeFileDto> CreateCodeFileAsync(string startProjectId, CodeFileCreateDto codeFileDto, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Creating code file for start project {startProjectId}", startProjectId);
+
+        var createdCodeFile = await _codeFilesService.CreateCodeFileAsync(codeFileDto, cancellationToken);
+
+        _logger.LogInformation("Created code file with ID {codeFileId}", createdCodeFile.Id);
+
+        return createdCodeFile;
+    }
+
+    public async Task<CodeFileDto> UpdateCodeFileAsync(string startProjectId, string codeFileId, CodeFileUpdateDto codeFileDto, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Updating code file {codeFileId} for start project {startProjectId}", codeFileId, startProjectId);
+
+        codeFileDto.Id = string.IsNullOrEmpty(codeFileDto.Id) ? codeFileId : codeFileDto.Id;
+        var updatedCodeFile = await _codeFilesService.UpdateCodeFileAsync(codeFileDto, cancellationToken);
+
+        _logger.LogInformation("Updated code file with ID {codeFileId}", updatedCodeFile.Id);
+
+        return updatedCodeFile;
     }
 
     public Task<FolderDto> CreateFolderAsync(string startProjectId, FolderDto folderDto, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<CodeFileDto> UpdateCodeFileAsync(string startProjectId, string codeFileId, CodeFileDto codeFileDto, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
