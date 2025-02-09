@@ -1,6 +1,7 @@
 ﻿using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
+using AssetsManagerApi.Application.Models.UpdateDto;
 
 namespace AssetsManagerApi.Application.IServices;
 
@@ -21,7 +22,7 @@ public interface IStartProjectsService
     /// <param name="codeFileDto">The DTO containing the code file details.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The created code file.</returns>
-    Task<CodeFileDto> CreateCodeFileAsync(string startProjectId, CodeFileDto codeFileDto, CancellationToken cancellationToken);
+    Task<CodeFileDto> CreateCodeFileAsync(string startProjectId, CodeFileCreateDto codeFileDto, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates an existing code file for the specified start project.
@@ -31,7 +32,7 @@ public interface IStartProjectsService
     /// <param name="codeFileDto">The updated code file details.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The updated code file.</returns>
-    Task<CodeFileDto> UpdateCodeFileAsync(string startProjectId, string codeFileId, CodeFileDto codeFileDto, CancellationToken cancellationToken);
+    Task<CodeFileDto> UpdateCodeFileAsync(string startProjectId, string codeFileId, CodeFileUpdateDto codeFileDto, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes an existing code file for the specified start project.
@@ -48,7 +49,7 @@ public interface IStartProjectsService
     /// <param name="folderDto">The DTO containing the folder details.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The created folder.</returns>
-    Task<FolderDto> CreateFolderAsync(string startProjectId, FolderDto folderDto, CancellationToken cancellationToken);
+    Task<FolderDto> CreateFolderAsync(string startProjectId, FolderCreateDto folderDto, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates an existing folder for the specified start project.
@@ -58,7 +59,11 @@ public interface IStartProjectsService
     /// <param name="folderDto">The updated folder details.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The updated folder.</returns>
-    Task<FolderDto> UpdateFolderAsync(string startProjectId, string folderId, FolderDto folderDto, CancellationToken cancellationToken);
+    Task<FolderDto> UpdateFolderAsync(
+        string startProjectId, 
+        string folderId, 
+        FolderUpdateDto folderDto, 
+        CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes an existing folder for the specified start project.

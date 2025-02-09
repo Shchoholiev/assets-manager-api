@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
+using AssetsManagerApi.Application.Models.UpdateDto;
 
 namespace AssetsManagerApi.IntegrationTests.Tests;
 
@@ -9,7 +10,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     : TestsBase(factory, "start-projects")
 {
     [Fact]
-    public async Task CreateStartProjectAsync_ValidInput_ReturnsAssets()
+    public async Task CreateStartProject_ValidInput_ReturnsAssets()
     {
         // Arrange
         var request = new StartProjectCreateDto
@@ -37,7 +38,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     }
 
     [Fact]
-    public async Task CreateStartProjectAsync_UserWithoutCompany_Returns403Forbidden()
+    public async Task CreateStartProject_UserWithoutCompany_Returns403Forbidden()
     {
         // Arrange
         var request = new StartProjectCreateDto
@@ -55,7 +56,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     }
 
     [Fact]
-    public async Task CreateStartProjectAsync_MissingPrompt_Returns400BadRequest()
+    public async Task CreateStartProject_MissingPrompt_Returns400BadRequest()
     {
         // Arrange
         var request = new StartProjectCreateDto();
@@ -69,7 +70,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     }
 
     [Fact]
-    public async Task CreateStartProjectAsync_NotAuthorized_Returns401Unauthorized()
+    public async Task CreateStartProject_NotAuthorized_Returns401Unauthorized()
     {
         // Arrange
         var request = new StartProjectCreateDto();
@@ -80,4 +81,178 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+    #region CreateCodeFile
+
+    [Fact]
+    public async Task CreateCodeFile_ValidInput_Returns201WithCodeFile()
+    {
+        // Arrange
+        var codeFile = new CodeFileCreateDto
+        {
+            Text = "Console.WriteLine(\"Hello, World!\");",
+            Language = "Csharp",
+            Name = "HelloWorld.cs",
+            ParentId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5"
+        };
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/{startProjectId}/code-files", codeFile);
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var createdCodeFile = await response.Content.ReadFromJsonAsync<CodeFileDto>();
+        Assert.NotNull(createdCodeFile);
+        Assert.Equal(codeFile.Name, createdCodeFile.Name);
+        Assert.Equal(codeFile.Language, createdCodeFile.Language);
+        Assert.Equal(codeFile.Text, createdCodeFile.Text);
+    }
+
+    #endregion
+
+
+    #region UpdateCodeFile
+
+    [Fact]
+    public async Task UpdateCodeFile_ValidInput_Returns200WithCodeFile()
+    {
+        // Arrange
+        var codeFileId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f618aac0";
+        var codeFile = new CodeFileUpdateDto
+        {
+            Id = codeFileId,
+            Text = "Console.WriteLine(\"Hello, World!\");",
+            Language = "Csharp",
+            Name = "HelloWorld.cs",
+            ParentId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5"
+        };
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.PutAsJsonAsync($"{ResourceUrl}/{startProjectId}/code-files/{codeFileId}", codeFile);
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var updatedCodeFile = await response.Content.ReadFromJsonAsync<CodeFileDto>();
+        Assert.NotNull(updatedCodeFile);
+        Assert.Equal(codeFile.Name, updatedCodeFile.Name);
+        Assert.Equal(codeFile.Language, updatedCodeFile.Language);
+        Assert.Equal(codeFile.Text, updatedCodeFile.Text);
+    }
+
+    #endregion
+
+
+    #region DeleteCodeFile
+
+    [Fact]
+    public async Task DeleteCodeFile_ValidInput_Returns204NoContent()
+    {
+        // Arrange
+        var codeFileId = "d3faafbb-9c1f-4d2d-9e8a-ffb0f618aac0";
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.DeleteAsync($"{ResourceUrl}/{startProjectId}/code-files/{codeFileId}");
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    #endregion
+
+
+    #region CreateFolder
+
+    [Fact]
+    public async Task CreateFolder_ValidInput_Returns201WithFolder()
+    {
+        // Arrange
+        var folder = new FolderCreateDto
+        {
+            Name = "HelloWorld",
+            ParentId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5"
+        };
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/{startProjectId}/folders", folder);
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var createdFolder = await response.Content.ReadFromJsonAsync<FolderDto>();
+        Assert.NotNull(createdFolder);
+        Assert.Equal(folder.Name, createdFolder.Name);
+    }
+
+    #endregion
+
+
+    #region UpdateFolder
+
+    [Fact]
+    public async Task UpdateFolder_ValidInput_Returns200WithCodeFile()
+    {
+        // Arrange
+        var folderId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5";
+        var folder = new FolderUpdateDto
+        {
+            Id = folderId,
+            Name = "HelloWorldRoot",
+        };
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.PutAsJsonAsync($"{ResourceUrl}/{startProjectId}/folders/{folderId}", folder);
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var updatedCodeFile = await response.Content.ReadFromJsonAsync<CodeFileDto>();
+        Assert.NotNull(updatedCodeFile);
+        Assert.Equal(folder.Name, updatedCodeFile.Name);
+    }
+
+    #endregion
+
+
+    #region DeleteFolder
+
+    [Fact]
+    public async Task DeleteFolder_ValidInput_Returns204NoContent()
+    {
+        // Arrange
+        var folderId = "f85eafbb-9c1f-4d2d-9e8a-ffb0f688aac5";
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        // Act
+        var response = await HttpClient.DeleteAsync($"{ResourceUrl}/{startProjectId}/folders/{folderId}");
+        var stringContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response content: {stringContent}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    #endregion
 }

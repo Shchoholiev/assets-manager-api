@@ -273,6 +273,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedById = "placeholder",
             CreatedDateUtc = DateTime.UtcNow
         };
+        await companiesCollection.CreateItemAsync(digitalBank);
 
         #endregion
         
@@ -370,6 +371,91 @@ public class DbInitializer(CosmosDbContext dbContext)
         }
 
         #endregion
+
+        #region StartProjects
+
+        var foldersCollection = await _dbContext.GetContainerAsync("Folders");
+        var codeFilesCollection = await _dbContext.GetContainerAsync("CodeFiles");
+
+        var rootFolder3 = new Folder
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
+            Name = "Web Development",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFolder3_1 = new Folder
+        {
+            Id = "f85eafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
+            Name = "Subfolder1",
+            ParentId = rootFolder3.Id,
+            Type = FileType.Folder,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFile3_1 = new CodeFile
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
+            Name = "Web_Development_Sub1.cs",
+            Text = "// Code for Web Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = rootFolder3.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFile3_2 = new CodeFile
+        {
+            Id = "d3faafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
+            Name = "Web_Development_Sub1.cs",
+            Text = "// Code for Web Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = rootFolder3.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeFilesCollection.CreateItemAsync(subFile3_1);
+        await codeFilesCollection.CreateItemAsync(subFile3_2);
+        await foldersCollection.CreateItemAsync(subFolder3_1);
+        await foldersCollection.CreateItemAsync(rootFolder3);
+
+        var asset = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Start Project",
+            Description = "Start project",
+            AssetType = AssetTypes.StartProject,
+            Language = Languages.csharp,
+            RootFolderId = rootFolder3.Id,
+            PrimaryCodeFileId = subFile3_1.Id,
+            Tags = [],
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(asset);
+
+        var startProjectsCollection = await _dbContext.GetContainerAsync("StartProjects");
+
+        var startProject = new StartProject
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
+            CodeAssetsIds = [..codeAssets.Select(x => x.Id)],
+            CompanyId = digitalBank.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            CreatedById = startProjectUser.Id,
+            CodeAssetId = asset.Id
+        };
+        await startProjectsCollection.CreateItemAsync(startProject);
+
+        #endregion
     }
 
     /// <summary>
@@ -388,6 +474,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedById = "placeholder",
             CreatedDateUtc = DateTime.UtcNow
         };
+        await companiesCollection.CreateItemAsync(digitalBank);
 
         #endregion
         
