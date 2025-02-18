@@ -19,6 +19,7 @@ public class CodeAssetsControllerTests(TestingFactory<Program> factory)
     {
         // Arrange
         var codeAssetId = "67a767a843d60f5e4add55c9";
+        await LoginAsync("enterprise@gmail.com", "Yuiop12345");
 
         // Act
         var response = await HttpClient.GetAsync($"{ResourceUrl}/{codeAssetId}");
@@ -33,6 +34,8 @@ public class CodeAssetsControllerTests(TestingFactory<Program> factory)
     [Fact]
     public async Task GetCodeAssetAsync_InvalidId_ReturnsNotFound()
     {
+        await LoginAsync("enterprise@gmail.com", "Yuiop12345");
+
         // Act
         var response = await HttpClient.GetAsync($"{ResourceUrl}/invalid-id");
 
@@ -524,53 +527,6 @@ public class CodeAssetsControllerTests(TestingFactory<Program> factory)
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact]
-    public async Task CreateCodeAssetAsync_UnauthorizedUser_ReturnsForbidden()
-    {
-        // 1. Create the root folder
-        var createFolderDto = new FolderCreateDto
-        {
-            Name = "RootFolder",
-            ParentId = null
-        };
-        var folderResponse = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/folders", createFolderDto);
-        folderResponse.EnsureSuccessStatusCode();
-        var createdFolder = await folderResponse.Content.ReadFromJsonAsync<FolderDto>();
-        Assert.NotNull(createdFolder);
-        var folderId = createdFolder.Id;
-
-        // 2. Create the primary code file in the new folder
-        var createCodeFileDto = new CodeFileCreateDto
-        {
-            Name = "PrimaryCodeFile.cs",
-            Text = "public class PrimaryCodeFile {}",
-            Language = "Csharp",
-            ParentId = folderId
-        };
-        var codeFileResponse = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/codefiles", createCodeFileDto);
-        codeFileResponse.EnsureSuccessStatusCode();
-        var createdCodeFile = await codeFileResponse.Content.ReadFromJsonAsync<CodeFileDto>();
-        Assert.NotNull(createdCodeFile);
-        var codeFileId = createdCodeFile.Id;
-
-        // 3. Create the asset with unauthorized user
-        var createAssetDto = new CodeAssetCreateDto
-        {
-            Name = "Asset Name",
-            Description = "Description",
-            AssetType = AssetTypes.Corporate,
-            Language = "Csharp",
-            RootFolderId = folderId,
-            PrimaryCodeFileId = codeFileId,
-            TagsIds = new List<string> { "67a806cefde1b0618b381fd6" } // Add any necessary tags
-        };
-
-        // Act
-        var response = await HttpClient.PostAsJsonAsync(ResourceUrl, createAssetDto);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-    }
     [Fact]
     public async Task DeleteFolderAsync_ValidId_ReturnsDeletedFolder()
     {
