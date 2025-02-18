@@ -1,0 +1,155 @@
+using AssetsManagerApi.Application.IRepositories;
+using AssetsManagerApi.Application.IServices;
+using AssetsManagerApi.Application.Models.CreateDto;
+using AssetsManagerApi.Application.Models.Dto;
+using AssetsManagerApi.Application.Models.Global;
+using AssetsManagerApi.Application.Models.Operations;
+using AssetsManagerApi.Application.Models.UpdateDto;
+using AssetsManagerApi.Domain.Entities;
+using AssetsManagerApi.Domain.Enums;
+using Microsoft.Extensions.Logging;
+
+namespace AssetsManagerApi.Infrastructure.Services;
+
+public class StartProjectsService(
+    ICodeAssetsService codeAssetsService,
+    IGenerativeAiService generativeAiService,
+    IStartProjectsRepository startProjectsRepository,
+    ICodeFilesService codeFilesService,
+    IFoldersService foldersService,
+    ILogger<StartProjectsService> logger
+) : IStartProjectsService
+{
+    private readonly ICodeAssetsService _codeAssetsService = codeAssetsService;
+
+    private readonly IGenerativeAiService _generativeAiService = generativeAiService;
+
+    private readonly IStartProjectsRepository _startProjectsRepository = startProjectsRepository;
+
+    private readonly ICodeFilesService _codeFilesService = codeFilesService;
+
+    private readonly IFoldersService _foldersService = foldersService;
+
+    private readonly ILogger<StartProjectsService> _logger = logger;
+
+    public async Task<StartProjectDto> CreateStartProjectAsync(StartProjectCreateDto createDto, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Creating start project");
+
+        if (string.IsNullOrEmpty(GlobalUser.CompanyId))
+        {
+            _logger.LogError("CompanyId is null");
+            throw new UnauthorizedAccessException("User does not belong to any company");
+        }
+
+        var filterModel = new CodeAssetFilterModel
+        {
+            AssetType = AssetTypes.Corporate,
+            Language = createDto.Language.LanguageToString()
+        };
+
+        _logger.LogInformation("Chosen Language: {language}", filterModel.Language);
+
+        var assets = await _codeAssetsService.GetCodeAssetsPageAsync(filterModel, 1, 100, cancellationToken);
+
+        _logger.LogInformation("Retrieved {count} code assets", assets.Items.Count());
+
+        var selectedAssets = await _generativeAiService.SelectRelevantCodeAssets(
+            createDto.Prompt, 
+            assets.Items, 
+            cancellationToken);
+        
+        var startProject = new StartProject
+        {
+            CodeAssetsIds = selectedAssets.Select(x => x.Id).ToList(),
+            CompanyId = GlobalUser.CompanyId,
+            CreatedDateUtc = DateTime.UtcNow,
+            CreatedById = GlobalUser.Id
+        };
+        var newStartProject = await _startProjectsRepository.AddAsync(startProject, cancellationToken);
+
+        return new StartProjectDto
+        {
+            Id = newStartProject.Id.ToString(),
+            CodeAssets = selectedAssets
+        };
+    }
+
+    public async Task<CodeFileDto> CreateCodeFileAsync(string startProjectId, CodeFileCreateDto codeFileDto, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Creating code file for start project {startProjectId}", startProjectId);
+
+        var createdCodeFile = await _codeFilesService.CreateCodeFileAsync(codeFileDto, cancellationToken);
+
+        _logger.LogInformation("Created code file with ID {codeFileId}", createdCodeFile.Id);
+
+        return createdCodeFile;
+    }
+
+    public async Task<CodeFileDto> UpdateCodeFileAsync(string startProjectId, string codeFileId, CodeFileUpdateDto codeFileDto, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Updating code file {codeFileId} for start project {startProjectId}", codeFileId, startProjectId);
+
+        codeFileDto.Id = string.IsNullOrEmpty(codeFileDto.Id) ? codeFileId : codeFileDto.Id;
+        var updatedCodeFile = await _codeFilesService.UpdateCodeFileAsync(codeFileDto, cancellationToken);
+
+        _logger.LogInformation("Updated code file with ID {codeFileId}", updatedCodeFile.Id);
+
+        return updatedCodeFile;
+    }
+
+    public async Task DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Deleting code file {codeFileId} for start project {startProjectId}", codeFileId, startProjectId);
+
+        await _codeFilesService.DeleteCodeFileAsync(codeFileId, cancellationToken);
+
+        _logger.LogInformation("Deleted code file with ID {codeFileId}", codeFileId);
+    }
+
+    public async Task<FolderDto> CreateFolderAsync(string startProjectId, FolderCreateDto folderDto, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Creating folder for start project {startProjectId}", startProjectId);
+
+        var createdFolder = await _foldersService.CreateFolderAsync(folderDto, cancellationToken);
+
+        _logger.LogInformation("Created folder with ID {folderId}", createdFolder.Id);
+
+        return createdFolder;
+    }
+
+    public async Task<FolderDto> UpdateFolderAsync(string startProjectId, string folderId, FolderUpdateDto folderDto, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Updating folder {folderId} for start project {startProjectId}", folderId, startProjectId);
+
+        var updatedFolder = await _foldersService.UpdateFolderAsync(folderDto, cancellationToken);
+
+        _logger.LogInformation("Updated folder with ID {folderId}", updatedFolder.Id);
+
+        return updatedFolder;
+    }
+
+    public async Task DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Deleting folder {folderId} for start project {startProjectId}", folderId, startProjectId);
+
+        await _foldersService.DeleteFolderAsync(folderId, cancellationToken);
+
+        _logger.LogInformation("Deleted folder with ID {folderId}", folderId);
+    }
+
+    public Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<CompilationResult> CompileStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<byte[]> DownloadStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+}

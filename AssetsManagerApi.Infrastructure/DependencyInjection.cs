@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text;
 using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.IServices.Identity;
@@ -23,6 +24,19 @@ public static class DependencyInjection
         services.AddScoped<ITagsService, TagsService>();
         services.AddScoped<IFoldersService, FoldersService>();
         services.AddScoped<ICodeFilesService, CodeFilesService>();
+
+        services.AddScoped<IStartProjectsService, StartProjectsService>();
+        services.AddScoped<IGenerativeAiService, OpenAIService>();
+
+        services.AddHttpClient<IGenerativeAiService, OpenAIService>(client =>
+        {
+            var openAiBaseUrl = configuration.GetValue<string>("OpenAi:BaseUrl")!;
+            client.BaseAddress = new Uri(openAiBaseUrl);
+            
+            var openAiApiKey = configuration.GetValue<string>("OpenAi:ApiKey")!;
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", openAiApiKey);
+        });
 
         return services;
     }

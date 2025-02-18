@@ -4,4 +4,5 @@ public enum AssetTypes
 {
     Public = 1, 
     Corporate = 2,
+    StartProject = 3
 }

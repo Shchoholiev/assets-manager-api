@@ -1,5 +1,3 @@
-using AssetsManagerApi.Application.Models.Operations;
-
 namespace AssetsManagerApi.Application.Models.Dto;
 
 public class StartProjectDto

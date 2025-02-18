@@ -9,6 +9,7 @@ using System.Globalization;
 using AssetsManagerApi.Domain.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AssetsManagerApi.IntegrationTests.Models;
 
 namespace AssetsManagerApi.IntegrationTests;
 
@@ -273,8 +274,206 @@ public class DbInitializer(CosmosDbContext dbContext)
         }
     }
 
+    public async Task InitializeCodeAssetsAsync()
+    {
+        #region Company
+        var companiesCollection = await _dbContext.GetContainerAsync("Companies");
+        var digitalBank = new Company
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Digital Bank",
+            Description = "All online banking services",
+            CreatedById = "placeholder",
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await companiesCollection.CreateItemAsync(digitalBank);
+
+        #endregion
+        
+        #region Users
+
+        var rolesCollection = await _dbContext.GetContainerAsync("Roles");
+        var enterpriseRole = rolesCollection.GetItemLinqQueryable<Role>(true)
+            .Where(r => r.Name == "Enterprise")
+            .AsEnumerable()
+            .FirstOrDefault();
+
+        var passwordHasher = new PasswordHasher(new Logger<PasswordHasher>(new LoggerFactory()));
+
+        var usersCollection = await _dbContext.GetContainerAsync("Users");
+        var startProjectUser = new User
+        {
+            Id = "d3aeadbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
+            Email = "start-project@gmail.com",
+            Roles = [enterpriseRole],
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = null,
+            EmailVerificationTokenExpiry = null,
+            CompanyId = digitalBank.Id
+        };
+        await usersCollection.CreateItemAsync(startProjectUser);
+
+        var noCompanyUser = new User
+        {
+            Id = "d2aeadbb-9c1f-4d2d-9e1a-ffb0f688fdc4",
+            Email = "no-company@gmail.com",
+            Roles = [enterpriseRole],
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = null,
+            EmailVerificationTokenExpiry = null
+        };
+        await usersCollection.CreateItemAsync(noCompanyUser);
+
+        string csvFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "10_digital_bank_users.csv");
+        var users = ReadUsersFromCsv(csvFilePath);
+        foreach (var user in users)
+        {
+            user.Roles = [enterpriseRole];
+            user.PasswordHash = passwordHasher.Hash("Yuiop12345");
+            user.CompanyId = digitalBank.Id;
+            user.CreatedById = string.Empty;
+            user.CreatedDateUtc = DateTime.UtcNow;
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+
+            await usersCollection.CreateItemAsync(user);
+        }
+
+        #endregion
+
+        #region Tags
+        var tagsCollection = await _dbContext.GetContainerAsync("Tags");
+
+        string tagsCsvFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "20_digital_bank_tags.csv");
+        List<Tag> tags = ReadTagsFromCsv(tagsCsvFilePath);
+
+        foreach (var tag in tags)
+        {
+            tag.UseCount = 0;
+            await tagsCollection.CreateItemAsync(tag);
+        }
+        #endregion
+
+        #region Folders / CodeFiles
+        
+        string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "file_system_nodes_integration_tests.json");
+        var rootFolders = ReadFileSystemNodesFromJson(jsonFilePath);
+
+        foreach (var rootFolder in rootFolders)
+        {
+            await ProcessNestedItemAsync(rootFolder);
+        }
+
+        #endregion 
+
+        #region CodeAssets
+        var codeAssetsCollection = await _dbContext.GetContainerAsync("CodeAssets");
+
+        string codeAssetsJsonFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "code_assets_integration_tests.json");
+        var codeAssets = ReadCodeAssetsFromJson(codeAssetsJsonFilePath);
+
+        foreach (var codeAsset in codeAssets)
+        {
+            codeAsset.CompanyId = digitalBank.Id;
+            codeAsset.AssetType = AssetTypes.Corporate;
+            await codeAssetsCollection.CreateItemAsync(codeAsset);
+        }
+
+        #endregion
+
+        #region StartProjects
+
+        var foldersCollection = await _dbContext.GetContainerAsync("Folders");
+        var codeFilesCollection = await _dbContext.GetContainerAsync("CodeFiles");
+
+        var rootFolder3 = new Folder
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
+            Name = "Web Development",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFolder3_1 = new Folder
+        {
+            Id = "f85eafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
+            Name = "Subfolder1",
+            ParentId = rootFolder3.Id,
+            Type = FileType.Folder,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFile3_1 = new CodeFile
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
+            Name = "Web_Development_Sub1.cs",
+            Text = "// Code for Web Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = rootFolder3.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFile3_2 = new CodeFile
+        {
+            Id = "d3faafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
+            Name = "Web_Development_Sub1.cs",
+            Text = "// Code for Web Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = rootFolder3.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeFilesCollection.CreateItemAsync(subFile3_1);
+        await codeFilesCollection.CreateItemAsync(subFile3_2);
+        await foldersCollection.CreateItemAsync(subFolder3_1);
+        await foldersCollection.CreateItemAsync(rootFolder3);
+
+        var asset = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Start Project",
+            Description = "Start project",
+            AssetType = AssetTypes.StartProject,
+            Language = Languages.csharp,
+            RootFolderId = rootFolder3.Id,
+            PrimaryCodeFileId = subFile3_1.Id,
+            Tags = [],
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(asset);
+
+        var startProjectsCollection = await _dbContext.GetContainerAsync("StartProjects");
+
+        var startProject = new StartProject
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
+            CodeAssetsIds = [..codeAssets.Select(x => x.Id)],
+            CompanyId = digitalBank.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            CreatedById = startProjectUser.Id,
+            CodeAssetId = asset.Id
+        };
+        await startProjectsCollection.CreateItemAsync(startProject);
+
+        #endregion
+    }
+
     /// <summary>
     /// Add code assets to the database from Digital Bank company 
+    /// Do not use for integration tests, only for initial seeding
     /// </summary>
     public async Task InitializeCodeAssetsAutomatedAsync()
     {
@@ -288,6 +487,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             CreatedById = "placeholder",
             CreatedDateUtc = DateTime.UtcNow
         };
+        await companiesCollection.CreateItemAsync(digitalBank);
 
         #endregion
         
@@ -340,7 +540,7 @@ public class DbInitializer(CosmosDbContext dbContext)
 
         foreach (var rootFolder in rootFolders)
         {
-            await AddFolderAndNestedItemsAsync(rootFolder);
+            await ProcessNestedItemAsync(rootFolder);
         }
 
         #endregion 
@@ -357,7 +557,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             codeAsset.CompanyId = digitalBank.Id;
             await codeAssetsCollection.CreateItemAsync(codeAsset);
         }
-
 
         #endregion
     }
@@ -826,7 +1025,7 @@ public class DbInitializer(CosmosDbContext dbContext)
         return tags;
     }
 
-    private static List<Folder> ReadFileSystemNodesFromJson(string filePath)
+    private static List<FolderDataSeeding> ReadFileSystemNodesFromJson(string filePath)
     {
         string jsonContent = File.ReadAllText(filePath);
 
@@ -836,27 +1035,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Converters = { new FileSystemNodeConverter() }
         };
 
-        return JsonSerializer.Deserialize<List<Folder>>(jsonContent, options) ?? new List<Folder>();
-    }
-
-    private async Task AddFolderAndNestedItemsAsync(Folder folder)
-    {
-        var foldersCollection = await _dbContext.GetContainerAsync("Folders");
-
-        var folderCopy = new Folder
-        {
-            Id = folder.Id,
-            Name = folder.Name,
-            ParentId = folder.ParentId,
-            Type = folder.Type,
-            // Items should not be included in the folder document
-        };
-
-        // Add the root folder to the Folders collection
-        await foldersCollection.CreateItemAsync(folderCopy);
-        Console.WriteLine($"Added root folder: {folder.Name}");
-
-        // Recursively process nested items
+        return JsonSerializer.Deserialize<List<FolderDataSeeding>>(jsonContent, options) ?? new List<FolderDataSeeding>();
     }
 
     private async Task ProcessNestedItemAsync(FileSystemNode item)
@@ -868,7 +1047,7 @@ public class DbInitializer(CosmosDbContext dbContext)
         {
             case FileType.Folder:
                 // Cast to Folder and insert into Folders collection
-                var subFolder = (Folder)item;
+                var subFolder = (FolderDataSeeding)item;
                 var subFolderCopy = new Folder
                 {
                     Id = subFolder.Id,
@@ -881,6 +1060,11 @@ public class DbInitializer(CosmosDbContext dbContext)
                 Console.WriteLine($"Added subfolder: {subFolder.Name}");
 
                 // Recursively process subfolder items
+                foreach (var nestedItem in subFolder.Items)
+                {
+                    Console.WriteLine($"Processing nested item: {nestedItem.Name}");
+                    await ProcessNestedItemAsync(nestedItem);
+                }
 
                 break;
 
@@ -918,7 +1102,7 @@ public class DbInitializer(CosmosDbContext dbContext)
                 // Deserialize based on the type
                 if (type == FileType.Folder)
                 {
-                    return JsonSerializer.Deserialize<Folder>(root.GetRawText(), options);
+                    return JsonSerializer.Deserialize<FolderDataSeeding>(root.GetRawText(), options);
                 }
                 else if (type == FileType.CodeFile)
                 {
