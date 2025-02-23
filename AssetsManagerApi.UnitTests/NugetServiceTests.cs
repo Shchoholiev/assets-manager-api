@@ -49,7 +49,7 @@ public class NugetServiceTests
             .ReturnsAsync(packageMetadata);
 
         // Act
-        var version = await _nugetService.GetPackageLatestVersionAsync(packageName);
+        var version = await _nugetService.GetPackageLatestVersionAsync(packageName, CancellationToken.None);
 
         // Assert
         Assert.That(version, Is.EqualTo(expectedVersion));
@@ -59,6 +59,6 @@ public class NugetServiceTests
     public void GetPackageLatestVersionAsync_InvalidPackage_ThrowsException()
     {
         Assert.ThrowsAsync<EntityNotFoundException>(async () =>
-            await _nugetService.GetPackageLatestVersionAsync("NotExistingPackage"));
+            await _nugetService.GetPackageLatestVersionAsync("NotExistingPackage", CancellationToken.None));
     }
 }

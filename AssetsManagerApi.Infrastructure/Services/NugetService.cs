@@ -25,7 +25,7 @@ public class NugetService : INugetService
         }
     }
 
-    public async Task<string> GetPackageLatestVersionAsync(string packageName)
+    public async Task<string> GetPackageLatestVersionAsync(string packageName, CancellationToken cancellationToken)
     {
         var packageMetadata = await _metadataResource.GetMetadataAsync(
             packageName, 
