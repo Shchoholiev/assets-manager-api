@@ -23,7 +23,6 @@ public class TagsController(ITagsService tagsService) : ApiController
     /// <param name="pageNumber">Page number.</param>
     /// <param name="pageSize">Page size.</param>
     /// <returns>A paginated list of tags.</returns>
-    [Authorize]
     [HttpGet]
     public async Task<ActionResult<PagedList<TagDto>>> GetTagsPage(
         [FromQuery] string? searchString,
