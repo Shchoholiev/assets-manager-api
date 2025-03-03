@@ -54,23 +54,32 @@ public class CodeAssetsService : ICodeAssetsService
             throw new AccessViolationException("Enterprise users can create only corporate assets");
         }
 
-        var folder = await _foldersRepository.GetOneAsync(createDto.RootFolderId, cancellationToken);
-
-        if (folder == null)
+        var folder = new Folder()
         {
-            throw new EntityNotFoundException("Root folder not found");
-        }
+            Name = createDto.RootFolderName,
+            Type = FileType.Folder,
+            CreatedById = GlobalUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+        };
 
-        var primaryCodeFIle = await _codeFilesRepository.GetOneAsync(createDto.PrimaryCodeFileId, cancellationToken);
+        folder = await _foldersRepository.AddAsync(folder, cancellationToken);
 
-        if (primaryCodeFIle == null)
+        var primaryCodeFIle = new CodeFile
         {
-            throw new EntityNotFoundException("Primary code file not found");
-        }
+            Name = createDto.PrimaryCodeFileName,
+            Type = FileType.CodeFile,
+            Text = "",
+            Language = LanguagesExtensions.StringToLanguage(createDto.Language),
+            ParentId = folder.Id,
+            CreatedById = GlobalUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+        };
+
+        primaryCodeFIle = await _codeFilesRepository.AddAsync(primaryCodeFIle, cancellationToken);
 
         var entity = new CodeAsset()
         {
-            Description = createDto.Description,
+            Description = "",
             Name = createDto.Name,
             AssetType = createDto.AssetType,
             CreatedById = GlobalUser.Id,
@@ -83,20 +92,6 @@ public class CodeAssetsService : ICodeAssetsService
         if (GlobalUser.CompanyId != null)
         {
             entity.CompanyId = GlobalUser.CompanyId;
-        }
-
-        if (createDto.TagsIds != null)
-        {
-            entity.Tags = new List<Tag>();
-            foreach (var tagId in createDto.TagsIds)
-            {
-                var tag = await _tagsRepository.GetOneAsync(tagId, cancellationToken)
-                          ?? throw new EntityNotFoundException($"Tag with ID {tagId} not found");
-                entity.Tags.Add(tag);
-                tag.UseCount++;
-
-                await _tagsRepository.UpdateAsync(tag, cancellationToken);
-            }
         }
 
         var result = await _codeAssetsRepository.AddAsync(entity, cancellationToken);
