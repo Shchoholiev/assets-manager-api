@@ -42,6 +42,8 @@ public class FoldersService : IFoldersService
             Name = createDto.Name,
             Type = FileType.Folder,
             ParentId = createDto.ParentId,
+            CreatedById = GlobalUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
         };
 
         await _foldersRepository.AddAsync(folderEntity, cancellationToken);
