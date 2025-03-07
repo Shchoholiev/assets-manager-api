@@ -39,6 +39,8 @@ builder.Services
                 });
         });
 
+//builder.Services.AddTransient<DbInitializer>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -61,6 +63,12 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 app.MapControllers();
 
 app.MapHealthChecks("/health");
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbInitializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
+//    dbInitializer.InitializeDb();
+//}
 
 app.Run();
 

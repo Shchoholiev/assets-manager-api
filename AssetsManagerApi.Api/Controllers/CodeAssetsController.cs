@@ -29,7 +29,6 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// <param name="pageNumber">Page number.</param>
     /// <param name="pageSize">Page size.</param>
     /// <returns>A paginated list of code assets.</returns>
-    [Authorize]
     [HttpGet]
     public async Task<ActionResult<PagedList<CodeAssetDto>>> GetCodeAssetsPageAsync(
         [FromQuery] CodeAssetFilterModel filterModel,
@@ -45,7 +44,6 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="codeAssetId">The ID of the code asset.</param>
     /// <returns>The requested code asset.</returns>
-    [Authorize]
     [HttpGet("{codeAssetId}")]
     public async Task<ActionResult<CodeAssetDto>> GetCodeAssetAsync(string codeAssetId, CancellationToken cancellationToken)
     {

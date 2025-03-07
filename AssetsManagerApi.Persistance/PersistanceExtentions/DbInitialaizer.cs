@@ -42,9 +42,6 @@ public class DbInitializer(CosmosDbContext dbContext)
 
         var tags = new List<Tag>
         {
-            new Tag { Id = Guid.NewGuid().ToString(), Name = "Csharp", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 1 },
-            new Tag { Id = Guid.NewGuid().ToString(), Name = "JavaScript", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
-            new Tag { Id = Guid.NewGuid().ToString(), Name = "Python", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 1 },
             new Tag { Id = Guid.NewGuid().ToString(), Name = "Web Development", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 1 },
             new Tag { Id = Guid.NewGuid().ToString(), Name = "Machine Learning", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 2 },
             new Tag { Id = Guid.NewGuid().ToString(), Name = "Database", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 1 },
@@ -55,7 +52,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             new Tag { Id = Guid.NewGuid().ToString(), Name = "Data Science", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
             new Tag { Id = Guid.NewGuid().ToString(), Name = "Artificial Intelligence", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
             new Tag { Id = Guid.NewGuid().ToString(), Name = "Cyber Security", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
-            new Tag { Id = Guid.NewGuid().ToString(), Name = "Networking", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Networking", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 2 },
             new Tag { Id = Guid.NewGuid().ToString(), Name = "Blockchain", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
             new Tag { Id = Guid.NewGuid().ToString(), Name = "AR/VR", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
             new Tag { Id = Guid.NewGuid().ToString(), Name = "Game Development", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
@@ -133,7 +130,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Language = Languages.python,
             RootFolderId = rootFolder1.Id,
             PrimaryCodeFileId = subFile1_1.Id,
-            Tags = new List<Tag> { tags[4] },
+            Tags = new List<Tag> { tags[1] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -188,7 +185,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Language = Languages.csharp,
             RootFolderId = rootFolder2.Id,
             PrimaryCodeFileId = subFile2_1.Id,
-            Tags = new List<Tag> { tags[5] },
+            Tags = new List<Tag> { tags[2] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -243,7 +240,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Language = Languages.javascript,
             RootFolderId = rootFolder3.Id,
             PrimaryCodeFileId = subFile3_1.Id,
-            Tags = new List<Tag> { tags[3] },
+            Tags = new List<Tag> { tags[0] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -299,7 +296,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Language = Languages.python,
             RootFolderId = rootFolder4.Id,
             PrimaryCodeFileId = subFile4_1.Id,
-            Tags = new List<Tag> { tags[2] },
+            Tags = new List<Tag> { tags[10] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -355,7 +352,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Language = Languages.csharp,
             RootFolderId = rootFolder5.Id,
             PrimaryCodeFileId = subFile5_1.Id,
-            Tags = new List<Tag> { tags[0] },
+            Tags = new List<Tag> { tags[10] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
@@ -410,7 +407,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Language = Languages.csharp,
             RootFolderId = rootFolder6.Id,
             PrimaryCodeFileId = subFile6_1.Id,
-            Tags = new List<Tag> { tags[4] },
+            Tags = new List<Tag> { tags[1] },
             CreatedById = enterpriseUser.Id,
             CreatedDateUtc = DateTime.UtcNow
         };
