@@ -1,6 +1,6 @@
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.Dto;
 using Microsoft.Extensions.Logging;
@@ -31,7 +31,8 @@ public class OpenAIService(
                 content = "You are a helpful assistant that selects relevant code assets based on project description."
             }
         ];
-        messages.AddRange(GetRelevantCodeAssetsSelectionExamples());
+        // messages.AddRange(GetRelevantCodeAssetsSelectionExamples());
+        messages.AddRange(GetRelevantCodeAssetsSelectionCoTExamples());
 
         messages.Add(new
         {
@@ -44,8 +45,8 @@ public class OpenAIService(
                 Available Code Assets:
                 {PreprocessCodeAssets(assets)}
 
-
-                Return a list of relevant code assets as a JSON array based on the project description.
+                Return a list of all relevant code assets as a JSON object with key "ids" and array of string inside <json></json> tag based on the project description. 
+                Explain your reasoning step by step before returning the final answer.
                 """
         });
 
@@ -53,33 +54,33 @@ public class OpenAIService(
         {
             model = "gpt-4o-mini",
             messages = messages,
-            response_format = new
-            {
-                type = "json_schema",
-                json_schema = new
-                {
-                    name = "array_of_code_asset_ids",
-                    schema = new
-                    {
-                        type = "object",
-                        properties = new
-                        {
-                            ids = new
-                            {
-                                type = "array",
-                                description = "An array of code asset ids represented as strings.",
-                                items = new
-                                {
-                                    type = "string"
-                                }
-                            }
-                        },
-                        required = new[] { "ids" },
-                        additionalProperties = false
-                    },
-                    strict = true
-                }
-            }
+            // response_format = new
+            // {
+            //     type = "json_schema",
+            //     json_schema = new
+            //     {
+            //         name = "array_of_code_asset_ids",
+            //         schema = new
+            //         {
+            //             type = "object",
+            //             properties = new
+            //             {
+            //                 ids = new
+            //                 {
+            //                     type = "array",
+            //                     description = "An array of code asset ids represented as strings.",
+            //                     items = new
+            //                     {
+            //                         type = "string"
+            //                     }
+            //                 }
+            //             },
+            //             required = new[] { "ids" },
+            //             additionalProperties = false
+            //         },
+            //         strict = true
+            //     }
+            // }
         };
 
         var response = await _httpClient.PostAsJsonAsync("/v1/chat/completions", request, cancellationToken);
@@ -87,16 +88,28 @@ public class OpenAIService(
 
         var jsonString = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        var responseObject = JObject.Parse(jsonString);
-        var ids = responseObject["choices"]
-            ?.Select(choice => choice["message"]?["content"]?.ToString())
-            .Where(content => !string.IsNullOrEmpty(content))
-            .SelectMany(content =>
-            {
-                JObject innerObject = JObject.Parse(content);
-                return innerObject["ids"]?.Select(id => id.ToString()) ?? Enumerable.Empty<string>();
-            })
-            .ToList();
+        // _logger.LogInformation("Open AI Response: {response}", jsonString);
+
+        var match = Regex.Match(jsonString, @"<json>(.*?)</json>", RegexOptions.Singleline);
+        var json = match.Groups[1].Value;
+
+        // _logger.LogInformation("Extracted JSON: {json}", json);
+
+        var unescapedJson = Regex.Unescape(json).Trim();
+        var responseObject = JObject.Parse(unescapedJson);
+        var ids = responseObject["ids"]?.ToObject<string[]>();
+
+        // For JSON response
+        // var responseObject = JObject.Parse(jsonString);
+        // var ids = responseObject["choices"]
+        //     ?.Select(choice => choice["message"]?["content"]?.ToString())
+        //     .Where(content => !string.IsNullOrEmpty(content))
+        //     .SelectMany(content =>
+        //     {
+        //         JObject innerObject = JObject.Parse(content);
+        //         return innerObject["ids"]?.Select(id => id.ToString()) ?? Enumerable.Empty<string>();
+        //     })
+        //     .ToList();
 
         var selectedAssets = assets.Where(x => ids?.Contains(x.Id.ToString()) ?? false).ToList();
 
@@ -227,6 +240,160 @@ public class OpenAIService(
                     """
             }
         ];
+
+        return [.. firstExample, .. secondExample];
+    }
+
+    private static List<object> GetRelevantCodeAssetsSelectionCoTExamples()
+    {
+        List<object> firstExample = [
+            new
+            {
+                role = "user",
+                content =
+                    """
+                    Project Description:
+                    I am developing a mortgage calculation microservice. It should accurately calculate mortgage details and generate statements.
+
+                    Available Code Assets:
+                    [
+                        {
+                            "id": "c5212788-0454-4269-a1da-23440509389c",
+                            "name": "ATM Integration Service",
+                            "description": "Connects ATM networks with the core banking system."
+                        },
+                        {
+                            "id": "3f6a4167-916f-4bc8-9002-9cf18c664d67",
+                            "name": "Transaction Processing Engine",
+                            "description": "Processes and records financial transactions reliably."
+                        },
+                        {
+                            "id": "b73c177f-c73d-4d90-bcae-95e9a6f2c0d2",
+                            "name": "Electronic Statement Generator",
+                            "description": "Creates electronic statements for customer accounts."
+                        },
+                        {
+                            "id": "2deca278-2f36-4c1d-84dd-9e07e48f75af",
+                            "name": "Data Caching Service",
+                            "description": "Implements caching to speed up data retrieval processes."
+                        },
+                        {
+                            "id": "baa059d9-6c33-48e7-9a29-a101c210d165",
+                            "name": "Mortgage Calculation Service",
+                            "description": "Calculates mortgage details based on user inputs."
+                        }
+                    ]
+
+
+                    Return a list of all relevant code assets as a JSON object with key "ids" and array of string inside <json></json> tag based on the project description. 
+                    Explain your reasoning step by step before returning the final answer.
+                    """
+            },
+            new
+            {
+                role = "assistant",
+                content =
+                    """
+                    Let's analyze the project requirements step by step:
+
+                    1. **Understanding the Goal**: The project is focused on **mortgage calculations** and generating **statements**.
+                    2. **Identifying Key Functions**:
+                    - The microservice needs to **calculate mortgage details** accurately.
+                    - It should also be able to **generate mortgage statements**.
+                    3. **Matching Available Code Assets**:
+                    - **"Mortgage Calculation Service"** (ID: `"baa059d9-6c33-48e7-9a29-a101c210d165"`)  
+                        - This service is specifically designed to **calculate mortgage details based on user inputs**, making it essential for the project.
+                    - **"Electronic Statement Generator"** (ID: `"b73c177f-c73d-4d90-bcae-95e9a6f2c0d2"`)  
+                        - Since the microservice also needs to **generate mortgage statements**, this service is directly relevant.
+
+                    **Final Decision**: Based on this reasoning, the two most relevant assets are:
+                    
+                    <json>
+                    {
+                        "ids": [
+                            "baa059d9-6c33-48e7-9a29-a101c210d165",
+                            "b73c177f-c73d-4d90-bcae-95e9a6f2c0d2"
+                        ]
+                    }
+                    </json>
+                    """
+            }
+        ];
+
+        List<object> secondExample = [
+            new
+            {
+                role = "user",
+                content =
+                    """
+                    Project Description:
+                    I'm enhancing our ATM network by integrating a microservice that synchronizes ATM transactions in real time.
+
+                    Available Code Assets:
+                    [
+                        {
+                            "id": "baa059d9-6c33-48e7-9a29-a101c210d165",
+                            "name": "Mortgage Calculation Service",
+                            "description": "Calculates mortgage details based on user inputs."
+                        },
+                        {
+                            "id": "c5212788-0454-4269-a1da-23440509389c",
+                            "name": "ATM Integration Service",
+                            "description": "Connects ATM networks with the core banking system."
+                        },
+                        {
+                            "id": "3f6a4167-916f-4bc8-9002-9cf18c664d67",
+                            "name": "Transaction Processing Engine",
+                            "description": "Processes and records financial transactions reliably."
+                        },
+                        {
+                            "id": "7e1b5e83-11c1-47f8-a4be-9e21e245228d",
+                            "name": "Real-Time Analytics Dashboard",
+                            "description": "Displays live analytics data for monitoring performance."
+                        },
+                        {
+                            "id": "2deca278-2f36-4c1d-84dd-9e07e48f75af",
+                            "name": "Data Caching Service",
+                            "description": "Implements caching to speed up data retrieval processes."
+                        }
+                    ]
+
+                    Return a list of all relevant code assets as a JSON object with key "ids" and array of string inside <json></json> tag based on the project description. 
+                    Explain your reasoning step by step before returning the final answer.
+                    """
+            },
+            new
+            {
+                role = "assistant",
+                content =
+                    """
+                    Let's analyze the project requirements step by step:
+
+                    1. **Understanding the Goal**: The project is about enhancing the ATM network with a microservice that synchronizes transactions in real time.
+                    2. **Identifying Key Functions**:
+                    - The microservice must **integrate with ATMs** to handle transactions.
+                    - It must **process financial transactions** reliably.
+                    - It may require **real-time synchronization** with the core banking system.
+                    3. **Matching Available Code Assets**:
+                    - **"ATM Integration Service"** (ID: `"c5212788-0454-4269-a1da-23440509389c"`)  
+                        - This service directly **connects ATM networks with the core banking system**, making it a crucial component for integration.
+                    - **"Transaction Processing Engine"** (ID: `"3f6a4167-916f-4bc8-9002-9cf18c664d67"`)  
+                        - Since transaction reliability is a major factor, this engine is essential for **processing and recording financial transactions securely**.
+
+                    **Final Decision**: Based on this reasoning, the two most relevant assets are:
+                    
+                    <json>
+                    {
+                        "ids": [
+                            "c5212788-0454-4269-a1da-23440509389c",
+                            "3f6a4167-916f-4bc8-9002-9cf18c664d67"
+                        ]
+                    }
+                    </json>
+                    """
+            }
+        ];
+
 
         return [.. firstExample, .. secondExample];
     }

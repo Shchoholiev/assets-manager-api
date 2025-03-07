@@ -1,3 +1,4 @@
+using System.Text;
 using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.CreateDto;
@@ -17,7 +18,8 @@ public class StartProjectsService(
     IStartProjectsRepository startProjectsRepository,
     ICodeFilesService codeFilesService,
     IFoldersService foldersService,
-    ILogger<StartProjectsService> logger
+    ILogger<StartProjectsService> logger,
+    INugetService nugetService
 ) : IStartProjectsService
 {
     private readonly ICodeAssetsService _codeAssetsService = codeAssetsService;
@@ -31,6 +33,8 @@ public class StartProjectsService(
     private readonly IFoldersService _foldersService = foldersService;
 
     private readonly ILogger<StartProjectsService> _logger = logger;
+
+    private readonly INugetService _nugetService = nugetService;
 
     public async Task<StartProjectDto> CreateStartProjectAsync(StartProjectCreateDto createDto, CancellationToken cancellationToken)
     {
@@ -55,10 +59,10 @@ public class StartProjectsService(
         _logger.LogInformation("Retrieved {count} code assets", assets.Items.Count());
 
         var selectedAssets = await _generativeAiService.SelectRelevantCodeAssets(
-            createDto.Prompt, 
-            assets.Items, 
+            createDto.Prompt,
+            assets.Items,
             cancellationToken);
-        
+
         var startProject = new StartProject
         {
             CodeAssetsIds = selectedAssets.Select(x => x.Id).ToList(),
@@ -151,5 +155,48 @@ public class StartProjectsService(
     public Task<byte[]> DownloadStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<CodeFileDto> CreateCsprojAsync(IEnumerable<CodeFileDto> files, CancellationToken cancellationToken)
+    {
+        var packages = new HashSet<string>();
+        foreach (var file in files)
+        {
+            var lines = file.Text.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                var trimmed = line.Trim();
+                if (trimmed.StartsWith("using ") && trimmed.EndsWith(";"))
+                {
+                    var ns = trimmed.Substring(6, trimmed.Length - 7).Trim();
+                    if (!ns.StartsWith("System"))
+                    {
+                        packages.Add(ns);
+                    }
+                }
+            }
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("<Project Sdk=\"Microsoft.NET.Sdk\">");
+        sb.AppendLine("  <PropertyGroup>");
+        sb.AppendLine("    <TargetFramework>net8.0</TargetFramework>");
+        sb.AppendLine("    <ImplicitUsings>enable</ImplicitUsings>");
+        sb.AppendLine("    <Nullable>enable</Nullable>");
+        sb.AppendLine("  </PropertyGroup>");
+
+        if (packages.Count != 0)
+        {
+            sb.AppendLine("  <ItemGroup>");
+            foreach (var package in packages)
+            {
+                var version = await _nugetService.GetPackageLatestVersionAsync(package, cancellationToken);
+                sb.AppendLine($"    <PackageReference Include=\"{package}\" Version=\"{version}\" />");
+            }
+            sb.AppendLine("  </ItemGroup>");
+        }
+        sb.AppendLine("</Project>");
+
+        return new CodeFileDto { Text = sb.ToString() };
     }
 }
