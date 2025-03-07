@@ -14,7 +14,7 @@
         "Name": "Authentication"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "44ee7283-732e-4208-9e9b-22768dafe350",
     "CompanyId": "DigitalBankCo",
@@ -51,7 +51,7 @@
         "Name": "Encryption"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "e2b518aa-f7b1-4c69-aafb-fec2ffece993",
     "CompanyId": "DigitalBankCo",
@@ -88,7 +88,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "31ecad81-7526-4ba5-bb51-3f1af045a793",
     "CompanyId": "DigitalBankCo",
@@ -121,7 +121,7 @@
         "Name": "Registration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "cafbb8e5-64ba-4849-91f1-70d950f76d87",
     "CompanyId": "DigitalBankCo",
@@ -154,7 +154,7 @@
         "Name": "Password"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "8e84d52f-dae1-42da-99e5-70c43b8ff940",
     "CompanyId": "DigitalBankCo",
@@ -191,7 +191,7 @@
         "Name": "KYC"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "80813dfd-8de1-46ee-9f36-c2d3408ece63",
     "CompanyId": "DigitalBankCo",
@@ -232,7 +232,7 @@
         "Name": "Compliance"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "9fceeb30-a0b2-4986-b418-dcd463b22cb4",
     "CompanyId": "DigitalBankCo",
@@ -269,7 +269,7 @@
         "Name": "Compliance"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "b5a8321f-c44d-411b-8b03-09d4384b73ed",
     "CompanyId": "DigitalBankCo",
@@ -306,7 +306,7 @@
         "Name": "Compliance"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "851b2860-bfbf-4a8e-a228-32c719a6b7e0",
     "CompanyId": "DigitalBankCo",
@@ -347,7 +347,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "5e6e4dfe-ef87-4387-a0e0-77a7a9b50702",
     "CompanyId": "DigitalBankCo",
@@ -384,7 +384,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "1c0b8afa-e462-429c-8d1c-ee22ed7a1d45",
     "CompanyId": "DigitalBankCo",
@@ -421,7 +421,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "11ab8b1a-b83f-4f8b-a65b-5663fd9c7d90",
     "CompanyId": "DigitalBankCo",
@@ -458,7 +458,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "eef2ceef-4e71-47b5-9d8f-b2fe80357b0b",
     "CompanyId": "DigitalBankCo",
@@ -491,7 +491,7 @@
         "Name": "Refund"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "77826000-f665-4ac5-af84-b55b8eece5fc",
     "CompanyId": "DigitalBankCo",
@@ -528,7 +528,7 @@
         "Name": "Transaction"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "5edd1557-d19c-405a-b6e1-c8d924867601",
     "CompanyId": "DigitalBankCo",
@@ -569,7 +569,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "e7242e38-062d-4a0f-8344-4a481d6c4a4f",
     "CompanyId": "DigitalBankCo",
@@ -606,7 +606,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "ecdb7466-e15d-4732-a00c-61f69b81f45e",
     "CompanyId": "DigitalBankCo",
@@ -643,7 +643,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "b9ac20fa-f0cc-4118-b00b-03c96fd04533",
     "CompanyId": "DigitalBankCo",
@@ -684,7 +684,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "bae05a0c-caee-4259-8124-b7c745d4d023",
     "CompanyId": "DigitalBankCo",
@@ -721,7 +721,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "f3ea7e58-5ab1-4f13-bb6a-750a4a94f573",
     "CompanyId": "DigitalBankCo",
@@ -758,7 +758,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "8703fe11-5e85-4c3a-8c26-b57dfb14bc7f",
     "CompanyId": "DigitalBankCo",
@@ -795,7 +795,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "5027310c-92d2-4eb1-a4b9-8dff989b8d4b",
     "CompanyId": "DigitalBankCo",
@@ -832,7 +832,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "ed9d4711-0b3b-46de-b698-874a4338e5e7",
     "CompanyId": "DigitalBankCo",
@@ -865,7 +865,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "9ef36649-c7de-4a84-a7ea-9471f3bc4cd3",
     "CompanyId": "DigitalBankCo",
@@ -898,7 +898,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "0451acee-099c-49ad-b067-ad915efb1e7d",
     "CompanyId": "DigitalBankCo",
@@ -931,7 +931,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "4eeb891e-e821-485d-9ef3-135a48a436e6",
     "CompanyId": "DigitalBankCo",
@@ -964,7 +964,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "7d099013-38a0-4170-ae78-046e87f523d4",
     "CompanyId": "DigitalBankCo",
@@ -1001,7 +1001,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "397c271c-81bb-4e02-8d8b-295662f90486",
     "CompanyId": "DigitalBankCo",
@@ -1034,7 +1034,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "44300999-40d9-4915-a2c7-a798586fbd7b",
     "CompanyId": "DigitalBankCo",
@@ -1067,7 +1067,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "48c292a6-51db-441d-9c64-b4c3b91599c6",
     "CompanyId": "DigitalBankCo",
@@ -1100,7 +1100,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "e16b4db5-0ef7-4cc8-9888-b796fa0c08d4",
     "CompanyId": "DigitalBankCo",
@@ -1133,7 +1133,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "223a07ca-3634-4331-876e-4f8154a6bb3d",
     "CompanyId": "DigitalBankCo",
@@ -1174,7 +1174,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "511da801-3cf9-4425-b7d0-3efd0b30f308",
     "CompanyId": "DigitalBankCo",
@@ -1211,7 +1211,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "5c3450ee-c908-43d3-a8c9-2d88da88ef9f",
     "CompanyId": "DigitalBankCo",
@@ -1244,7 +1244,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "f5a41bce-ece6-44af-9dc5-c563fb8d834b",
     "CompanyId": "DigitalBankCo",
@@ -1281,7 +1281,7 @@
         "Name": "Audit"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "22444c44-bebf-4d36-aa88-1d24532b8b10",
     "CompanyId": "DigitalBankCo",
@@ -1326,7 +1326,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "1a3405f3-545b-41e6-b859-b704c943054e",
     "CompanyId": "DigitalBankCo",
@@ -1367,7 +1367,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "d84c7858-190f-4b0a-a578-1269e48117ae",
     "CompanyId": "DigitalBankCo",
@@ -1404,7 +1404,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "bf8f8028-1a38-4f16-8ede-25a0862b2b01",
     "CompanyId": "DigitalBankCo",
@@ -1441,7 +1441,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "b6f91a18-5052-4edc-a45e-031a87deb0ca",
     "CompanyId": "DigitalBankCo",
@@ -1478,7 +1478,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "d2d674bb-f7cf-4c58-9fd3-d4c0a7ab96af",
     "CompanyId": "DigitalBankCo",
@@ -1511,7 +1511,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "2971c2af-5d7e-4446-a472-8ece588b072b",
     "CompanyId": "DigitalBankCo",
@@ -1548,7 +1548,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "12db2329-424f-45d8-8c27-1d91eb600314",
     "CompanyId": "DigitalBankCo",
@@ -1589,7 +1589,7 @@
         "Name": "Risk"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "a10972b8-d190-450a-b627-1bbc12ce52ab",
     "CompanyId": "DigitalBankCo",
@@ -1626,7 +1626,7 @@
         "Name": "Credit"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "2d830f2a-77b3-429b-bb83-c36fd4a65221",
     "CompanyId": "DigitalBankCo",
@@ -1663,7 +1663,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "550f4486-1d5f-4d61-bf9e-0e1217117631",
     "CompanyId": "DigitalBankCo",
@@ -1700,7 +1700,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "e28ce868-4575-487c-b499-75ccd08a53fd",
     "CompanyId": "DigitalBankCo",
@@ -1733,7 +1733,7 @@
         "Name": "Encryption"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "f9febb63-43be-4bfe-8f80-24459459ebee",
     "CompanyId": "DigitalBankCo",
@@ -1770,7 +1770,7 @@
         "Name": "Encryption"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "34e4b09d-0526-4dd6-8856-0f7a5ca8ee1a",
     "CompanyId": "DigitalBankCo",
@@ -1803,7 +1803,7 @@
         "Name": "Transaction"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "31116afa-4a91-4d86-8dce-15601955d226",
     "CompanyId": "DigitalBankCo",
@@ -1844,7 +1844,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "faf4d3fe-43f9-4f77-b27d-f3bd4b551abd",
     "CompanyId": "DigitalBankCo",
@@ -1877,7 +1877,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "d853730e-cdbe-496c-b284-014ddbac18e2",
     "CompanyId": "DigitalBankCo",
@@ -1914,7 +1914,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "580c9e22-e2ed-4f39-940a-ed01510200b0",
     "CompanyId": "DigitalBankCo",
@@ -1951,7 +1951,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "fc0c5ed2-026f-463f-908c-fe14801cc53e",
     "CompanyId": "DigitalBankCo",
@@ -1984,7 +1984,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "3d551176-892e-4c81-8f05-e80294f643d7",
     "CompanyId": "DigitalBankCo",
@@ -2021,7 +2021,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "6ba9cfb8-ea40-4495-8661-a3b719aad0b9",
     "CompanyId": "DigitalBankCo",
@@ -2058,7 +2058,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "78d0ea7a-8754-46f7-b8ec-b2a3d9631698",
     "CompanyId": "DigitalBankCo",
@@ -2099,7 +2099,7 @@
         "Name": "Transaction"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "cf59f884-d039-4f0b-9bcd-6ef334d97c12",
     "CompanyId": "DigitalBankCo",
@@ -2136,7 +2136,7 @@
         "Name": "Payment"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "5bd54d61-4eb0-4f92-819c-b032aa11ad86",
     "CompanyId": "DigitalBankCo",
@@ -2173,7 +2173,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "c1d60bb0-2a5e-4144-9ede-9815a8a3e9dd",
     "CompanyId": "DigitalBankCo",
@@ -2210,7 +2210,7 @@
         "Name": "Transaction"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "f1a16f4e-daac-41ba-9bfc-149c52efa645",
     "CompanyId": "DigitalBankCo",
@@ -2247,7 +2247,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "594a332c-1ae0-4bd3-9665-1142f81805a2",
     "CompanyId": "DigitalBankCo",
@@ -2288,7 +2288,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "6293bd9c-656e-4403-b080-cd1e68ab3cca",
     "CompanyId": "DigitalBankCo",
@@ -2325,7 +2325,7 @@
         "Name": "Transaction"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "f92416f9-4a5b-46e9-b6e9-917ae940ca65",
     "CompanyId": "DigitalBankCo",
@@ -2366,7 +2366,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "864577ba-a97c-410b-9f21-ffbe6c77e70e",
     "CompanyId": "DigitalBankCo",
@@ -2403,7 +2403,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "c97c9e40-9ad2-4902-8148-06024c9279d2",
     "CompanyId": "DigitalBankCo",
@@ -2440,7 +2440,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "fb727ef1-922a-40ea-aef1-fed7ecc49586",
     "CompanyId": "DigitalBankCo",
@@ -2477,7 +2477,7 @@
         "Name": "Compliance"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "baf9d3dc-84b7-4fb7-adc8-08fc1322ee9f",
     "CompanyId": "DigitalBankCo",
@@ -2510,7 +2510,7 @@
         "Name": "Encryption"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "7cc0bb16-d65a-4c2d-8c53-fe1a269fb959",
     "CompanyId": "DigitalBankCo",
@@ -2547,7 +2547,7 @@
         "Name": "Authentication"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "219c773c-f12e-4972-9ca6-2ee050461a44",
     "CompanyId": "DigitalBankCo",
@@ -2580,7 +2580,7 @@
         "Name": "Authentication"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "52e56e33-062f-46f1-bea0-f8c8b07f177d",
     "CompanyId": "DigitalBankCo",
@@ -2617,7 +2617,7 @@
         "Name": "Authentication"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "d6194ff1-fb37-41f4-b9ea-a26b0e668828",
     "CompanyId": "DigitalBankCo",
@@ -2654,7 +2654,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "e23d090b-9bc9-4ab9-a9a9-295701bd3e2c",
     "CompanyId": "DigitalBankCo",
@@ -2695,7 +2695,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "e7cd808c-3d48-4b05-bb14-a28769ab9153",
     "CompanyId": "DigitalBankCo",
@@ -2736,7 +2736,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "ecc79491-a984-4349-9adf-e7ce8dc33c6b",
     "CompanyId": "DigitalBankCo",
@@ -2773,7 +2773,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "01e48628-adbc-4a1b-9c54-a5c72cf4c504",
     "CompanyId": "DigitalBankCo",
@@ -2814,7 +2814,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "f3aab522-29c3-4841-8f5d-9c91a33f837d",
     "CompanyId": "DigitalBankCo",
@@ -2855,7 +2855,7 @@
         "Name": "Audit"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "36b286d8-4e34-4d31-b114-a63eee9282a7",
     "CompanyId": "DigitalBankCo",
@@ -2892,7 +2892,7 @@
         "Name": "Configuration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "a7e3c112-7f0c-4280-9719-ff0f91385938",
     "CompanyId": "DigitalBankCo",
@@ -2929,7 +2929,7 @@
         "Name": "Logging"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "95721616-e6e0-4916-b041-72de8da1d6f3",
     "CompanyId": "DigitalBankCo",
@@ -2966,7 +2966,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "669c11ff-f143-473f-b4f9-2919a76e6038",
     "CompanyId": "DigitalBankCo",
@@ -2999,7 +2999,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "741688f1-7f37-45f1-a001-3967a4bf9a14",
     "CompanyId": "DigitalBankCo",
@@ -3036,7 +3036,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "1f10e1e0-827b-4d5c-bcc3-036b855fd76b",
     "CompanyId": "DigitalBankCo",
@@ -3073,7 +3073,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "abb154f6-12ca-41bb-b237-1a1fc412e2ad",
     "CompanyId": "DigitalBankCo",
@@ -3110,7 +3110,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "e80a6661-9e5b-4788-9bff-4c03d516830b",
     "CompanyId": "DigitalBankCo",
@@ -3143,7 +3143,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "b32a8949-2e61-486f-ad3d-787ddbc6a723",
     "CompanyId": "DigitalBankCo",
@@ -3180,7 +3180,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "a4a2b958-fa69-49ef-adf8-86f839f3685c",
     "CompanyId": "DigitalBankCo",
@@ -3217,7 +3217,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "c137de94-1677-40b8-8fa3-965b4878df5a",
     "CompanyId": "DigitalBankCo",
@@ -3254,7 +3254,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "5111a20e-9039-4221-a702-802e986c41c8",
     "CompanyId": "DigitalBankCo",
@@ -3287,7 +3287,7 @@
         "Name": "Compliance"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "ea3c0217-b633-458c-98ed-3ccac51a1c46",
     "CompanyId": "DigitalBankCo",
@@ -3324,7 +3324,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "03ef88e9-ea7f-425e-b8ae-7784aa6f852b",
     "CompanyId": "DigitalBankCo",
@@ -3365,7 +3365,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "860b7244-d0d0-4a10-9a50-c5a05559f76d",
     "CompanyId": "DigitalBankCo",
@@ -3402,7 +3402,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "a2725d50-7750-4e2d-a20e-dbfb41f53390",
     "CompanyId": "DigitalBankCo",
@@ -3443,7 +3443,7 @@
         "Name": "Notification"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "e5f3ba06-300d-46a5-99bf-342dd17970b7",
     "CompanyId": "DigitalBankCo",
@@ -3480,7 +3480,7 @@
         "Name": "Analytics"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "c5e86c19-b9b6-4b94-ae70-f75bb8eb507a",
     "CompanyId": "DigitalBankCo",
@@ -3525,7 +3525,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "b594d9c3-9e26-433e-b66b-cdf8f54ef376",
     "CompanyId": "DigitalBankCo",
@@ -3562,7 +3562,7 @@
         "Name": "Risk"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "18c19115-f4ae-46e6-9a79-30fe1eeea8ff",
     "CompanyId": "DigitalBankCo",
@@ -3599,7 +3599,7 @@
         "Name": "Risk"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "54e87428-f814-4a15-a1a1-38d037bb0329",
     "CompanyId": "DigitalBankCo",
@@ -3636,7 +3636,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "af19350d-188d-4860-bd7b-39acd89a6478",
     "CompanyId": "DigitalBankCo",
@@ -3673,7 +3673,7 @@
         "Name": "Integration"
       }
     ],
-    "AssetType": 1,
+    "AssetType": 2,
     "Language": 0,
     "RootFolderId": "aac06764-dcbf-4f59-89f8-da19b230fcc9",
     "CompanyId": "DigitalBankCo",
