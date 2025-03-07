@@ -12,5 +12,7 @@ public class FileSystemNodeDto
 
     public string Name { get; set; }
 
+    public string? ParentId { get; set; }
+
     public FileType Type { get; set; }
 }

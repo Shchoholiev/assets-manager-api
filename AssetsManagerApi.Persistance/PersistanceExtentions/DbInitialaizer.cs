@@ -41,14 +41,39 @@ public class DbInitializer(CosmosDbContext dbContext)
         #region Tags
 
         var tags = new List<Tag>
-    {
-        new Tag { Id = Guid.NewGuid().ToString(), Name = "CSharp", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
-        new Tag { Id = Guid.NewGuid().ToString(), Name = "JavaScript", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
-        new Tag { Id = Guid.NewGuid().ToString(), Name = "Python", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
-        new Tag { Id = Guid.NewGuid().ToString(), Name = "WebDevelopment", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
-        new Tag { Id = Guid.NewGuid().ToString(), Name = "MachineLearning", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
-        new Tag { Id = Guid.NewGuid().ToString(), Name = "Database", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 }
-    };
+        {
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Csharp", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 1 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "JavaScript", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Python", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 1 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Web Development", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 1 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Machine Learning", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 2 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Database", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 1 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Mobile Development", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "DevOps", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Cloud Computing", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Big Data", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Data Science", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Artificial Intelligence", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Cyber Security", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Networking", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Blockchain", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "AR/VR", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Game Development", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Robotics", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Embedded Systems", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "IoT", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Automation", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Testing", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Performance Optimization", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Code Review", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "CI/CD", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Documentation", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Version Control", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Open Source", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "API", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "UI UX", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0 },
+            new Tag { Id = Guid.NewGuid().ToString(), Name = "Design Patterns", CreatedById = admin.Id, CreatedDateUtc = DateTime.UtcNow, UseCount = 0}
+        };
 
         foreach (var tag in tags)
         {
@@ -214,7 +239,7 @@ public class DbInitializer(CosmosDbContext dbContext)
             Id = Guid.NewGuid().ToString(),
             Name = "Web Application",
             Description = "JavaScript frontend development",
-            AssetType = AssetTypes.Private,
+            AssetType = AssetTypes.Public,
             Language = Languages.javascript,
             RootFolderId = rootFolder3.Id,
             PrimaryCodeFileId = subFile3_1.Id,
@@ -269,7 +294,8 @@ public class DbInitializer(CosmosDbContext dbContext)
             Id = Guid.NewGuid().ToString(),
             Name = "Mobile Application",
             Description = "Kotlin mobile app development",
-            AssetType = AssetTypes.Private,
+            AssetType = AssetTypes.Corporate,
+            CompanyId = enterpriseUser.CompanyId,
             Language = Languages.python,
             RootFolderId = rootFolder4.Id,
             PrimaryCodeFileId = subFile4_1.Id,

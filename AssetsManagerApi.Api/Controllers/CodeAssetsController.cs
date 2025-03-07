@@ -5,6 +5,7 @@ using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Application.Models.UpdateDto;
 using AssetsManagerApi.Application.Paging;
 using AssetsManagerApi.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AssetsManagerApi.Api.Controllers;
@@ -12,7 +13,7 @@ namespace AssetsManagerApi.Api.Controllers;
 /// <summary>
 /// Controller for managing code assets, folders, and files.
 /// </summary>
-[Route("codeAssets")]
+[Route("code-assets")]
 public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFoldersService foldersService, ICodeFilesService codeFilesService) : ApiController
 {
     private readonly ICodeAssetsService _codeAssetsService = codeAssetsService;
@@ -28,6 +29,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// <param name="pageNumber">Page number.</param>
     /// <param name="pageSize">Page size.</param>
     /// <returns>A paginated list of code assets.</returns>
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<PagedList<CodeAssetDto>>> GetCodeAssetsPageAsync(
         [FromQuery] CodeAssetFilterModel filterModel,
@@ -43,6 +45,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="codeAssetId">The ID of the code asset.</param>
     /// <returns>The requested code asset.</returns>
+    [Authorize]
     [HttpGet("{codeAssetId}")]
     public async Task<ActionResult<CodeAssetDto>> GetCodeAssetAsync(string codeAssetId, CancellationToken cancellationToken)
     {
@@ -54,6 +57,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="codeAssetId">The ID of the code asset.</param>
     /// <returns>The deleted code asset.</returns>
+    [Authorize]
     [HttpDelete("{codeAssetId}")]
     public async Task<ActionResult<CodeAssetDto>> DeleteCodeAssetAsync(string codeAssetId, CancellationToken cancellationToken)
     {
@@ -65,7 +69,8 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="codeFileId">The ID of the code file.</param>
     /// <returns>The deleted code file.</returns>
-    [HttpDelete("/codefiles/{codeFileId}")]
+    [Authorize]
+    [HttpDelete("codefiles/{codeFileId}")]
     public async Task<ActionResult<CodeFileDto>> DeleteCodeFileDtoAsync(string codeFileId, CancellationToken cancellationToken)
     {
         return await _codeFilesService.DeleteCodeFileAsync(codeFileId, cancellationToken);
@@ -76,7 +81,8 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="folderId">The ID of the folder.</param>
     /// <returns>The deleted folder.</returns>
-    [HttpDelete("/folders/{folderId}")]
+    [Authorize]
+    [HttpDelete("folders/{folderId}")]
     public async Task<ActionResult<FolderDto>> DeleteFolderAsync(string folderId, CancellationToken cancellationToken)
     {
         return await _foldersService.DeleteFolderAsync(folderId, cancellationToken);
@@ -87,6 +93,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="createDto">Data for creating a new code asset.</param>
     /// <returns>The created code asset.</returns>
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<CodeAssetDto>> CreateCodeAssetAsync(CodeAssetCreateDto createDto, CancellationToken cancellationToken)
     {
@@ -98,6 +105,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="createDto">Data for creating a new folder.</param>
     /// <returns>The created folder.</returns>
+    [Authorize]
     [HttpPost("folders")]
     public async Task<ActionResult<FolderDto>> CreateFolderAsync([FromBody] FolderCreateDto createDto, CancellationToken cancellationToken)
     {
@@ -109,6 +117,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="createDto">Data for creating a new code file.</param>
     /// <returns>The created code file.</returns>
+    [Authorize]
     [HttpPost("codefiles")]
     public async Task<ActionResult<CodeFileDto>> CreateCodeFileAsync([FromBody] CodeFileCreateDto createDto, CancellationToken cancellationToken)
     {
@@ -120,6 +129,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="dto">Data for updating the code asset.</param>
     /// <returns>The updated code asset.</returns>
+    [Authorize]
     [HttpPut]
     public async Task<ActionResult<CodeAssetDto>> UpdateCodeAssetAsync([FromBody] CodeAssetUpdateDto dto, CancellationToken cancellationToken)
     {
@@ -131,6 +141,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="dto">Data for updating the folder.</param>
     /// <returns>The updated folder.</returns>
+    [Authorize]
     [HttpPut("folders")]
     public async Task<ActionResult<FolderDto>> UpdateFolderAsync([FromBody] FolderUpdateDto dto, CancellationToken cancellationToken)
     {
@@ -142,6 +153,7 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     /// </summary>
     /// <param name="dto">Data for updating the code file.</param>
     /// <returns>The updated code file.</returns>
+    [Authorize]
     [HttpPut("codefiles")]
     public async Task<ActionResult<CodeFileDto>> UpdateCodeFileAsync([FromBody] CodeFileUpdateDto dto, CancellationToken cancellationToken)
     {

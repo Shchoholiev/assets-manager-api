@@ -49,33 +49,37 @@ public class CodeAssetsService : ICodeAssetsService
             throw new AccessViolationException("You are not enterprise user");
         }
 
-        if (createDto.AssetType == AssetTypes.Private && !GlobalUser.Roles.Contains("User"))
-        {
-            throw new AccessViolationException("You are not registered user");
-        }
-
         if (!(createDto.AssetType == AssetTypes.Corporate) && GlobalUser.Roles.Contains("Enterprise"))
         {
             throw new AccessViolationException("Enterprise users can create only corporate assets");
         }
 
-        var folder = await _foldersRepository.GetOneAsync(createDto.RootFolderId, cancellationToken);
-
-        if (folder == null)
+        var folder = new Folder()
         {
-            throw new EntityNotFoundException("Root folder not found");
-        }
+            Name = createDto.RootFolderName,
+            Type = FileType.Folder,
+            CreatedById = GlobalUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+        };
 
-        var primaryCodeFIle = await _codeFilesRepository.GetOneAsync(createDto.PrimaryCodeFileId, cancellationToken);
+        folder = await _foldersRepository.AddAsync(folder, cancellationToken);
 
-        if (primaryCodeFIle == null)
+        var primaryCodeFIle = new CodeFile
         {
-            throw new EntityNotFoundException("Primary code file not found");
-        }
+            Name = createDto.PrimaryCodeFileName,
+            Type = FileType.CodeFile,
+            Text = "",
+            Language = LanguagesExtensions.StringToLanguage(createDto.Language),
+            ParentId = folder.Id,
+            CreatedById = GlobalUser.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+        };
+
+        primaryCodeFIle = await _codeFilesRepository.AddAsync(primaryCodeFIle, cancellationToken);
 
         var entity = new CodeAsset()
         {
-            Description = createDto.Description,
+            Description = "",
             Name = createDto.Name,
             AssetType = createDto.AssetType,
             CreatedById = GlobalUser.Id,
@@ -90,20 +94,15 @@ public class CodeAssetsService : ICodeAssetsService
             entity.CompanyId = GlobalUser.CompanyId;
         }
 
-        if (createDto.TagsIds != null)
-        {
-            entity.Tags = new List<Tag>();
-            foreach (var tagId in createDto.TagsIds)
-            {
-                var tag = await _tagsRepository.GetOneAsync(tagId, cancellationToken)
-                          ?? throw new EntityNotFoundException($"Tag with ID {tagId} not found");
-                entity.Tags.Add(tag);
-            }
-        }
-
         var result = await _codeAssetsRepository.AddAsync(entity, cancellationToken);
 
-        return _mapper.Map<CodeAssetDto>(result);
+        var resultDto = _mapper.Map<CodeAssetDto>(result);
+
+        resultDto.UserName = GlobalUser.Name;
+        resultDto.PrimaryCodeFile = _mapper.Map<CodeFileDto>(primaryCodeFIle);
+        resultDto.RootFolder = await ComposeRootFolder(folder, cancellationToken);
+
+        return resultDto;
     }
 
     public async Task<CodeAssetDto> DeleteCodeAssetAsync(string codeAssetId, CancellationToken cancellationToken)
@@ -144,7 +143,7 @@ public class CodeAssetsService : ICodeAssetsService
     {
         Expression<Func<CodeAsset, bool>> predicate = codeAsset => codeAsset.AssetType == filterModel.AssetType;
 
-        if (filterModel.AssetType == AssetTypes.Private)
+        if (filterModel.IsPersonal)
         {
             predicate = predicate.And(codeAsset => codeAsset.CreatedById == GlobalUser.Id);
         }
@@ -183,6 +182,12 @@ public class CodeAssetsService : ICodeAssetsService
             case "Python":
                 predicate = predicate.And(codeAsset => codeAsset.Language == Languages.python);
                 break;
+
+            case null:
+                break;
+
+            default:
+                throw new ArgumentException($"Invalid language: {filterModel.Language}");
         }
 
         var entities = await _codeAssetsRepository.GetPageAsync(pageNumber, pageSize, predicate, cancellationToken);
@@ -192,12 +197,10 @@ public class CodeAssetsService : ICodeAssetsService
         for (var i = 0; i < entities.Count; i++)
         {
             var primaryCodeFile = await this._codeFilesRepository.GetOneAsync(entities[i].PrimaryCodeFileId, cancellationToken);
-            var folder = await this._foldersRepository.GetOneAsync(entities[i].RootFolderId, cancellationToken);
             var user = await this._usersRepository.GetOneAsync(entities[i].CreatedById, cancellationToken);
 
             dtos[i].UserName = user.Name;
             dtos[i].PrimaryCodeFile = _mapper.Map<CodeFileDto>(primaryCodeFile);
-            dtos[i].RootFolder = await ComposeRootFolder(folder, cancellationToken);
         }
 
         var totalCount = await this._codeAssetsRepository.GetCountAsync(predicate, cancellationToken);
@@ -233,7 +236,28 @@ public class CodeAssetsService : ICodeAssetsService
 
         var entity = await _codeAssetsRepository.UpdateAsync(codeAsset, cancellationToken);
 
-        return _mapper.Map<CodeAssetDto>(entity);
+        var result = _mapper.Map<CodeAssetDto>(entity);
+
+        result.UserName = GlobalUser.Name;
+
+        var folder = await _foldersRepository.GetOneAsync(entity.RootFolderId, cancellationToken);
+
+        if (folder == null)
+        {
+            throw new EntityNotFoundException("Root folder not found");
+        }
+
+        var primaryCodeFIle = await _codeFilesRepository.GetOneAsync(entity.PrimaryCodeFileId, cancellationToken);
+
+        if (primaryCodeFIle == null)
+        {
+            throw new EntityNotFoundException("Primary code file not found");
+        }
+
+        result.PrimaryCodeFile = _mapper.Map<CodeFileDto>(primaryCodeFIle);
+        result.RootFolder = await ComposeRootFolder(folder, cancellationToken);
+
+        return result;
     }
 
     private async Task<FolderDto> ComposeRootFolder(Folder rootFolder, CancellationToken cancellationToken)
