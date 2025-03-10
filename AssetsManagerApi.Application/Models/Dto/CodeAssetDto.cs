@@ -24,4 +24,6 @@ public class CodeAssetDto
     public CodeFileDto PrimaryCodeFile { get; set; }
 
     public string? UserName { get; set; }
+
+    public string CreatedById { get; set; }
 }
