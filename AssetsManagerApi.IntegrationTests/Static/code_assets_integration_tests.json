@@ -18,7 +18,7 @@
                 "Name": "Analytics"
             }
         ],
-        "AssetType": 1,
+        "AssetType": 2,
         "Language": 0,
         "RootFolderId": "12db2329-424f-45d8-8c27-1d91eb600314",
         "CompanyId": "DigitalBankCo",
@@ -51,7 +51,7 @@
                 "Name": "Integration"
             }
         ],
-        "AssetType": 1,
+        "AssetType": 2,
         "Language": 0,
         "RootFolderId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
         "CompanyId": "DigitalBankCo",

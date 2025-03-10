@@ -29,6 +29,8 @@ public static class DependencyInjection
         services.AddScoped<IStartProjectsService, StartProjectsService>();
         services.AddScoped<IGenerativeAiService, OpenAIService>();
 
+        services.AddScoped<INugetService, NugetService>();
+
         services.AddHttpClient<IGenerativeAiService, OpenAIService>(client =>
         {
             var openAiBaseUrl = configuration.GetValue<string>("OpenAi:BaseUrl")!;
