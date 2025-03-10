@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<ITagsService, TagsService>();
         services.AddScoped<IFoldersService, FoldersService>();
         services.AddScoped<ICodeFilesService, CodeFilesService>();
+        services.AddScoped<ICompaniesService, CompaniesService>();
 
         services.AddScoped<IStartProjectsService, StartProjectsService>();
         services.AddScoped<IGenerativeAiService, OpenAIService>();

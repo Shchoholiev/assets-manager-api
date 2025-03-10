@@ -145,17 +145,21 @@ public class CodeAssetsService : ICodeAssetsService
 
         if (filterModel.IsPersonal)
         {
-            predicate = predicate.And(codeAsset => codeAsset.CreatedById == GlobalUser.Id);
+            predicate = predicate.And(codeAsset => codeAsset.CreatedById == GlobalUser.Id)
+                                 .And(codeAsset => codeAsset.AssetType == AssetTypes.Public)
+                                 .And(codeAsset => codeAsset.AssetType == AssetTypes.Corporate);
         }
-
-        if (filterModel.AssetType == AssetTypes.Public)
+        else
         {
-            predicate = predicate.And(codeAsset => codeAsset.CompanyId == null);
-        }
+            if (filterModel.AssetType == AssetTypes.Public)
+            {
+                predicate = predicate.And(codeAsset => codeAsset.CompanyId == null);
+            }
 
-        if (filterModel.AssetType == AssetTypes.Corporate)
-        {
-            predicate = predicate.And(codeAsset => codeAsset.CompanyId == GlobalUser.CompanyId);
+            if (filterModel.AssetType == AssetTypes.Corporate)
+            {
+                predicate = predicate.And(codeAsset => codeAsset.CompanyId == GlobalUser.CompanyId);
+            }
         }
 
         if (filterModel.TagIds != null)
