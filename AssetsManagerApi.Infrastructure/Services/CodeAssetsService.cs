@@ -141,24 +141,25 @@ public class CodeAssetsService : ICodeAssetsService
 
     public async Task<PagedList<CodeAssetDto>> GetCodeAssetsPageAsync(CodeAssetFilterModel filterModel, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        Expression<Func<CodeAsset, bool>> predicate = codeAsset => codeAsset.AssetType == filterModel.AssetType;
+        Expression<Func<CodeAsset, bool>> predicate = CodeAsset => true;
 
         if (filterModel.IsPersonal)
         {
             predicate = predicate.And(codeAsset => codeAsset.CreatedById == GlobalUser.Id)
-                                 .And(codeAsset => codeAsset.AssetType == AssetTypes.Public)
-                                 .And(codeAsset => codeAsset.AssetType == AssetTypes.Corporate);
+                                 .And(codeAsset => codeAsset.AssetType == AssetTypes.Public || codeAsset.AssetType == AssetTypes.Corporate);
         }
         else
         {
             if (filterModel.AssetType == AssetTypes.Public)
             {
-                predicate = predicate.And(codeAsset => codeAsset.CompanyId == null);
+                predicate = predicate.And(codeAsset => codeAsset.CompanyId == null)
+                                     .And(codeAsset => codeAsset.AssetType == AssetTypes.Public);
             }
 
             if (filterModel.AssetType == AssetTypes.Corporate)
             {
-                predicate = predicate.And(codeAsset => codeAsset.CompanyId == GlobalUser.CompanyId);
+                predicate = predicate.And(codeAsset => codeAsset.CompanyId == GlobalUser.CompanyId)
+                                     .And(codeAsset => codeAsset.AssetType == AssetTypes.Corporate);
             }
         }
 
