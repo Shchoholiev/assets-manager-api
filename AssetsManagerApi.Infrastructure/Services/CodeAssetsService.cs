@@ -89,9 +89,13 @@ public class CodeAssetsService : ICodeAssetsService
             RootFolderId = folder.Id,
         };
 
-        if (GlobalUser.CompanyId != null)
+        if (createDto.AssetType == AssetTypes.Corporate)
         {
             entity.CompanyId = GlobalUser.CompanyId;
+        }
+        else
+        {
+            entity.CompanyId = null;
         }
 
         var result = await _codeAssetsRepository.AddAsync(entity, cancellationToken);
@@ -152,7 +156,7 @@ public class CodeAssetsService : ICodeAssetsService
         {
             if (filterModel.AssetType == AssetTypes.Public)
             {
-                predicate = predicate.And(codeAsset => codeAsset.CompanyId == null)
+                predicate = predicate.And(codeAsset => codeAsset.CompanyId == null || codeAsset.CompanyId == "")
                                      .And(codeAsset => codeAsset.AssetType == AssetTypes.Public);
             }
 
