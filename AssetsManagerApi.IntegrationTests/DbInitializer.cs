@@ -470,6 +470,16 @@ public class DbInitializer(CosmosDbContext dbContext)
         };
         await startProjectsCollection.CreateItemAsync(startProject);
 
+        var notCombinedStartProject = new StartProject
+        {
+            Id = "b3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
+            CodeAssetsIds = [..codeAssets.Select(x => x.Id)],
+            CompanyId = digitalBank.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            CreatedById = startProjectUser.Id
+        };
+        await startProjectsCollection.CreateItemAsync(notCombinedStartProject);
+
         #endregion
     }
 

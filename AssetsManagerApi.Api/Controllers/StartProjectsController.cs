@@ -163,7 +163,7 @@ public class StartProjectsController(
     [Produces("application/json")]
     public async Task<ActionResult<CodeAssetDto>> CombineStartProjectAsync(string id, CancellationToken cancellationToken)
     {
-        return Ok(GetDummyCombinedCodeAsset());
+        return await _startProjectsService.CombineStartProjectAsync(id, cancellationToken);
     }
 
     [Authorize(Roles = "Enterprise")]

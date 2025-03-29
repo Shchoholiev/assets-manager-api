@@ -142,10 +142,85 @@ public class StartProjectsService(
         _logger.LogInformation("Deleted folder with ID {folderId}", folderId);
     }
 
-    public Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
+    public async Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Combining start project {startProjectId}", startProjectId);
+
+        var startProject = await _startProjectsRepository.GetOneAsync(startProjectId, cancellationToken);
+        if (startProject == null)
+        {
+            _logger.LogError("Start project {startProjectId} not found", startProjectId);
+            throw new InvalidOperationException("Start project not found.");
+        }
+
+        var combinedAssetCreateDto = new CodeAssetCreateDto 
+        {
+            Name = "Start Project", // To be updated
+            AssetType = AssetTypes.Corporate,
+            // TODO: update to dynamic. Currently only C# is supported
+            Language = Languages.csharp.LanguageToString(), 
+        };
+
+        var combinedAsset = await _codeAssetsService.CreateCodeAssetAsync(combinedAssetCreateDto, cancellationToken);
+
+        _logger.LogInformation("Shell for combined asset is created.");
+
+        // var tags = new List<Tag>();
+        // var folders = new List<Folder>();
+        // var codeFiles = new List<CodeFile>();
+        // foreach (var assetId in startProject.CodeAssetsIds)
+        // {
+        //     var asset = await _codeAssetsService.GetCodeAssetAsync(assetId, cancellationToken);
+        //     foreach (var folder in asset.RootFolder.Items ?? [])
+        //     {
+        //         if (!allFolders.TryGetValue(folder.Name, out var existingFolder))
+        //         {
+        //             allFolders[folder.Name] = folder;
+        //         }
+        //         else
+        //         {
+        //             // Merge files into existing folder
+        //             existingFolder.CodeFiles.AddRange(folder.CodeFiles);
+        //         }
+        //     }
+
+        //     allFiles.AddRange(asset.Folders.SelectMany(f => f.CodeFiles));
+        // }
+
+        // // Step 3: Create .csproj file from flat list of all code files
+        // var csprojFile = await CreateCsprojAsync(allFiles, cancellationToken);
+        // csprojFile.FileName = "Project.csproj";
+
+        // // Step 4: Add .csproj file to root folder
+        // var rootFolder = allFolders.Values.FirstOrDefault(f => f.ParentFolderId == null);
+        // if (rootFolder == null)
+        // {
+        //     // If no explicit root folder, create one
+        //     rootFolder = new FolderDto
+        //     {
+        //         Name = "root",
+        //         CodeFiles = new List<CodeFileDto>(),
+        //         SubFolders = new List<FolderDto>()
+        //     };
+        //     allFolders["root"] = rootFolder;
+        // }
+
+        // rootFolder.CodeFiles.Add(csprojFile);
+
+        // Step 5: Return a combined CodeAssetDto
+        // var combinedAsset = new CodeAssetDto
+        // {
+        //     Name = $"CombinedProject_{startProjectId}",
+        //     Folders = allFolders.Values.ToList()
+        // };
+        startProject.CodeAssetId = combinedAsset.Id;
+        await _startProjectsRepository.UpdateAsync(startProject, cancellationToken);
+
+        _logger.LogInformation("Successfully combined start project {startProjectId}", startProjectId);
+
+        return combinedAsset;
     }
+
 
     public Task<CompilationResult> CompileStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
     {
@@ -198,5 +273,10 @@ public class StartProjectsService(
         sb.AppendLine("</Project>");
 
         return new CodeFileDto { Text = sb.ToString() };
+    }
+
+    public Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 }
