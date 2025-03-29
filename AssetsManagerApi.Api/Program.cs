@@ -48,6 +48,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // using var scope = app.Services.CreateScope();
+    // var dbContext = scope.ServiceProvider.GetRequiredService<CosmosDbContext>();
+    // var dbInitializer = new DbInitializer(dbContext);
+    // dbInitializer.InitializeDb();
 }
 
 app.UseCors("allowAnyOrigin");

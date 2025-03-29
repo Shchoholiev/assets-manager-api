@@ -22,6 +22,7 @@ public class DbInitializer(CosmosDbContext dbContext)
         CleanDatabase().Wait();
         
         InitializeUsersAsync().Wait();
+        InitializeCodeAssetsAsync().Wait();
         InitializeCodeAssetsManuallyAsync().Wait();
         // Use only when needed, dont run on every test run due to a big volume of data
         // InitializeCodeAssetsAutomatedAsync().Wait();
@@ -140,20 +141,6 @@ public class DbInitializer(CosmosDbContext dbContext)
         };
         await usersCollection.CreateItemAsync(enterpriseUser);
 
-        var startProjectUser = new User
-        {
-            Id = "d3aeadbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
-            Email = "start-project@gmail.com",
-            Roles = [enterpriseRole],
-            PasswordHash = passwordHasher.Hash("Yuiop12345"),
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow,
-            EmailVerificationToken = null,
-            EmailVerificationTokenExpiry = null,
-            CompanyId = "67a87bdb92156dc8ddd81daa"
-        };
-        await usersCollection.CreateItemAsync(startProjectUser);
-
         var validTokenUser = new User
         {
             Id = "b3e00e4b-4c5a-4e08-932f-5b579d5c3f8f",
@@ -166,19 +153,6 @@ public class DbInitializer(CosmosDbContext dbContext)
             EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(1) // Valid for 1 hour
         };
         await usersCollection.CreateItemAsync(validTokenUser);
-
-        var noCompanyUser = new User
-        {
-            Id = "d2aeadbb-9c1f-4d2d-9e1a-ffb0f688fdc4",
-            Email = "no-company@gmail.com",
-            Roles = [enterpriseRole],
-            PasswordHash = passwordHasher.Hash("Yuiop12345"),
-            CreatedById = string.Empty,
-            CreatedDateUtc = DateTime.UtcNow,
-            EmailVerificationToken = null,
-            EmailVerificationTokenExpiry = null
-        };
-        await usersCollection.CreateItemAsync(noCompanyUser);
 
         // User with an expired email verification token
         var expiredTokenUser = new User
@@ -301,6 +275,203 @@ public class DbInitializer(CosmosDbContext dbContext)
         }
     }
 
+    public async Task InitializeCodeAssetsAsync()
+    {
+        #region Company
+        var companiesCollection = await _dbContext.GetContainerAsync("Companies");
+        var digitalBank = new Company
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Digital Bank",
+            Description = "All online banking services",
+            CreatedById = "placeholder",
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await companiesCollection.CreateItemAsync(digitalBank);
+
+        #endregion
+        
+        #region Users
+
+        var rolesCollection = await _dbContext.GetContainerAsync("Roles");
+        var enterpriseRole = rolesCollection.GetItemLinqQueryable<Role>(true)
+            .Where(r => r.Name == "Enterprise")
+            .AsEnumerable()
+            .FirstOrDefault();
+
+        var passwordHasher = new PasswordHasher(new Logger<PasswordHasher>(new LoggerFactory()));
+
+        var usersCollection = await _dbContext.GetContainerAsync("Users");
+        var startProjectUser = new User
+        {
+            Id = "d3aeadbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
+            Email = "start-project@gmail.com",
+            Name = "Start Project Demo",
+            Roles = [enterpriseRole],
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = null,
+            EmailVerificationTokenExpiry = null,
+            CompanyId = digitalBank.Id
+        };
+        await usersCollection.CreateItemAsync(startProjectUser);
+
+        var noCompanyUser = new User
+        {
+            Id = "d2aeadbb-9c1f-4d2d-9e1a-ffb0f688fdc4",
+            Email = "no-company@gmail.com",
+            Roles = [enterpriseRole],
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow,
+            EmailVerificationToken = null,
+            EmailVerificationTokenExpiry = null
+        };
+        await usersCollection.CreateItemAsync(noCompanyUser);
+
+        string csvFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "10_digital_bank_users.csv");
+        var users = ReadUsersFromCsv(csvFilePath);
+        foreach (var user in users)
+        {
+            user.Roles = [enterpriseRole];
+            user.PasswordHash = passwordHasher.Hash("Yuiop12345");
+            user.CompanyId = digitalBank.Id;
+            user.CreatedById = string.Empty;
+            user.CreatedDateUtc = DateTime.UtcNow;
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+
+            await usersCollection.CreateItemAsync(user);
+        }
+
+        #endregion
+
+        #region Tags
+        var tagsCollection = await _dbContext.GetContainerAsync("Tags");
+
+        string tagsCsvFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "20_digital_bank_tags.csv");
+        List<Tag> tags = ReadTagsFromCsv(tagsCsvFilePath);
+
+        foreach (var tag in tags)
+        {
+            tag.UseCount = 0;
+            await tagsCollection.CreateItemAsync(tag);
+        }
+        #endregion
+
+        #region Folders / CodeFiles
+        
+        string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "file_system_nodes_integration_tests.json");
+        var rootFolders = ReadFileSystemNodesFromJson(jsonFilePath);
+
+        foreach (var rootFolder in rootFolders)
+        {
+            await ProcessNestedItemAsync(rootFolder);
+        }
+
+        #endregion 
+
+        #region CodeAssets
+        var codeAssetsCollection = await _dbContext.GetContainerAsync("CodeAssets");
+
+        string codeAssetsJsonFilePath = Path.Combine(AppContext.BaseDirectory, "Static", "code_assets_integration_tests.json");
+        var codeAssets = ReadCodeAssetsFromJson(codeAssetsJsonFilePath);
+
+        foreach (var codeAsset in codeAssets)
+        {
+            codeAsset.CompanyId = digitalBank.Id;
+            codeAsset.AssetType = AssetTypes.Corporate;
+            await codeAssetsCollection.CreateItemAsync(codeAsset);
+        }
+
+        #endregion
+
+        #region StartProjects
+
+        var foldersCollection = await _dbContext.GetContainerAsync("Folders");
+        var codeFilesCollection = await _dbContext.GetContainerAsync("CodeFiles");
+
+        var rootFolder3 = new Folder
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
+            Name = "Web Development",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFolder3_1 = new Folder
+        {
+            Id = "f85eafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
+            Name = "Subfolder1",
+            ParentId = rootFolder3.Id,
+            Type = FileType.Folder,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFile3_1 = new CodeFile
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
+            Name = "Web_Development_Sub1.cs",
+            Text = "// Code for Web Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = rootFolder3.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var subFile3_2 = new CodeFile
+        {
+            Id = "d3faafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
+            Name = "Web_Development_Sub1.cs",
+            Text = "// Code for Web Development in Subfolder1",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = rootFolder3.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeFilesCollection.CreateItemAsync(subFile3_1);
+        await codeFilesCollection.CreateItemAsync(subFile3_2);
+        await foldersCollection.CreateItemAsync(subFolder3_1);
+        await foldersCollection.CreateItemAsync(rootFolder3);
+
+        var asset = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Start Project",
+            Description = "Start project",
+            AssetType = AssetTypes.StartProject,
+            Language = Languages.csharp,
+            RootFolderId = rootFolder3.Id,
+            PrimaryCodeFileId = subFile3_1.Id,
+            Tags = [],
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(asset);
+
+        var startProjectsCollection = await _dbContext.GetContainerAsync("StartProjects");
+
+        var startProject = new StartProject
+        {
+            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
+            CodeAssetsIds = [..codeAssets.Select(x => x.Id)],
+            CompanyId = digitalBank.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            CreatedById = startProjectUser.Id,
+            CodeAssetId = asset.Id
+        };
+        await startProjectsCollection.CreateItemAsync(startProject);
+
+        #endregion
+    }
 
     /// <summary>
     /// Add code assets to the database from Digital Bank company 
@@ -793,91 +964,6 @@ public class DbInitializer(CosmosDbContext dbContext)
         };
 
         await codeAssetsCollection.CreateItemAsync(asset6);
-
-        #endregion
-
-        #region StartProjects
-
-        var rootFolder31 = new Folder
-        {
-            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
-            Name = "Web Development",
-            ParentId = null,
-            Type = FileType.Folder,
-            CreatedById = startProjectUser.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-
-        var subFolder3_11 = new Folder
-        {
-            Id = "f85eafbb-9c1f-4d2d-9e8a-ffb0f688aac5",
-            Name = "Subfolder1",
-            ParentId = rootFolder31.Id,
-            Type = FileType.Folder,
-            CreatedById = startProjectUser.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-
-        var subFile3_11 = new CodeFile
-        {
-            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
-            Name = "Web_Development_Sub1.cs",
-            Text = "// Code for Web Development in Subfolder1",
-            Language = Languages.csharp,
-            Type = FileType.CodeFile,
-            ParentId = rootFolder31.Id,
-            CreatedById = startProjectUser.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-
-        var subFile3_21 = new CodeFile
-        {
-            Id = "d3faafbb-9c1f-4d2d-9e8a-ffb0f618aac0",
-            Name = "Web_Development_Sub1.cs",
-            Text = "// Code for Web Development in Subfolder1",
-            Language = Languages.csharp,
-            Type = FileType.CodeFile,
-            ParentId = rootFolder31.Id,
-            CreatedById = startProjectUser.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-
-        await codeFilesCollection.CreateItemAsync(subFile3_11);
-        await codeFilesCollection.CreateItemAsync(subFile3_21);
-        await foldersCollection.CreateItemAsync(subFolder3_11);
-        await foldersCollection.CreateItemAsync(rootFolder31);
-
-        var asset = new CodeAsset
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Start Project",
-            Description = "Start project",
-            AssetType = AssetTypes.StartProject,
-            Language = Languages.csharp,
-            RootFolderId = rootFolder31.Id,
-            PrimaryCodeFileId = subFile3_11.Id,
-            Tags = [],
-            CreatedById = startProjectUser.Id,
-            CreatedDateUtc = DateTime.UtcNow
-        };
-
-        await codeAssetsCollection.CreateItemAsync(asset);
-
-        var startProjectsCollection = await _dbContext.GetContainerAsync("StartProjects");
-
-        var codeAssets = codeAssetsCollection.GetItemLinqQueryable<CodeAsset>(allowSynchronousQueryExecution: true)
-                                        .ToList();
-
-        var startProject = new StartProject
-        {
-            Id = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4",
-            CodeAssetsIds = [.. codeAssets.Select(x => x.Id)],
-            CompanyId = "6852c3b89ae02a3135d6409fc",
-            CreatedDateUtc = DateTime.UtcNow,
-            CreatedById = startProjectUser.Id,
-            CodeAssetId = asset.Id
-        };
-        await startProjectsCollection.CreateItemAsync(startProject);
 
         #endregion
     }
