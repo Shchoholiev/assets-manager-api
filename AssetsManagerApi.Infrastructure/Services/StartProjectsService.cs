@@ -1,4 +1,6 @@
+using System.IO.Compression;
 using System.Text;
+using AssetsManagerApi.Application.Exceptions;
 using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.CreateDto;
@@ -142,23 +144,122 @@ public class StartProjectsService(
         _logger.LogInformation("Deleted folder with ID {folderId}", folderId);
     }
 
-    public Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
+    public async Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Combining start project {startProjectId}", startProjectId);
+
+        var startProject = await _startProjectsRepository.GetOneAsync(startProjectId, cancellationToken);
+        if (startProject == null)
+        {
+            _logger.LogError("Start project {startProjectId} not found", startProjectId);
+            throw new EntityNotFoundException("Start project not found.");
+        }
+
+        var combinedAssetCreateDto = new CodeAssetCreateDto 
+        {
+            Name = "Start Project", // To be updated
+            AssetType = AssetTypes.Corporate,
+            // TODO: update to dynamic. Currently only C# is supported
+            Language = Languages.csharp.LanguageToString(), 
+        };
+
+        var combinedAsset = await _codeAssetsService.CreateCodeAssetAsync(combinedAssetCreateDto, cancellationToken);
+
+        _logger.LogInformation("Shell for combined asset is created.");
+
+        var tags = new List<TagDto>();
+        var allCodeFiles = new List<CodeFileDto>();
+        foreach (var assetId in startProject.CodeAssetsIds)
+        {
+            var asset = await _codeAssetsService.GetCodeAssetAsync(assetId, cancellationToken);
+            tags.AddRange(asset.Tags);
+
+            allCodeFiles.AddRange(
+                asset.RootFolder.Items?
+                    .Where(f => f.Type == FileType.CodeFile)
+                    .Select(f => (CodeFileDto)f)
+                    .ToList() 
+                    ?? []
+            );
+
+            await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
+        }
+
+        // if (combinedAsset.Language.StringToLanguage() == Languages.csharp)
+        // {
+        //     var csprojFile = await CreateCsprojAsync(allCodeFiles, cancellationToken);
+        //     // TODO: update to dynamicly generated
+        //     csprojFile.Name = "StartProject.csproj";
+        //     var createdCsprojFile = await _codeFilesService.CreateCodeFileAsync(csprojFile, cancellationToken);
+        // }
+
+        // // Step 3: Create .csproj file from flat list of all code files
+        // var csprojFile = await CreateCsprojAsync(allFiles, cancellationToken);
+        // csprojFile.FileName = "Project.csproj";
+
+        // // Step 4: Add .csproj file to root folder
+        // var rootFolder = allFolders.Values.FirstOrDefault(f => f.ParentFolderId == null);
+        // if (rootFolder == null)
+        // {
+        //     // If no explicit root folder, create one
+        //     rootFolder = new FolderDto
+        //     {
+        //         Name = "root",
+        //         CodeFiles = new List<CodeFileDto>(),
+        //         SubFolders = new List<FolderDto>()
+        //     };
+        //     allFolders["root"] = rootFolder;
+        // }
+
+        // rootFolder.CodeFiles.Add(csprojFile);
+
+        // Step 5: Return a combined CodeAssetDto
+        // var combinedAsset = new CodeAssetDto
+        // {
+        //     Name = $"CombinedProject_{startProjectId}",
+        //     Folders = allFolders.Values.ToList()
+        // };
+        startProject.CodeAssetId = combinedAsset.Id;
+        await _startProjectsRepository.UpdateAsync(startProject, cancellationToken);
+
+        _logger.LogInformation("Successfully combined start project {startProjectId}", startProjectId);
+
+        return combinedAsset;
     }
+
 
     public Task<CompilationResult> CompileStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<byte[]> DownloadStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
+    public async Task<(byte[] zipContent, string fileName)> DownloadStartProjectZipAsync(string startProjectId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Downloading start project with Id: {startProjectId}", startProjectId);
+
+        var startProject = await _startProjectsRepository.GetOneAsync(startProjectId, cancellationToken);
+        if (startProject == null)
+        {
+            _logger.LogError("Start project {startProjectId} not found", startProjectId);
+            throw new EntityNotFoundException("Start project not found.");
+        }
+        if (startProject.CodeAssetId == null)
+        {
+            _logger.LogError("Start project {startProjectId} has no Combined Asset", startProjectId);
+            throw new EntityNotFoundException("Start project has no Combined Asset.");
+        }
+
+        var (zipContent, zipName) = await _codeAssetsService.GetCodeAssetAsZipAsync(startProject.CodeAssetId, cancellationToken);
+
+        _logger.LogInformation("Downloaded start project with Id: {startProjectId}", startProjectId);
+
+        return (zipContent, zipName);
     }
 
-    public async Task<CodeFileDto> CreateCsprojAsync(IEnumerable<CodeFileDto> files, CancellationToken cancellationToken)
+    public async Task<CodeFileCreateDto> CreateCsprojAsync(IEnumerable<CodeFileDto> files, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Creating csproj file");
+
         var packages = new HashSet<string>();
         foreach (var file in files)
         {
@@ -197,6 +298,55 @@ public class StartProjectsService(
         }
         sb.AppendLine("</Project>");
 
-        return new CodeFileDto { Text = sb.ToString() };
+        _logger.LogInformation("Created csproj file");
+
+        return new CodeFileCreateDto { Text = sb.ToString(), Language = Languages.xml.LanguageToString() };
+    }
+
+    public Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    private async Task AddFilesFromFolderAsync(string parentId, List<FileSystemNodeDto> files, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation($"Adding files to folder with Id: {parentId}");
+
+        foreach (var file in files)
+        {
+            switch (file.Type)
+            {
+                case FileType.Folder:
+                    var folder = (FolderDto) file;
+                    var createFolderDto = new FolderCreateDto
+                    {
+                        Name = file.Name,
+                        ParentId = parentId,
+                    };
+                    var newFolder = await _foldersService.CreateFolderAsync(createFolderDto, cancellationToken);
+
+                    await AddFilesFromFolderAsync(newFolder.Id, folder.Items, cancellationToken);
+                    break;
+
+                case FileType.CodeFile:
+                    var codeFile = (CodeFileDto) file;
+                    var createCodeFileDto = new CodeFileCreateDto
+                    {
+                        Name = codeFile.Name,
+                        Language = codeFile.Language,
+                        ParentId = parentId,
+                        Text = codeFile.Text
+                    };
+                    await _codeFilesService.CreateCodeFileAsync(createCodeFileDto, cancellationToken);
+
+                    break;
+
+                default:
+                    _logger.LogInformation("File type is not supported.");
+                    break;
+            }
+        }
+
+        _logger.LogInformation($"Finished adding files to folder with Id: {parentId}");
     }
 }

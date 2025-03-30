@@ -19,4 +19,12 @@ public interface ICodeAssetsService
     Task<CodeAssetDto> CreateCodeAssetAsync(CodeAssetCreateDto createDto, CancellationToken cancellationToken);
 
     Task<CodeAssetDto> UpdateCodeAssetAsync(CodeAssetUpdateDto dto, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns Code Asset as Zip with all folders and files.
+    /// </summary>
+    /// <param name="assetId">Code Asset Id to be downloaded</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Content of zip as bytes and name of zip file</returns>
+    Task<(byte[] zipContent, string fileName)> GetCodeAssetAsZipAsync(string assetId, CancellationToken cancellationToken);
 }

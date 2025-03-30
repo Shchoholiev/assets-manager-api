@@ -82,6 +82,14 @@ public interface IStartProjectsService
     Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Returns combined asset of a start project
+    /// </summary>
+    /// <param name="startProjectId">The identifier of the start project.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The combined code asset.</returns>
+    Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Compiles the start project and returns the compilation result.
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project to compile.</param>
@@ -94,6 +102,6 @@ public interface IStartProjectsService
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project to download.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The byte array representing the zip file content.</returns>
-    Task<byte[]> DownloadStartProjectAsync(string startProjectId, CancellationToken cancellationToken);
+    /// <returns>The byte array representing the zip file content and name of zip.</returns>
+    Task<(byte[] zipContent, string fileName)> DownloadStartProjectZipAsync(string startProjectId, CancellationToken cancellationToken);
 }

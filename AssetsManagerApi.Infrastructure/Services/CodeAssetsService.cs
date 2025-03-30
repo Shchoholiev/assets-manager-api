@@ -11,7 +11,8 @@ using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Domain.Enums;
 using AutoMapper;
 using LinqKit;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
+using System.IO.Compression;
 using System.Linq.Expressions;
 
 namespace AssetsManagerApi.Infrastructure.Services;
@@ -29,9 +30,15 @@ public class CodeAssetsService : ICodeAssetsService
 
     private readonly ITagsRepository _tagsRepository;
 
+    private readonly ILogger<CodeAssetsService> _logger;
+
     private readonly IMapper _mapper;
 
-    public CodeAssetsService(ICodeAssetsRepository codeAssetsRepository, IFoldersRepository foldersRepository, IUsersRepository usersRepository, ICodeFilesRepository codeFilesRepository, IFoldersService foldersService, ITagsRepository tagsRepository, IMapper mapper)
+    public CodeAssetsService(
+        ICodeAssetsRepository codeAssetsRepository, IFoldersRepository foldersRepository, 
+        IUsersRepository usersRepository, ICodeFilesRepository codeFilesRepository, IFoldersService foldersService, 
+        ITagsRepository tagsRepository, IMapper mapper,
+        ILogger<CodeAssetsService> logger)
     {
         _tagsRepository = tagsRepository;
         _foldersService = foldersService;
@@ -40,6 +47,7 @@ public class CodeAssetsService : ICodeAssetsService
         _usersRepository = usersRepository;
         _codeFilesRepository = codeFilesRepository;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<CodeAssetDto> CreateCodeAssetAsync(CodeAssetCreateDto createDto, CancellationToken cancellationToken)
@@ -267,6 +275,65 @@ public class CodeAssetsService : ICodeAssetsService
         result.RootFolder = await ComposeRootFolder(folder, cancellationToken);
 
         return result;
+    }
+
+
+    public async Task<(byte[] zipContent, string fileName)> GetCodeAssetAsZipAsync(string assetId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Starting ZIP creation for code asset with Id: {AssetId}", assetId);
+
+        var codeAsset = await GetCodeAssetAsync(assetId, cancellationToken);
+
+        if (codeAsset == null)
+        {
+            _logger.LogError("Code asset with Id {AssetId} not found.", assetId);
+            throw new EntityNotFoundException("Code asset not found.");
+        }
+
+        using var memoryStream = new MemoryStream();
+        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+        {
+            _logger.LogInformation("Adding files to ZIP for code asset: {AssetName}", codeAsset.Name);
+            AddFilesToArchiveRecursive(archive, codeAsset.RootFolder.Items ?? [], basePath: string.Empty);
+        }
+
+        _logger.LogInformation("Finished ZIP creation for code asset: {AssetName}", codeAsset.Name);
+
+        return (memoryStream.ToArray(), $"{codeAsset.Name}.zip");
+    }
+
+
+    private void AddFilesToArchiveRecursive(ZipArchive archive, List<FileSystemNodeDto> files, string basePath)
+    {
+        foreach (var file in files)
+        {
+            switch (file.Type)
+            {
+                case FileType.Folder:
+                    var folder = (FolderDto)file;
+                    string folderPath = $"{basePath}{folder.Name}/";
+                    _logger.LogInformation("Adding folder to ZIP: {FolderPath}", folderPath);
+                    archive.CreateEntry(folderPath); 
+                    AddFilesToArchiveRecursive(archive, folder.Items ?? [], folderPath);
+                    break;
+
+                case FileType.CodeFile:
+                    var codeFile = (CodeFileDto)file;
+                    string filePath = $"{basePath}{codeFile.Name}";
+                    _logger.LogInformation("Adding file to ZIP: {FilePath}", filePath);
+                    var zipEntry = archive.CreateEntry(filePath);
+                    using (var entryStream = zipEntry.Open())
+                    using (var writer = new StreamWriter(entryStream))
+                    {
+                        writer.Write(codeFile.Text);
+                    }
+                    break;
+
+                default:
+                    _logger.LogWarning("Unsupported file type encountered. Skipping: {FileName}", file.Name);
+                    break;
+            }
+        }
     }
 
     private async Task<FolderDto> ComposeRootFolder(Folder rootFolder, CancellationToken cancellationToken)
