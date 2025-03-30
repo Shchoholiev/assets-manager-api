@@ -41,6 +41,9 @@ public static class DependencyInjection
                 new AuthenticationHeaderValue("Bearer", openAiApiKey);
         });
 
+
+        services.AddScoped<ICompilationService, CompilationService>();
+
         return services;
     }
 

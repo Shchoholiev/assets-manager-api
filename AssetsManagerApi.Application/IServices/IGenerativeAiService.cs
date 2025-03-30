@@ -10,7 +10,7 @@ public interface IGenerativeAiService
     /// <param name="projectDescription"></param>
     /// <param name="assets"></param>
     /// <returns>List of Selected Code Assets</returns>
-    public Task<List<CodeAssetDto>> SelectRelevantCodeAssets(
+    Task<List<CodeAssetDto>> SelectRelevantCodeAssets(
         string projectDescription, 
         IEnumerable<CodeAssetDto> assets, 
         CancellationToken cancellationToken);

@@ -16,7 +16,10 @@ public class StartProjectsServiceTests
     private Mock<ICodeFilesService> _codeFilesServiceMock;
     private Mock<IFoldersService> _foldersServiceMock;
     private Mock<ILogger<StartProjectsService>> _loggerMock;
+
     private Mock<INugetService> _nuggetServiceMock;
+
+    private Mock<ICompilationService> _compilationService;
 
     private StartProjectsService _startProjectsService;
 
@@ -30,6 +33,7 @@ public class StartProjectsServiceTests
         _foldersServiceMock = new Mock<IFoldersService>();
         _loggerMock = new Mock<ILogger<StartProjectsService>>();
         _nuggetServiceMock = new Mock<INugetService>();
+        _compilationService = new Mock<ICompilationService>(); 
 
         _startProjectsService = new StartProjectsService(
             _codeAssetsServiceMock.Object,
@@ -38,7 +42,8 @@ public class StartProjectsServiceTests
             _codeFilesServiceMock.Object,
             _foldersServiceMock.Object,
             _loggerMock.Object,
-            _nuggetServiceMock.Object
+            _nuggetServiceMock.Object,
+            _compilationService.Object
         );
     }
 

@@ -1,4 +1,5 @@
-﻿using AssetsManagerApi.Application.Models.CreateDto;
+﻿using AssetsManagerApi.Application.Models.Compilation;
+using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Application.Models.UpdateDto;
@@ -95,7 +96,7 @@ public interface IStartProjectsService
     /// <param name="startProjectId">The identifier of the start project to compile.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The result of the compilation process.</returns>
-    Task<CompilationResult> CompileStartProjectAsync(string startProjectId, CancellationToken cancellationToken);
+    Task<CompilationResponse> CompileStartProjectAsync(string startProjectId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Downloads the start project as a zip file.

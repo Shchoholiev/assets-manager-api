@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using AssetsManagerApi.Application.Models.Compilation;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.UpdateDto;
@@ -309,7 +310,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
         // Arrange
         await LoginAsync("start-project@gmail.com", "Yuiop12345");
 
-        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        var startProjectId = "d3ceafbb-3c1f-4d2d-9e8a-ffb0f688fdc4";
         var combineUrl = $"{ResourceUrl}/{startProjectId}/download";
 
         // Act
@@ -323,6 +324,108 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
 
     [Fact]
     public async Task DownloadStartProjectZip_ValidId_ReturnsNotFound()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var invalidId = "non-existent-id";
+        var combineUrl = $"{ResourceUrl}/{invalidId}/combine";
+
+        // Act
+        var response = await HttpClient.PostAsync(combineUrl, null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    #endregion
+
+
+    #region GetCombinedAsset
+
+    [Fact]
+    public async Task GetCombinedAsset_ValidId_ReturnsCombinedCodeAsset()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        var combineUrl = $"{ResourceUrl}/{startProjectId}/combined-asset";
+
+        // Act
+        var response = await HttpClient.GetAsync(combineUrl);
+        var combinedAsset = await response.Content.ReadFromJsonAsync<CodeAssetDto>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(combinedAsset);
+        Assert.False(string.IsNullOrEmpty(combinedAsset.Id.ToString()));
+        Assert.False(string.IsNullOrEmpty(combinedAsset.Name));
+        Assert.NotNull(combinedAsset.RootFolder);
+    }
+
+    [Fact]
+    public async Task GetCombinedAsset_InvalidId_ReturnsNotFound()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var invalidId = "non-existent-id";
+        var combineUrl = $"{ResourceUrl}/{invalidId}/combined-asset";
+
+        // Act
+        var response = await HttpClient.GetAsync(combineUrl);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    #endregion
+
+    #region CompileStartProject
+
+    [Fact]
+    public async Task CompileStartProject_ValidProject_Returns200Ok()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var startProjectId = "d3c8afbb-3c1f-4d2d-9e8a-ffb0f688fdc4";
+        var combineUrl = $"{ResourceUrl}/{startProjectId}/compile";
+
+        // Act
+        var response = await HttpClient.PostAsync(combineUrl, null);
+        var compilationResult = await response.Content.ReadFromJsonAsync<CompilationResponse>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(compilationResult);
+        Assert.True(compilationResult.Succeeded);
+        Assert.Null(compilationResult.Error);
+    }
+
+    [Fact]
+    public async Task CompileStartProject_NonCompilableProject_ReturnsErrors()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var startProjectId = "d3c8afbb-3c1f-2d2d-8e8a-ffb0f688fdc4";
+        var combineUrl = $"{ResourceUrl}/{startProjectId}/compile";
+
+        // Act
+        var response = await HttpClient.PostAsync(combineUrl, null);
+        var compilationResult = await response.Content.ReadFromJsonAsync<CompilationResponse>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.NotNull(compilationResult);
+        Assert.False(compilationResult.Succeeded);
+        Assert.NotNull(compilationResult.Output);
+    }
+
+    [Fact]
+    public async Task CompileStartProject_InvalidId_ReturnsNotFound()
     {
         // Arrange
         await LoginAsync("start-project@gmail.com", "Yuiop12345");

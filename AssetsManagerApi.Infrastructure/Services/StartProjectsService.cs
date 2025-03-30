@@ -1,8 +1,8 @@
-using System.IO.Compression;
 using System.Text;
 using AssetsManagerApi.Application.Exceptions;
 using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Application.IServices;
+using AssetsManagerApi.Application.Models.Compilation;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Global;
@@ -21,7 +21,8 @@ public class StartProjectsService(
     ICodeFilesService codeFilesService,
     IFoldersService foldersService,
     ILogger<StartProjectsService> logger,
-    INugetService nugetService
+    INugetService nugetService,
+    ICompilationService compilationService
 ) : IStartProjectsService
 {
     private readonly ICodeAssetsService _codeAssetsService = codeAssetsService;
@@ -37,6 +38,8 @@ public class StartProjectsService(
     private readonly ILogger<StartProjectsService> _logger = logger;
 
     private readonly INugetService _nugetService = nugetService;
+
+    private readonly ICompilationService _compilationService = compilationService;
 
     public async Task<StartProjectDto> CreateStartProjectAsync(StartProjectCreateDto createDto, CancellationToken cancellationToken)
     {
@@ -228,9 +231,30 @@ public class StartProjectsService(
     }
 
 
-    public Task<CompilationResult> CompileStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
+    public async Task<CompilationResponse> CompileStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+         _logger.LogInformation("Compiling start project with Id: {startProjectId}", startProjectId);
+
+        var startProject = await _startProjectsRepository.GetOneAsync(startProjectId, cancellationToken);
+        if (startProject == null)
+        {
+            _logger.LogError("Start project {startProjectId} not found", startProjectId);
+            throw new EntityNotFoundException("Start project not found.");
+        }
+        if (startProject.CodeAssetId == null)
+        {
+            _logger.LogError("Start project {startProjectId} has no Combined Asset", startProjectId);
+            throw new EntityNotFoundException("Start project has no Combined Asset.");
+        }
+
+        var codeAsset = await _codeAssetsService.GetCodeAssetAsync(startProject.CodeAssetId, cancellationToken);
+        var (zipContent, _) = await _codeAssetsService.GetCodeAssetAsZipAsync(startProject.CodeAssetId, cancellationToken);
+
+        return codeAsset.Language.StringToLanguage() switch
+        {
+            Languages.csharp => await _compilationService.CompileDotNetProjectAsync(zipContent, cancellationToken),
+            _ => throw new NotImplementedException($"Compilation for {codeAsset.Language} is not implemented."),
+        };
     }
 
     public async Task<(byte[] zipContent, string fileName)> DownloadStartProjectZipAsync(string startProjectId, CancellationToken cancellationToken)
@@ -303,9 +327,27 @@ public class StartProjectsService(
         return new CodeFileCreateDto { Text = sb.ToString(), Language = Languages.xml.LanguageToString() };
     }
 
-    public Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken)
+    public async Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Getting combined code asset for start project with Id: {startProjectId}", startProjectId);
+
+        var startProject = await _startProjectsRepository.GetOneAsync(startProjectId, cancellationToken);
+        if (startProject == null)
+        {
+            _logger.LogError("Start project {startProjectId} not found", startProjectId);
+            throw new EntityNotFoundException("Start project not found.");
+        }
+        if (startProject.CodeAssetId == null)
+        {
+            _logger.LogError("Start project {startProjectId} has no Combined Asset", startProjectId);
+            throw new EntityNotFoundException("Start project has no Combined Asset.");
+        }
+
+        var codeAsset = await _codeAssetsService.GetCodeAssetAsync(startProject.CodeAssetId, cancellationToken);
+
+        _logger.LogInformation("Returning combined code asset for start project with Id: {startProjectId}", startProjectId);
+
+        return codeAsset;
     }
 
     private async Task AddFilesFromFolderAsync(string parentId, List<FileSystemNodeDto> files, CancellationToken cancellationToken)
