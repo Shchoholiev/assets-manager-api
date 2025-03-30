@@ -493,6 +493,142 @@ public class DbInitializer(CosmosDbContext dbContext)
         await startProjectsCollection.CreateItemAsync(downloadStartProject);
 
         #endregion
+
+        #region Compilation Test
+
+        var compilationRootFolder = new Folder
+        {
+            Id = "d3ceafbb-9c1f-1d2d-9e8a-ffb0f688aac5",
+            Name = "TestApi",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var programFile = new CodeFile
+        {
+            Id = "d3cea8bb-9c1f-4d2d-9e8a-ffb0f618aac0",
+            Name = "Program.cs",
+            Text = """var builder = WebApplication.CreateBuilder(args); // Add services to the container. // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle builder.Services.AddEndpointsApiExplorer(); builder.Services.AddSwaggerGen(); var app = builder.Build(); // Configure the HTTP request pipeline. if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(); } app.UseHttpsRedirection(); var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" }; app.MapGet("/weatherforecast", () => { var forecast =  Enumerable.Range(1, 5).Select(index => new WeatherForecast ( DateOnly.FromDateTime(DateTime.Now.AddDays(index)), Random.Shared.Next(-20, 55), summaries[Random.Shared.Next(summaries.Length)] )) .ToArray(); return forecast; }) .WithName("GetWeatherForecast") .WithOpenApi(); app.Run(); record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary) { public int TemperatureF => 32 + (int)(TemperatureC / 0.5556); }""",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = compilationRootFolder.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var csprojFile = new CodeFile
+        {
+            Id = "d3cea8bb-9c1f-4d2d-9e8a-ffb0f612aac0",
+            Name = "TestApi.csproj",
+            Text = """<Project Sdk="Microsoft.NET.Sdk.Web"> <PropertyGroup> <TargetFramework>net8.0</TargetFramework> <Nullable>enable</Nullable> <ImplicitUsings>enable</ImplicitUsings> </PropertyGroup> <ItemGroup> <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" /> <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" /> </ItemGroup> </Project>""",
+            Language = Languages.xml,
+            Type = FileType.CodeFile,
+            ParentId = compilationRootFolder.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeFilesCollection.CreateItemAsync(programFile);
+        await codeFilesCollection.CreateItemAsync(csprojFile);
+        await foldersCollection.CreateItemAsync(compilationRootFolder);
+
+        var compilableAsset = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "TestApi",
+            Description = "TestApi",
+            AssetType = AssetTypes.StartProject,
+            Language = Languages.csharp,
+            RootFolderId = compilationRootFolder.Id,
+            PrimaryCodeFileId = programFile.Id,
+            Tags = [],
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(compilableAsset);
+
+        var compilableStartProject = new StartProject
+        {
+            Id = "d3c8afbb-3c1f-4d2d-9e8a-ffb0f688fdc4",
+            CodeAssetsIds = [..codeAssets.Select(x => x.Id)],
+            CompanyId = digitalBank.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            CreatedById = startProjectUser.Id,
+            CodeAssetId = compilableAsset.Id
+        };
+        await startProjectsCollection.CreateItemAsync(compilableStartProject);
+
+        // non compilable project
+
+        var badCompilationRootFolder = new Folder
+        {
+            Id = "d9ceffbb-2c1f-1d2d-9e8a-ffb0f688aac5",
+            Name = "TestInvalidApi",
+            ParentId = null,
+            Type = FileType.Folder,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var badProgramFile = new CodeFile
+        {
+            Id = "d3cea8bb-9c1f-4d2d-9e8a-ffa0f615aac0",
+            Name = "Program.cs",
+            Text = """var builder = WebApplication.CreateBuilder(args) // Add services to the container. // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle builder.Services.AddEndpointsApiExplorer builder.Services.AddSwaggerGen(); var app = builder.Build(); // Configure the HTTP request pipeline. if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(); } app.UseHttpsRedirection(); var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" }; app.MapGet("/weatherforecast", () => { var forecast =  Enumerable.Range(1, 5).Select(index => new WeatherForecast ( DateOnly.FromDateTime(DateTime.Now.AddDays(index)), Random.Shared.Next(-20, 55), summaries[Random.Shared.Next(summaries.Length)] )) .ToArray(); return forecast; }) .WithName("GetWeatherForecast") .WithOpenApi(); app.Run(); record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary) { public int TemperatureF => 32 + (int)(TemperatureC / 0.5556); }""",
+            Language = Languages.csharp,
+            Type = FileType.CodeFile,
+            ParentId = badCompilationRootFolder.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        var okCsprojFile = new CodeFile
+        {
+            Id = "d2cea8bb-9c1f-4d2d-9e8a-ffb0f612aac0",
+            Name = "TestInvalidApi.csproj",
+            Text = """<Project Sdk="Microsoft.NET.Sdk.Web"> <PropertyGroup> <TargetFramework>net8.0</TargetFramework> <Nullable>enable</Nullable> <ImplicitUsings>enable</ImplicitUsings> </PropertyGroup> <ItemGroup> <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" /> <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" /> </ItemGroup> </Project>""",
+            Language = Languages.xml,
+            Type = FileType.CodeFile,
+            ParentId = badCompilationRootFolder.Id,
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await foldersCollection.CreateItemAsync(badCompilationRootFolder);
+        await codeFilesCollection.CreateItemAsync(badProgramFile);
+        await codeFilesCollection.CreateItemAsync(okCsprojFile);
+
+        var nonCompilableAsset = new CodeAsset
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "TestInvalidApi",
+            Description = "TestInvalidApi",
+            AssetType = AssetTypes.StartProject,
+            Language = Languages.csharp,
+            RootFolderId = badCompilationRootFolder.Id,
+            PrimaryCodeFileId = programFile.Id,
+            Tags = [],
+            CreatedById = startProjectUser.Id,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+
+        await codeAssetsCollection.CreateItemAsync(nonCompilableAsset);
+
+        var nonCompilableStartProject = new StartProject
+        {
+            Id = "d3c8afbb-3c1f-2d2d-8e8a-ffb0f688fdc4",
+            CodeAssetsIds = [..codeAssets.Select(x => x.Id)],
+            CompanyId = digitalBank.Id,
+            CreatedDateUtc = DateTime.UtcNow,
+            CreatedById = startProjectUser.Id,
+            CodeAssetId = nonCompilableAsset.Id
+        };
+        await startProjectsCollection.CreateItemAsync(nonCompilableStartProject);
+
+        #endregion
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using AssetsManagerApi.Application.IServices;
+using AssetsManagerApi.Application.Models.Compilation;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
@@ -183,13 +184,12 @@ public class StartProjectsController(
     [Authorize(Roles = "Enterprise")]
     [HttpPost("{id}/compile")]
     [Produces("application/json")]
-    public async Task<ActionResult<CompilationResult>> CompileStartProjectAsync(string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<CompilationResponse>> CompileStartProjectAsync(string id, CancellationToken cancellationToken)
     {
-        var dummy = new CompilationResult
-        {
-            Error = null
-        };
-        return Ok(dummy);
+        var compilationResult = await _startProjectsService.CompileStartProjectAsync(id, cancellationToken); 
+        return compilationResult.Succeeded 
+            ? Ok(compilationResult) 
+            : BadRequest(compilationResult);
     }
 
     /// <summary>
