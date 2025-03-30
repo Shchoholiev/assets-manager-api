@@ -165,27 +165,31 @@ public class StartProjectsService(
 
         _logger.LogInformation("Shell for combined asset is created.");
 
-        // var tags = new List<Tag>();
-        // var folders = new List<Folder>();
-        // var codeFiles = new List<CodeFile>();
-        // foreach (var assetId in startProject.CodeAssetsIds)
-        // {
-        //     var asset = await _codeAssetsService.GetCodeAssetAsync(assetId, cancellationToken);
-        //     foreach (var folder in asset.RootFolder.Items ?? [])
-        //     {
-        //         if (!allFolders.TryGetValue(folder.Name, out var existingFolder))
-        //         {
-        //             allFolders[folder.Name] = folder;
-        //         }
-        //         else
-        //         {
-        //             // Merge files into existing folder
-        //             existingFolder.CodeFiles.AddRange(folder.CodeFiles);
-        //         }
-        //     }
+        var tags = new List<TagDto>();
+        var allCodeFiles = new List<CodeFileDto>();
+        foreach (var assetId in startProject.CodeAssetsIds)
+        {
+            var asset = await _codeAssetsService.GetCodeAssetAsync(assetId, cancellationToken);
+            tags.AddRange(asset.Tags);
 
-        //     allFiles.AddRange(asset.Folders.SelectMany(f => f.CodeFiles));
-        // }
+            allCodeFiles.AddRange(
+                asset.RootFolder.Items?
+                    .Where(f => f.Type == FileType.CodeFile)
+                    .Select(f => (CodeFileDto)f)
+                    .ToList() 
+                    ?? []
+            );
+
+            await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
+        }
+
+        if (combinedAsset.Language.StringToLanguage() == Languages.csharp)
+        {
+            var csprojFile = await CreateCsprojAsync(allCodeFiles, cancellationToken);
+            // TODO: update to dynamicly generated
+            csprojFile.Name = "StartProject.csproj";
+            var createdCsprojFile = await _codeFilesService.CreateCodeFileAsync(csprojFile, cancellationToken);
+        }
 
         // // Step 3: Create .csproj file from flat list of all code files
         // var csprojFile = await CreateCsprojAsync(allFiles, cancellationToken);
@@ -232,8 +236,10 @@ public class StartProjectsService(
         throw new NotImplementedException();
     }
 
-    public async Task<CodeFileDto> CreateCsprojAsync(IEnumerable<CodeFileDto> files, CancellationToken cancellationToken)
+    public async Task<CodeFileCreateDto> CreateCsprojAsync(IEnumerable<CodeFileDto> files, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Creating csproj file");
+
         var packages = new HashSet<string>();
         foreach (var file in files)
         {
@@ -272,11 +278,55 @@ public class StartProjectsService(
         }
         sb.AppendLine("</Project>");
 
-        return new CodeFileDto { Text = sb.ToString() };
+        _logger.LogInformation("Created csproj file");
+        
+        return new CodeFileCreateDto { Text = sb.ToString(), Language = Languages.xml.LanguageToString() };
     }
 
     public Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
+    }
+
+    private async Task AddFilesFromFolderAsync(string parentId, List<FileSystemNodeDto> files, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation($"Adding files to folder with Id: {parentId}");
+
+        foreach (var file in files)
+        {
+            switch (file.Type)
+            {
+                case FileType.Folder:
+                    var folder = (FolderDto) file;
+                    var createFolderDto = new FolderCreateDto
+                    {
+                        Name = file.Name,
+                        ParentId = parentId,
+                    };
+                    var newFolder = await _foldersService.CreateFolderAsync(createFolderDto, cancellationToken);
+
+                    await AddFilesFromFolderAsync(newFolder.Id, folder.Items, cancellationToken);
+                    break;
+
+                case FileType.CodeFile:
+                    var codeFile = (CodeFileDto) file;
+                    var createCodeFileDto = new CodeFileCreateDto
+                    {
+                        Name = codeFile.Name,
+                        Language = codeFile.Language,
+                        ParentId = parentId,
+                        Text = codeFile.Text
+                    };
+                    var newCodeFile = await _codeFilesService.CreateCodeFileAsync(createCodeFileDto, cancellationToken);
+
+                    break;
+
+                default:
+                    _logger.LogInformation("File type is not supported.");
+                    break;
+            }
+        }
+
+        _logger.LogInformation($"Finished adding files to folder with Id: {parentId}");
     }
 }
