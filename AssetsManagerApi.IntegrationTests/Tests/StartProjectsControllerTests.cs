@@ -338,4 +338,46 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     }
 
     #endregion
+
+
+    #region GetCombinedAsset
+
+    [Fact]
+    public async Task GetCombinedAsset_ValidId_ReturnsCombinedCodeAsset()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        var combineUrl = $"{ResourceUrl}/{startProjectId}/combined-asset";
+
+        // Act
+        var response = await HttpClient.GetAsync(combineUrl);
+        var combinedAsset = await response.Content.ReadFromJsonAsync<CodeAssetDto>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(combinedAsset);
+        Assert.False(string.IsNullOrEmpty(combinedAsset.Id.ToString()));
+        Assert.False(string.IsNullOrEmpty(combinedAsset.Name));
+        Assert.NotNull(combinedAsset.RootFolder);
+    }
+
+    [Fact]
+    public async Task GetCombinedAsset_InvalidId_ReturnsNotFound()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var invalidId = "non-existent-id";
+        var combineUrl = $"{ResourceUrl}/{invalidId}/combined-asset";
+
+        // Act
+        var response = await HttpClient.GetAsync(combineUrl);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    #endregion
 }

@@ -303,9 +303,27 @@ public class StartProjectsService(
         return new CodeFileCreateDto { Text = sb.ToString(), Language = Languages.xml.LanguageToString() };
     }
 
-    public Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken)
+    public async Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Getting combined code asset for start project with Id: {startProjectId}", startProjectId);
+
+        var startProject = await _startProjectsRepository.GetOneAsync(startProjectId, cancellationToken);
+        if (startProject == null)
+        {
+            _logger.LogError("Start project {startProjectId} not found", startProjectId);
+            throw new EntityNotFoundException("Start project not found.");
+        }
+        if (startProject.CodeAssetId == null)
+        {
+            _logger.LogError("Start project {startProjectId} has no Combined Asset", startProjectId);
+            throw new EntityNotFoundException("Start project has no Combined Asset.");
+        }
+
+        var codeAsset = await _codeAssetsService.GetCodeAssetAsync(startProject.CodeAssetId, cancellationToken);
+
+        _logger.LogInformation("Returning combined code asset for start project with Id: {startProjectId}", startProjectId);
+
+        return codeAsset;
     }
 
     private async Task AddFilesFromFolderAsync(string parentId, List<FileSystemNodeDto> files, CancellationToken cancellationToken)
