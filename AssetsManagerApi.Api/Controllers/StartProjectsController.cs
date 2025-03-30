@@ -202,11 +202,9 @@ public class StartProjectsController(
     [HttpGet("{id}/download")]
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
-    public async Task<FileContentResult> DownloadStartProjectAsync(string id, CancellationToken cancellationToken)
+    public async Task<FileContentResult> DownloadStartProjectZipAsync(string id, CancellationToken cancellationToken)
     {
-        var zipFileBytes = CreateDummyZipFile();
-        var fileName = "start-project.zip";
-
+        var (zipFileBytes, fileName) = await _startProjectsService.DownloadStartProjectZipAsync(id, cancellationToken);
         return File(zipFileBytes, "application/zip", fileName);
     }
 

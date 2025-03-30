@@ -94,7 +94,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
         // Arrange
         await LoginAsync("start-project@gmail.com", "Yuiop12345");
 
-        var startProjectId = "b3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4"; // Replace with actual test project ID or mock value
+        var startProjectId = "b3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
         var combineUrl = $"{ResourceUrl}/{startProjectId}/combine";
 
         // Act
@@ -297,6 +297,44 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    #endregion
+
+    #region DownloadStartProjectZip
+
+    [Fact]
+    public async Task DownloadStartProjectZip_ValidId_ReturnsZipFile()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        var combineUrl = $"{ResourceUrl}/{startProjectId}/download";
+
+        // Act
+        var response = await HttpClient.GetAsync(combineUrl);
+        var content = await response.Content.ReadAsByteArrayAsync();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotEmpty(content);
+    }
+
+    [Fact]
+    public async Task DownloadStartProjectZip_ValidId_ReturnsNotFound()
+    {
+        // Arrange
+        await LoginAsync("start-project@gmail.com", "Yuiop12345");
+
+        var invalidId = "non-existent-id";
+        var combineUrl = $"{ResourceUrl}/{invalidId}/combine";
+
+        // Act
+        var response = await HttpClient.PostAsync(combineUrl, null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     #endregion

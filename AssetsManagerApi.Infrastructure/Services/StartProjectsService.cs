@@ -1,4 +1,6 @@
+using System.IO.Compression;
 using System.Text;
+using AssetsManagerApi.Application.Exceptions;
 using AssetsManagerApi.Application.IRepositories;
 using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.CreateDto;
@@ -150,7 +152,7 @@ public class StartProjectsService(
         if (startProject == null)
         {
             _logger.LogError("Start project {startProjectId} not found", startProjectId);
-            throw new InvalidOperationException("Start project not found.");
+            throw new EntityNotFoundException("Start project not found.");
         }
 
         var combinedAssetCreateDto = new CodeAssetCreateDto 
@@ -183,13 +185,13 @@ public class StartProjectsService(
             await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
         }
 
-        if (combinedAsset.Language.StringToLanguage() == Languages.csharp)
-        {
-            var csprojFile = await CreateCsprojAsync(allCodeFiles, cancellationToken);
-            // TODO: update to dynamicly generated
-            csprojFile.Name = "StartProject.csproj";
-            var createdCsprojFile = await _codeFilesService.CreateCodeFileAsync(csprojFile, cancellationToken);
-        }
+        // if (combinedAsset.Language.StringToLanguage() == Languages.csharp)
+        // {
+        //     var csprojFile = await CreateCsprojAsync(allCodeFiles, cancellationToken);
+        //     // TODO: update to dynamicly generated
+        //     csprojFile.Name = "StartProject.csproj";
+        //     var createdCsprojFile = await _codeFilesService.CreateCodeFileAsync(csprojFile, cancellationToken);
+        // }
 
         // // Step 3: Create .csproj file from flat list of all code files
         // var csprojFile = await CreateCsprojAsync(allFiles, cancellationToken);
@@ -231,9 +233,27 @@ public class StartProjectsService(
         throw new NotImplementedException();
     }
 
-    public Task<byte[]> DownloadStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
+    public async Task<(byte[] zipContent, string fileName)> DownloadStartProjectZipAsync(string startProjectId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Downloading start project with Id: {startProjectId}", startProjectId);
+
+        var startProject = await _startProjectsRepository.GetOneAsync(startProjectId, cancellationToken);
+        if (startProject == null)
+        {
+            _logger.LogError("Start project {startProjectId} not found", startProjectId);
+            throw new EntityNotFoundException("Start project not found.");
+        }
+        if (startProject.CodeAssetId == null)
+        {
+            _logger.LogError("Start project {startProjectId} has no Combined Asset", startProjectId);
+            throw new EntityNotFoundException("Start project has no Combined Asset.");
+        }
+
+        var (zipContent, zipName) = await _codeAssetsService.GetCodeAssetAsZipAsync(startProject.CodeAssetId, cancellationToken);
+
+        _logger.LogInformation("Downloaded start project with Id: {startProjectId}", startProjectId);
+
+        return (zipContent, zipName);
     }
 
     public async Task<CodeFileCreateDto> CreateCsprojAsync(IEnumerable<CodeFileDto> files, CancellationToken cancellationToken)
@@ -279,7 +299,7 @@ public class StartProjectsService(
         sb.AppendLine("</Project>");
 
         _logger.LogInformation("Created csproj file");
-        
+
         return new CodeFileCreateDto { Text = sb.ToString(), Language = Languages.xml.LanguageToString() };
     }
 
@@ -317,7 +337,7 @@ public class StartProjectsService(
                         ParentId = parentId,
                         Text = codeFile.Text
                     };
-                    var newCodeFile = await _codeFilesService.CreateCodeFileAsync(createCodeFileDto, cancellationToken);
+                    await _codeFilesService.CreateCodeFileAsync(createCodeFileDto, cancellationToken);
 
                     break;
 
