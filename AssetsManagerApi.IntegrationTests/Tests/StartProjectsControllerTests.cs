@@ -309,7 +309,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
         // Arrange
         await LoginAsync("start-project@gmail.com", "Yuiop12345");
 
-        var startProjectId = "d3ceafbb-9c1f-4d2d-9e8a-ffb0f688fdc4";
+        var startProjectId = "d3ceafbb-3c1f-4d2d-9e8a-ffb0f688fdc4";
         var combineUrl = $"{ResourceUrl}/{startProjectId}/download";
 
         // Act
