@@ -17,6 +17,7 @@ public static class LanguagesExtensions
             Languages.csharp => "Csharp",
             Languages.javascript => "Javascript",
             Languages.python => "Python",
+            Languages.xml => "XML",
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null),
         };
     }
@@ -28,6 +29,7 @@ public static class LanguagesExtensions
             "Csharp" => Languages.csharp,
             "Javascript" => Languages.javascript,
             "Python" => Languages.python,
+            "XML" => Languages.xml,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null),
         };
     }
