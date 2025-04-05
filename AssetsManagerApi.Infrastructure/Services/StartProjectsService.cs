@@ -158,12 +158,17 @@ public class StartProjectsService(
             throw new EntityNotFoundException("Start project not found.");
         }
 
+        // TODO: update to AI generated name
+        var startProjectName = "Test API";
+        var startProjectNameCamelCase = "TestApi";
+
         var combinedAssetCreateDto = new CodeAssetCreateDto 
         {
-            Name = "Start Project", // To be updated
+            Name = startProjectName,
             AssetType = AssetTypes.Corporate,
             // TODO: update to dynamic. Currently only C# is supported
             Language = Languages.csharp.LanguageToString(), 
+            RootFolderName = startProjectNameCamelCase
         };
 
         var combinedAsset = await _codeAssetsService.CreateCodeAssetAsync(combinedAssetCreateDto, cancellationToken);
@@ -177,6 +182,7 @@ public class StartProjectsService(
             var asset = await _codeAssetsService.GetCodeAssetAsync(assetId, cancellationToken);
             tags.AddRange(asset.Tags);
 
+            // TODO: it doesn't drill down to subfolders
             allCodeFiles.AddRange(
                 asset.RootFolder.Items?
                     .Where(f => f.Type == FileType.CodeFile)
@@ -185,7 +191,7 @@ public class StartProjectsService(
                     ?? []
             );
 
-            await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
+            // await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
         }
 
         // if (combinedAsset.Language.StringToLanguage() == Languages.csharp)
@@ -349,7 +355,7 @@ public class StartProjectsService(
 
         return codeAsset;
     }
-
+    
     private async Task AddFilesFromFolderAsync(string parentId, List<FileSystemNodeDto> files, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"Adding files to folder with Id: {parentId}");

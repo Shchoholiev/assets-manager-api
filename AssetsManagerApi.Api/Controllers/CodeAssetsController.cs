@@ -4,7 +4,6 @@ using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Application.Models.UpdateDto;
 using AssetsManagerApi.Application.Paging;
-using AssetsManagerApi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -156,5 +155,21 @@ public class CodeAssetsController(ICodeAssetsService codeAssetsService, IFolders
     public async Task<ActionResult<CodeFileDto>> UpdateCodeFileAsync([FromBody] CodeFileUpdateDto dto, CancellationToken cancellationToken)
     {
         return await _codeFilesService.UpdateCodeFileAsync(dto, cancellationToken);
+    }
+
+     /// <summary>
+    /// Downloads code asset as a zip file.
+    /// </summary>
+    /// <param name="id">The ID of the code asset to download.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>A zip file containing the code assets.</returns>
+    [Authorize]
+    [HttpGet("{id}/download")]
+    [Produces("application/zip")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    public async Task<FileContentResult> DownloadCodeAssetZipAsync(string id, CancellationToken cancellationToken)
+    {
+        var (zipFileBytes, fileName) = await _codeAssetsService.GetCodeAssetAsZipAsync(id, cancellationToken);
+        return File(zipFileBytes, "application/zip", fileName);
     }
 }
