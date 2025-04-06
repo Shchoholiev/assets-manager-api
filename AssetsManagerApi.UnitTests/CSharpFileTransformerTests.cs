@@ -42,4 +42,42 @@ public class CSharpFileTransformerTests
         Assert.That(codeFile.Text, Does.Not.Contain("OldNamespace"));
         Assert.That(removedNamespaces, Does.Contain("OldNamespace.Controllers"));
     }
+
+    [Test]
+    public void RemoveInvalidUsings_RemovesUsingsMatchingRemovedNamespaces()
+    {
+        var folder = new FolderDto
+        {
+            Name = "Root",
+            Type = FileType.Folder,
+            Items =
+            [
+                new CodeFileDto
+                {
+                    Name = "Service.cs",
+                    Type = FileType.CodeFile,
+                    Language = "C#",
+                    Text = """
+                    using System;
+                    using OldNamespace.Services;
+                    using OldNamespace.Models;
+
+                    namespace Root
+                    {
+                        public class Service { }
+                    }
+                    """
+                }
+            ]
+        };
+
+        var removedNamespaces = new List<string> { "OldNamespace.Services" };
+
+        var result = CSharpFileTransformer.RemoveInvalidUsings(folder, removedNamespaces);
+        var file = result.Items[0] as CodeFileDto;
+
+        Assert.That(file.Text, Does.Contain("using System;"));
+        Assert.That(file.Text, Does.Not.Contain("OldNamespace.Services"));
+        Assert.That(file.Text, Does.Contain("OldNamespace.Models"));
+    }
 }

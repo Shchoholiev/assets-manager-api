@@ -87,4 +87,55 @@ public static class CSharpFileTransformer
             return node.WithName(updatedNamespace);
         }
     }
+
+    public static FolderDto RemoveInvalidUsings(FolderDto folder, List<string> removedNamespaces)
+{
+    return RemoveUsingsRecursive(folder, removedNamespaces);
+}
+
+private static FolderDto RemoveUsingsRecursive(FolderDto folder, List<string> removedNamespaces)
+{
+    var updatedFolder = new FolderDto
+    {
+        Name = folder.Name,
+        Type = folder.Type,
+        Items = new List<FileSystemNodeDto>()
+    };
+
+    foreach (var item in folder.Items ?? [])
+    {
+        if (item is CodeFileDto file)
+        {
+            var newText = RemoveUsingsFromCode(file.Text, removedNamespaces);
+            updatedFolder.Items.Add(new CodeFileDto
+            {
+                Name = file.Name,
+                Type = file.Type,
+                Language = file.Language,
+                Text = newText
+            });
+        }
+        else if (item is FolderDto subfolder)
+        {
+            var updatedSubfolder = RemoveUsingsRecursive(subfolder, removedNamespaces);
+            updatedFolder.Items.Add(updatedSubfolder);
+        }
+    }
+
+    return updatedFolder;
+}
+
+    private static string RemoveUsingsFromCode(string codeText, List<string> removedNamespaces)
+    {
+        var tree = CSharpSyntaxTree.ParseText(codeText);
+        var root = tree.GetCompilationUnitRoot();
+
+        var newUsings = root.Usings
+            .Where(u => u.Name != null && !removedNamespaces.Any(oldNs => u.Name.ToString() == oldNs))
+            .ToList();
+
+        var newRoot = root.WithUsings(SyntaxFactory.List(newUsings));
+
+        return newRoot.NormalizeWhitespace().ToFullString();
+    }
 }
