@@ -7,12 +7,14 @@ namespace AssetsManagerApi.Application.Utils;
 
 public static class CSharpFileTransformer
 {
-    public static FolderDto UpdateNamespaces(FolderDto rootFolder)
+    public static (FolderDto UpdatedFolder, List<string> RemovedNamespaces) UpdateNamespaces(FolderDto rootFolder)
     {
-        return RewriteFolderWithNamespace(rootFolder, rootFolder.Name);
+        var removedNamespaces = new List<string>();
+        var updatedFolder = RewriteFolderWithNamespace(rootFolder, rootFolder.Name, removedNamespaces);
+        return (updatedFolder, removedNamespaces);
     }
 
-    private static FolderDto RewriteFolderWithNamespace(FolderDto folder, string currentNamespace)
+    private static FolderDto RewriteFolderWithNamespace(FolderDto folder, string currentNamespace, List<string> removedNamespaces)
     {
         var updatedFolder = new FolderDto
         {
@@ -25,7 +27,13 @@ public static class CSharpFileTransformer
         {
             if (item is CodeFileDto codeFile)
             {
-                var updatedText = RewriteNamespace(codeFile.Text, currentNamespace);
+                var (updatedText, oldNamespace) = RewriteNamespace(codeFile.Text, currentNamespace);
+
+                if (oldNamespace != null && oldNamespace != currentNamespace)
+                {
+                    removedNamespaces.Add(oldNamespace);
+                }
+
                 updatedFolder.Items.Add(new CodeFileDto
                 {
                     Name = codeFile.Name,
@@ -37,7 +45,7 @@ public static class CSharpFileTransformer
             else if (item is FolderDto subFolder)
             {
                 var subNamespace = $"{currentNamespace}.{subFolder.Name}";
-                var updatedSubFolder = RewriteFolderWithNamespace(subFolder, subNamespace);
+                var updatedSubFolder = RewriteFolderWithNamespace(subFolder, subNamespace, removedNamespaces);
                 updatedFolder.Items.Add(updatedSubFolder);
             }
         }
@@ -45,15 +53,18 @@ public static class CSharpFileTransformer
         return updatedFolder;
     }
 
-    private static string RewriteNamespace(string originalText, string newNamespace)
+    private static (string UpdatedText, string? OldNamespace) RewriteNamespace(string originalText, string newNamespace)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(originalText);
         var root = syntaxTree.GetRoot();
 
+        var nsNode = root.DescendantNodes().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault();
+        var oldNamespace = nsNode?.Name.ToString();
+
         var rewriter = new NamespaceRewriter(newNamespace);
         var newRoot = rewriter.Visit(root);
 
-        return newRoot.NormalizeWhitespace().ToFullString();
+        return (newRoot.NormalizeWhitespace().ToFullString(), oldNamespace);
     }
 
     private class NamespaceRewriter(string newNamespace) : CSharpSyntaxRewriter

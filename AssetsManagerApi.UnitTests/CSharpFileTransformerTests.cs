@@ -34,11 +34,12 @@ public class CSharpFileTransformerTests
             ]
         };
 
-        var result = CSharpFileTransformer.UpdateNamespaces(folder);
+        var (updated, removedNamespaces) = CSharpFileTransformer.UpdateNamespaces(folder);
 
-        var codeFile = ((FolderDto)result.Items[0]).Items[0] as CodeFileDto;
+        var codeFile = ((FolderDto)updated.Items[0]).Items[0] as CodeFileDto;
 
         Assert.That(codeFile.Text, Does.Contain("namespace Root.Controllers"));
         Assert.That(codeFile.Text, Does.Not.Contain("OldNamespace"));
+        Assert.That(removedNamespaces, Does.Contain("OldNamespace.Controllers"));
     }
 }
