@@ -2,9 +2,7 @@ using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.Compilation;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Dto;
-using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Application.Models.UpdateDto;
-using AssetsManagerApi.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -84,13 +82,12 @@ public class StartProjectsController(
     [Authorize(Roles = "Enterprise")]
     [HttpDelete("{startProjectId}/code-files/{codeFileId}")]
     [Produces("application/json")]
-    public async Task<ActionResult> DeleteCodeFileAsync(
+    public async Task<ActionResult<CodeFileDto>> DeleteCodeFileAsync(
         string startProjectId, // for future use
         string codeFileId,
         CancellationToken cancellationToken)
     {
-        await _startProjectsService.DeleteCodeFileAsync(startProjectId, codeFileId, cancellationToken);
-        return NoContent();
+        return await _startProjectsService.DeleteCodeFileAsync(startProjectId, codeFileId, cancellationToken);
     }
 
     /// <summary>
@@ -143,13 +140,12 @@ public class StartProjectsController(
     [Authorize(Roles = "Enterprise")]
     [HttpDelete("{startProjectId}/folders/{folderId}")]
     [Produces("application/json")]
-    public async Task<ActionResult> DeleteFolderAsync(
+    public async Task<ActionResult<FolderDto>> DeleteFolderAsync(
         string startProjectId, // for future use
         string folderId,
         CancellationToken cancellationToken)
     {
-        await _startProjectsService.DeleteFolderAsync(startProjectId, folderId, cancellationToken);
-        return NoContent();
+        return await _startProjectsService.DeleteFolderAsync(startProjectId, folderId, cancellationToken);
     }
 
 

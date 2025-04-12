@@ -201,7 +201,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     #region DeleteCodeFile
 
     [Fact]
-    public async Task DeleteCodeFile_ValidInput_Returns204NoContent()
+    public async Task DeleteCodeFile_ValidInput_ReturnsCodeFile()
     {
         // Arrange
         var codeFileId = "d3faafbb-9c1f-4d2d-9e8a-ffb0f618aac0";
@@ -210,11 +210,11 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
 
         // Act
         var response = await HttpClient.DeleteAsync($"{ResourceUrl}/{startProjectId}/code-files/{codeFileId}");
-        var stringContent = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"Response content: {stringContent}");
+        var codeFile = await response.Content.ReadFromJsonAsync<CodeFileDto>();
 
         // Assert
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(codeFile);
     }
 
     #endregion
@@ -284,7 +284,7 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
     #region DeleteFolder
 
     [Fact]
-    public async Task DeleteFolder_ValidInput_Returns204NoContent()
+    public async Task DeleteFolder_ValidInput_ReturnsFolder()
     {
         // Arrange
         var folderId = "f85eafbb-9c1f-4d2d-9e8a-ffb0f688aac5";
@@ -293,11 +293,11 @@ public class StartProjectsControllerTests(TestingFactory<Program> factory)
 
         // Act
         var response = await HttpClient.DeleteAsync($"{ResourceUrl}/{startProjectId}/folders/{folderId}");
-        var stringContent = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"Response content: {stringContent}");
+        var folder = await response.Content.ReadFromJsonAsync<FolderDto>();
 
         // Assert
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(folder);
     }
 
     #endregion

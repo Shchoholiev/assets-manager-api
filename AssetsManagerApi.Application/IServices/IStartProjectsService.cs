@@ -36,12 +36,13 @@ public interface IStartProjectsService
     Task<CodeFileDto> UpdateCodeFileAsync(string startProjectId, string codeFileId, CodeFileUpdateDto codeFileDto, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Deletes an existing code file for the specified start project.
+    /// Deletes an existing code file for the specified start project and returns the deleted code file details.
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="codeFileId">The identifier of the code file to delete.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken);
+    /// <returns>The details of the deleted code file.</returns>
+    Task<CodeFileDto> DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates a new folder for the specified start project.
@@ -66,13 +67,14 @@ public interface IStartProjectsService
         FolderUpdateDto folderDto, 
         CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Deletes an existing folder for the specified start project.
+    ///<summary>
+    /// Deletes an existing folder for the specified start project and returns the deleted folder details.
     /// </summary>
     /// <param name="startProjectId">The identifier of the start project.</param>
     /// <param name="folderId">The identifier of the folder to delete.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken);
+    /// <returns>The details of the deleted folder.</returns>
+    Task<FolderDto> DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Combines the code assets of a start project into a single code asset.

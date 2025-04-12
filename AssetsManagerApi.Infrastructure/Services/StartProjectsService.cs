@@ -107,13 +107,15 @@ public class StartProjectsService(
         return updatedCodeFile;
     }
 
-    public async Task DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken)
+    public async Task<CodeFileDto> DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Deleting code file {codeFileId} for start project {startProjectId}", codeFileId, startProjectId);
 
-        await _codeFilesService.DeleteCodeFileAsync(codeFileId, cancellationToken);
+        var codeFile = await _codeFilesService.DeleteCodeFileAsync(codeFileId, cancellationToken);
 
         _logger.LogInformation("Deleted code file with ID {codeFileId}", codeFileId);
+
+        return codeFile;
     }
 
     public async Task<FolderDto> CreateFolderAsync(string startProjectId, FolderCreateDto folderDto, CancellationToken cancellationToken)
@@ -138,13 +140,15 @@ public class StartProjectsService(
         return updatedFolder;
     }
 
-    public async Task DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken)
+    public async Task<FolderDto> DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Deleting folder {folderId} for start project {startProjectId}", folderId, startProjectId);
 
-        await _foldersService.DeleteFolderAsync(folderId, cancellationToken);
+        var folder = await _foldersService.DeleteFolderAsync(folderId, cancellationToken);
 
         _logger.LogInformation("Deleted folder with ID {folderId}", folderId);
+
+        return folder;
     }
 
     public async Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
@@ -158,12 +162,17 @@ public class StartProjectsService(
             throw new EntityNotFoundException("Start project not found.");
         }
 
+        // TODO: update to AI generated name
+        var startProjectName = "Test API";
+        var startProjectNameCamelCase = "TestApi";
+
         var combinedAssetCreateDto = new CodeAssetCreateDto 
         {
-            Name = "Start Project", // To be updated
+            Name = startProjectName,
             AssetType = AssetTypes.Corporate,
             // TODO: update to dynamic. Currently only C# is supported
             Language = Languages.csharp.LanguageToString(), 
+            RootFolderName = startProjectNameCamelCase
         };
 
         var combinedAsset = await _codeAssetsService.CreateCodeAssetAsync(combinedAssetCreateDto, cancellationToken);
@@ -177,6 +186,7 @@ public class StartProjectsService(
             var asset = await _codeAssetsService.GetCodeAssetAsync(assetId, cancellationToken);
             tags.AddRange(asset.Tags);
 
+            // TODO: it doesn't drill down to subfolders
             allCodeFiles.AddRange(
                 asset.RootFolder.Items?
                     .Where(f => f.Type == FileType.CodeFile)
@@ -185,7 +195,7 @@ public class StartProjectsService(
                     ?? []
             );
 
-            await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
+            // await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
         }
 
         // if (combinedAsset.Language.StringToLanguage() == Languages.csharp)
@@ -287,7 +297,7 @@ public class StartProjectsService(
         var packages = new HashSet<string>();
         foreach (var file in files)
         {
-            var lines = file.Text.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+            var lines = file.Text.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
                 var trimmed = line.Trim();
@@ -349,7 +359,7 @@ public class StartProjectsService(
 
         return codeAsset;
     }
-
+    
     private async Task AddFilesFromFolderAsync(string parentId, List<FileSystemNodeDto> files, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"Adding files to folder with Id: {parentId}");
