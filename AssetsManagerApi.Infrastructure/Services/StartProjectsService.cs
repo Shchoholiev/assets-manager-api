@@ -107,13 +107,15 @@ public class StartProjectsService(
         return updatedCodeFile;
     }
 
-    public async Task DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken)
+    public async Task<CodeFileDto> DeleteCodeFileAsync(string startProjectId, string codeFileId, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Deleting code file {codeFileId} for start project {startProjectId}", codeFileId, startProjectId);
 
-        await _codeFilesService.DeleteCodeFileAsync(codeFileId, cancellationToken);
+        var codeFile = await _codeFilesService.DeleteCodeFileAsync(codeFileId, cancellationToken);
 
         _logger.LogInformation("Deleted code file with ID {codeFileId}", codeFileId);
+
+        return codeFile;
     }
 
     public async Task<FolderDto> CreateFolderAsync(string startProjectId, FolderCreateDto folderDto, CancellationToken cancellationToken)
@@ -138,13 +140,15 @@ public class StartProjectsService(
         return updatedFolder;
     }
 
-    public async Task DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken)
+    public async Task<FolderDto> DeleteFolderAsync(string startProjectId, string folderId, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Deleting folder {folderId} for start project {startProjectId}", folderId, startProjectId);
 
-        await _foldersService.DeleteFolderAsync(folderId, cancellationToken);
+        var folder = await _foldersService.DeleteFolderAsync(folderId, cancellationToken);
 
         _logger.LogInformation("Deleted folder with ID {folderId}", folderId);
+
+        return folder;
     }
 
     public async Task<CodeAssetDto> CombineStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
