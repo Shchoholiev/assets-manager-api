@@ -89,41 +89,41 @@ public static class CSharpFileTransformer
     }
 
     public static FolderDto RemoveInvalidUsings(FolderDto folder, List<string> removedNamespaces)
-{
-    return RemoveUsingsRecursive(folder, removedNamespaces);
-}
-
-private static FolderDto RemoveUsingsRecursive(FolderDto folder, List<string> removedNamespaces)
-{
-    var updatedFolder = new FolderDto
     {
-        Name = folder.Name,
-        Type = folder.Type,
-        Items = new List<FileSystemNodeDto>()
-    };
-
-    foreach (var item in folder.Items ?? [])
-    {
-        if (item is CodeFileDto file)
-        {
-            var newText = RemoveUsingsFromCode(file.Text, removedNamespaces);
-            updatedFolder.Items.Add(new CodeFileDto
-            {
-                Name = file.Name,
-                Type = file.Type,
-                Language = file.Language,
-                Text = newText
-            });
-        }
-        else if (item is FolderDto subfolder)
-        {
-            var updatedSubfolder = RemoveUsingsRecursive(subfolder, removedNamespaces);
-            updatedFolder.Items.Add(updatedSubfolder);
-        }
+        return RemoveUsingsRecursive(folder, removedNamespaces);
     }
 
-    return updatedFolder;
-}
+    private static FolderDto RemoveUsingsRecursive(FolderDto folder, List<string> removedNamespaces)
+    {
+        var updatedFolder = new FolderDto
+        {
+            Name = folder.Name,
+            Type = folder.Type,
+            Items = new List<FileSystemNodeDto>()
+        };
+
+        foreach (var item in folder.Items ?? [])
+        {
+            if (item is CodeFileDto file)
+            {
+                var newText = RemoveUsingsFromCode(file.Text, removedNamespaces);
+                updatedFolder.Items.Add(new CodeFileDto
+                {
+                    Name = file.Name,
+                    Type = file.Type,
+                    Language = file.Language,
+                    Text = newText
+                });
+            }
+            else if (item is FolderDto subfolder)
+            {
+                var updatedSubfolder = RemoveUsingsRecursive(subfolder, removedNamespaces);
+                updatedFolder.Items.Add(updatedSubfolder);
+            }
+        }
+
+        return updatedFolder;
+    }
 
     private static string RemoveUsingsFromCode(string codeText, List<string> removedNamespaces)
     {

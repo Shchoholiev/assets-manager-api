@@ -297,7 +297,7 @@ public class StartProjectsService(
         var packages = new HashSet<string>();
         foreach (var file in files)
         {
-            var lines = file.Text.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+            var lines = file.Text.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
                 var trimmed = line.Trim();
