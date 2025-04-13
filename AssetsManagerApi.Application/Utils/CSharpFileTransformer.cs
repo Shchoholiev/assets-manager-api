@@ -239,4 +239,82 @@ public static class CSharpFileTransformer
 
         return updatedText;
     }
+
+    /// <summary>
+    /// Recursively processes the given folder structure and, for every CodeFileDto encountered,
+    /// adds missing using directives based on the provided type-to-namespace mapping.
+    /// This method directly updates the properties of the objects in the provided folder instead of creating new copies.
+    /// </summary>
+    /// <param name="folder">The root folder with a hierarchical structure containing code files.</param>
+    /// <param name="typeToNamespace">A dictionary mapping type names to their corresponding namespaces.</param>
+    /// <returns>The modified FolderDto with code files having the missing using directives added.</returns>
+    public static FolderDto AddMissingUsingsToFolder(FolderDto folder, Dictionary<string, string> typeToNamespace)
+    {
+        if (folder.Items == null)
+            return folder;
+
+        foreach (var item in folder.Items)
+        {
+            if (item is CodeFileDto codeFile)
+            {
+                codeFile.Text = AddMissingUsings(codeFile.Text, typeToNamespace);
+            }
+            else if (item is FolderDto subFolder)
+            {
+                AddMissingUsingsToFolder(subFolder, typeToNamespace);
+            }
+        }
+
+        return folder;
+    }
+
+    /// <summary>
+    /// Adds missing using directives to the given C# code text based on the specified type-to-namespace mapping.
+    /// It parses the code, finds identifier usages as a heuristic for type references, and then adds any using
+    /// directives for namespaces that are not already present.
+    /// </summary>
+    /// <param name="codeText">The original C# source code.</param>
+    /// <param name="typeToNamespace">A dictionary mapping type names to namespaces.</param>
+    /// <returns>The updated C# source code with missing using directives added.</returns>
+    public static string AddMissingUsings(string codeText, Dictionary<string, string> typeToNamespace)
+    {
+        var tree = CSharpSyntaxTree.ParseText(codeText);
+        var root = tree.GetCompilationUnitRoot();
+
+        var existingUsings = root.Usings
+            .Select(u => u.Name.ToString())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var usedTypeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var identifier in root.DescendantNodes().OfType<IdentifierNameSyntax>())
+        {
+            usedTypeNames.Add(identifier.Identifier.Text);
+        }
+
+        var requiredNamespaces = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var typeName in usedTypeNames)
+        {
+            if (typeToNamespace.TryGetValue(typeName, out var ns))
+            {
+                requiredNamespaces.Add(ns);
+            }
+        }
+
+        var missingNamespaces = requiredNamespaces.Where(ns => !existingUsings.Contains(ns)).ToList();
+        if (missingNamespaces.Count == 0)
+        {
+            return codeText;
+        }
+
+        var newUsingDirectives = missingNamespaces
+             .Select(ns => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns))
+                 .WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed))
+             .ToList();
+
+        var allUsings = root.Usings.AddRange(newUsingDirectives);
+        var sortedUsings = allUsings.OrderBy(u => u.Name.ToString()).ToArray();
+        var newRoot = root.WithUsings(SyntaxFactory.List(sortedUsings));
+
+        return newRoot.NormalizeWhitespace().ToFullString();
+    }
 }

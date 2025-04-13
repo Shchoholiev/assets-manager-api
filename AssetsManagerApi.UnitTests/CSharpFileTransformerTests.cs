@@ -1,6 +1,9 @@
 using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Utils;
 using AssetsManagerApi.Domain.Enums;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+
 
 namespace AssetsManagerApi.UnitTests;
 
@@ -116,7 +119,7 @@ public class CSharpFileTransformerTests
         };
 
         var dictionary = CSharpFileTransformer.BuildClassToNamespaceDictionary(folder, "MyApp");
-        
+
         Assert.That(dictionary.ContainsKey("TestApi"), Is.True);
         Assert.That(dictionary["TestApi"], Is.EqualTo("MyApp.Root.SubFolder"));
 
@@ -176,5 +179,201 @@ public class CSharpFileTransformerTests
         Dictionary<string, string> dictionary = CSharpFileTransformer.BuildClassToNamespaceDictionary(folder, "MyApp");
 
         Assert.That(dictionary.Count, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void AddMissingUsingsToFolder_AddsMissingUsingDirectiveInSingleFile()
+    {
+        var folderStructure = new FolderDto
+        {
+            Name = "Root",
+            Type = FileType.Folder,
+            Items = new List<FileSystemNodeDto>
+        {
+            new CodeFileDto
+            {
+                Name = "SomeFile.cs",
+                Type = FileType.CodeFile,
+                Language = "C#",
+                Text = @"
+namespace SomeNamespace
+{
+    public class SomeClass
+    {
+        public void Foo() { var a = new TestApi(); }
+    }
+}"
+            }
+        }
+        };
+
+        var typeToNamespace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TestApi", "MyApp.Root.SubFolder" }
+        };
+
+        var updatedFolder = CSharpFileTransformer.AddMissingUsingsToFolder(folderStructure, typeToNamespace);
+
+        var updatedFile = (CodeFileDto)updatedFolder.Items.First();
+        Assert.That(updatedFile.Text, Contains.Substring("using MyApp.Root.SubFolder;"));
+    }
+
+    [Test]
+    public void AddMissingUsingsToFolder_DoesNotDuplicateExistingUsings()
+    {
+        var folderStructure = new FolderDto
+        {
+            Name = "Root",
+            Type = FileType.Folder,
+            Items = new List<FileSystemNodeDto>
+        {
+            new CodeFileDto
+            {
+                Name = "SomeFile.cs",
+                Type = FileType.CodeFile,
+                Language = "C#",
+                Text = @"
+using MyApp.Root.SubFolder;
+namespace SomeNamespace
+{
+    public class SomeClass
+    {
+        public void Foo() { var a = new TestApi(); }
+    }
+}"
+            }
+        }
+        };
+
+        var typeToNamespace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TestApi", "MyApp.Root.SubFolder" }
+        };
+
+        var updatedFolder = CSharpFileTransformer.AddMissingUsingsToFolder(folderStructure, typeToNamespace);
+        
+        var updatedFile = (CodeFileDto)updatedFolder.Items.First();
+        int count = CountOccurrences(updatedFile.Text, "using MyApp.Root.SubFolder;");
+        Assert.That(count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void AddMissingUsingsToFolder_NoMissingUsings_LeavesFileUnchanged()
+    {
+        string originalCode = @"
+using System;
+namespace SomeNamespace
+{
+    public class SomeClass
+    {
+        public void Foo() { var a = 42; }
+    }
+}";
+        var folderStructure = new FolderDto
+        {
+            Name = "Root",
+            Type = FileType.Folder,
+            Items = new List<FileSystemNodeDto>
+        {
+            new CodeFileDto
+            {
+                Name = "SomeFile.cs",
+                Type = FileType.CodeFile,
+                Language = "C#",
+                Text = originalCode
+            }
+        }
+        };
+
+        var typeToNamespace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TestApi", "MyApp.Root.SubFolder" }
+        };
+
+        var updatedFolder = CSharpFileTransformer.AddMissingUsingsToFolder(folderStructure, typeToNamespace);
+        var updatedFile = (CodeFileDto)updatedFolder.Items.First();
+        Assert.That(NormalizeWhitespace(updatedFile.Text), Is.EqualTo(NormalizeWhitespace(originalCode)));
+    }
+
+    [Test]
+    public void AddMissingUsingsToFolder_NestedFolders_AddsMissingDirectivesRecursively()
+    {
+        var folderStructure = new FolderDto
+        {
+            Name = "Root",
+            Type = FileType.Folder,
+            Items = new List<FileSystemNodeDto>
+        {
+            new FolderDto
+            {
+                Name = "SubFolder",
+                Type = FileType.Folder,
+                Items = new List<FileSystemNodeDto>
+                {
+                    new CodeFileDto
+                    {
+                        Name = "File1.cs",
+                        Type = FileType.CodeFile,
+                        Language = "C#",
+                        Text = @"
+namespace SomeNamespace
+{
+    public class SomeClass
+    {
+        public void Foo() { var a = new TestApi(); }
+    }
+}"
+                    }
+                }
+            },
+            new CodeFileDto
+            {
+                Name = "File2.cs",
+                Type = FileType.CodeFile,
+                Language = "C#",
+                Text = @"
+namespace OtherNamespace
+{
+    public class OtherClass
+    {
+        public void Bar() { var b = new HelperStruct(); }
+    }
+}"
+            }
+        }
+        };
+
+        var typeToNamespace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TestApi", "MyApp.Root.SubFolder" },
+            { "HelperStruct", "MyApp.Root" }
+        };
+
+        var updatedFolder = CSharpFileTransformer.AddMissingUsingsToFolder(folderStructure, typeToNamespace);
+
+        var updatedSubFolder = updatedFolder.Items.OfType<FolderDto>().First();
+        var updatedFile1 = updatedSubFolder.Items.OfType<CodeFileDto>().First();
+        var updatedFile2 = updatedFolder.Items.OfType<CodeFileDto>().First(file => file.Name == "File2.cs");
+        Assert.That(updatedFile1.Text, Contains.Substring("using MyApp.Root.SubFolder;"));
+        Assert.That(updatedFile2.Text, Contains.Substring("using MyApp.Root;"));
+    }
+
+    private static string NormalizeWhitespace(string code)
+    {
+        var tree = CSharpSyntaxTree.ParseText(code);
+        var root = tree.GetCompilationUnitRoot();
+        return root.NormalizeWhitespace().ToFullString();
+    }
+
+    private static int CountOccurrences(string source, string substring)
+    {
+        int count = 0;
+        int index = 0;
+        while ((index = source.IndexOf(substring, index, StringComparison.Ordinal)) != -1)
+        {
+            count++;
+            index += substring.Length;
+        }
+        return count;
     }
 }
