@@ -16,9 +16,12 @@ public static class CSharpFileTransformer
     public static (FolderDto UpdatedFolder, List<string> RemovedNamespaces) UpdateNamespaces(FolderDto rootFolder)
     {
         logger.LogInformation("Starting UpdateNamespaces for root folder {FolderName}", rootFolder.Name);
+        
         var removedNamespaces = new List<string>();
         var updatedFolder = RewriteFolderWithNamespace(rootFolder, rootFolder.Name, removedNamespaces);
+
         logger.LogInformation("Finished UpdateNamespaces for root folder {FolderName}", rootFolder.Name);
+
         return (updatedFolder, removedNamespaces);
     }
 
