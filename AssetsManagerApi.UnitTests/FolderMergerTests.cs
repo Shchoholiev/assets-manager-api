@@ -43,8 +43,6 @@ public class FolderMergerTests
 
         var result = FolderMerger.MergeFolders([folder1, folder2]);
 
-        Console.WriteLine(JsonSerializer.Serialize(result));
-
         Assert.That(result.Items.Count, Is.EqualTo(2));
         Assert.That(result.Items.Any(f => f is FolderDto fd && fd.Name == "FolderA"));
         Assert.That(result.Items.Any(f => f is FolderDto fd && fd.Name == "FolderB"));
