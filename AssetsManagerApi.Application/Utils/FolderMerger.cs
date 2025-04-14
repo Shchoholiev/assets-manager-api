@@ -42,6 +42,12 @@ public static class FolderMerger
             }
             else if (item is CodeFileDto file)
             {
+                if (string.Equals(file.Name, "Program.cs", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(file.Name, "Startup.cs", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+                
                 target.Items.Add(new CodeFileDto
                 {
                     Name = file.Name,
