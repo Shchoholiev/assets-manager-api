@@ -8,6 +8,7 @@ using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.Global;
 using AssetsManagerApi.Application.Models.Operations;
 using AssetsManagerApi.Application.Models.UpdateDto;
+using AssetsManagerApi.Application.Utils;
 using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Domain.Enums;
 using Microsoft.Extensions.Logging;
@@ -163,8 +164,8 @@ public class StartProjectsService(
         }
 
         // TODO: update to AI generated name
-        var startProjectName = "Test API";
-        var startProjectNameCamelCase = "TestApi";
+        var startProjectName = "Start Project";
+        var startProjectNameCamelCase = "StartProject";
 
         var combinedAssetCreateDto = new CodeAssetCreateDto 
         {
@@ -181,10 +182,12 @@ public class StartProjectsService(
 
         var tags = new List<TagDto>();
         var allCodeFiles = new List<CodeFileDto>();
+        var rootFolders = new List<FolderDto>();
         foreach (var assetId in startProject.CodeAssetsIds)
         {
             var asset = await _codeAssetsService.GetCodeAssetAsync(assetId, cancellationToken);
             tags.AddRange(asset.Tags);
+            rootFolders.Add(asset.RootFolder);
 
             // TODO: it doesn't drill down to subfolders
             allCodeFiles.AddRange(
@@ -198,31 +201,19 @@ public class StartProjectsService(
             // await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
         }
 
-        // if (combinedAsset.Language.StringToLanguage() == Languages.csharp)
-        // {
-        //     var csprojFile = await CreateCsprojAsync(allCodeFiles, cancellationToken);
-        //     // TODO: update to dynamicly generated
-        //     csprojFile.Name = "StartProject.csproj";
-        //     var createdCsprojFile = await _codeFilesService.CreateCodeFileAsync(csprojFile, cancellationToken);
-        // }
+        var mergedFolder = FolderMerger.MergeFolders(rootFolders);
 
-        // // Step 3: Create .csproj file from flat list of all code files
-        // var csprojFile = await CreateCsprojAsync(allFiles, cancellationToken);
-        // csprojFile.FileName = "Project.csproj";
+        // TODO: modify existing folder, do not create a copy
+        var (updatedNamespaceFolder, removedNamespaces) = CSharpFileTransformer.UpdateNamespaces(mergedFolder);
 
-        // // Step 4: Add .csproj file to root folder
-        // var rootFolder = allFolders.Values.FirstOrDefault(f => f.ParentFolderId == null);
-        // if (rootFolder == null)
-        // {
-        //     // If no explicit root folder, create one
-        //     rootFolder = new FolderDto
-        //     {
-        //         Name = "root",
-        //         CodeFiles = new List<CodeFileDto>(),
-        //         SubFolders = new List<FolderDto>()
-        //     };
-        //     allFolders["root"] = rootFolder;
-        // }
+        var removedUsingsFolder = CSharpFileTransformer.RemoveInvalidUsings(updatedNamespaceFolder, removedNamespaces);
+
+        var csprojFile = await CreateCsprojAsync(allCodeFiles, cancellationToken);
+        csprojFile.Name = $"{startProjectNameCamelCase}.csproj";
+        var createdCsprojFile = await _codeFilesService.CreateCodeFileAsync(csprojFile, cancellationToken);
+        removedUsingsFolder.Items?.Add(createdCsprojFile);
+
+        
 
         // rootFolder.CodeFiles.Add(csprojFile);
 

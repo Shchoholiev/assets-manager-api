@@ -118,13 +118,13 @@ public class CSharpFileTransformerTests
         }
         };
 
-        var dictionary = CSharpFileTransformer.BuildClassToNamespaceDictionary(folder, "MyApp");
+        var dictionary = CSharpFileTransformer.BuildClassToNamespaceDictionary(folder);
 
         Assert.That(dictionary.ContainsKey("TestApi"), Is.True);
-        Assert.That(dictionary["TestApi"], Is.EqualTo("MyApp.Root.SubFolder"));
+        Assert.That(dictionary["TestApi"], Is.EqualTo("Root.SubFolder"));
 
         Assert.That(dictionary.ContainsKey("MainApi"), Is.True);
-        Assert.That(dictionary["MainApi"], Is.EqualTo("MyApp.Root"));
+        Assert.That(dictionary["MainApi"], Is.EqualTo("Root"));
     }
 
     [Test]
@@ -151,19 +151,19 @@ public class CSharpFileTransformerTests
         }
         };
 
-        Dictionary<string, string> dictionary = CSharpFileTransformer.BuildClassToNamespaceDictionary(folder, "MyApp");
+        Dictionary<string, string> dictionary = CSharpFileTransformer.BuildClassToNamespaceDictionary(folder);
 
         Assert.That(dictionary.ContainsKey("MultiApi"), Is.True);
-        Assert.That(dictionary["MultiApi"], Is.EqualTo("MyApp.Root"));
+        Assert.That(dictionary["MultiApi"], Is.EqualTo("Root"));
 
         Assert.That(dictionary.ContainsKey("HelperStruct"), Is.True);
-        Assert.That(dictionary["HelperStruct"], Is.EqualTo("MyApp.Root"));
+        Assert.That(dictionary["HelperStruct"], Is.EqualTo("Root"));
 
         Assert.That(dictionary.ContainsKey("ITestInterface"), Is.True);
-        Assert.That(dictionary["ITestInterface"], Is.EqualTo("MyApp.Root"));
+        Assert.That(dictionary["ITestInterface"], Is.EqualTo("Root"));
 
         Assert.That(dictionary.ContainsKey("SomeEnum"), Is.True);
-        Assert.That(dictionary["SomeEnum"], Is.EqualTo("MyApp.Root"));
+        Assert.That(dictionary["SomeEnum"], Is.EqualTo("Root"));
     }
 
     [Test]
@@ -176,7 +176,7 @@ public class CSharpFileTransformerTests
             Items = null
         };
 
-        Dictionary<string, string> dictionary = CSharpFileTransformer.BuildClassToNamespaceDictionary(folder, "MyApp");
+        Dictionary<string, string> dictionary = CSharpFileTransformer.BuildClassToNamespaceDictionary(folder);
 
         Assert.That(dictionary.Count, Is.EqualTo(0));
     }
@@ -209,13 +209,13 @@ namespace SomeNamespace
 
         var typeToNamespace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "TestApi", "MyApp.Root.SubFolder" }
+            { "TestApi", "Root.SubFolder" }
         };
 
         var updatedFolder = CSharpFileTransformer.AddMissingUsingsToFolder(folderStructure, typeToNamespace);
 
         var updatedFile = (CodeFileDto)updatedFolder.Items.First();
-        Assert.That(updatedFile.Text, Contains.Substring("using MyApp.Root.SubFolder;"));
+        Assert.That(updatedFile.Text, Contains.Substring("using Root.SubFolder;"));
     }
 
     [Test]
@@ -247,13 +247,13 @@ namespace SomeNamespace
 
         var typeToNamespace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "TestApi", "MyApp.Root.SubFolder" }
+            { "TestApi", "Root.SubFolder" }
         };
 
         var updatedFolder = CSharpFileTransformer.AddMissingUsingsToFolder(folderStructure, typeToNamespace);
         
         var updatedFile = (CodeFileDto)updatedFolder.Items.First();
-        int count = CountOccurrences(updatedFile.Text, "using MyApp.Root.SubFolder;");
+        int count = CountOccurrences(updatedFile.Text, "using Root.SubFolder;");
         Assert.That(count, Is.EqualTo(1));
     }
 
@@ -287,7 +287,7 @@ namespace SomeNamespace
 
         var typeToNamespace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "TestApi", "MyApp.Root.SubFolder" }
+            { "TestApi", "Root.SubFolder" }
         };
 
         var updatedFolder = CSharpFileTransformer.AddMissingUsingsToFolder(folderStructure, typeToNamespace);
@@ -345,8 +345,8 @@ namespace OtherNamespace
 
         var typeToNamespace = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "TestApi", "MyApp.Root.SubFolder" },
-            { "HelperStruct", "MyApp.Root" }
+            { "TestApi", "Root.SubFolder" },
+            { "HelperStruct", "Root" }
         };
 
         var updatedFolder = CSharpFileTransformer.AddMissingUsingsToFolder(folderStructure, typeToNamespace);
@@ -354,8 +354,8 @@ namespace OtherNamespace
         var updatedSubFolder = updatedFolder.Items.OfType<FolderDto>().First();
         var updatedFile1 = updatedSubFolder.Items.OfType<CodeFileDto>().First();
         var updatedFile2 = updatedFolder.Items.OfType<CodeFileDto>().First(file => file.Name == "File2.cs");
-        Assert.That(updatedFile1.Text, Contains.Substring("using MyApp.Root.SubFolder;"));
-        Assert.That(updatedFile2.Text, Contains.Substring("using MyApp.Root;"));
+        Assert.That(updatedFile1.Text, Contains.Substring("using Root.SubFolder;"));
+        Assert.That(updatedFile2.Text, Contains.Substring("using Root;"));
     }
 
     private static string NormalizeWhitespace(string code)

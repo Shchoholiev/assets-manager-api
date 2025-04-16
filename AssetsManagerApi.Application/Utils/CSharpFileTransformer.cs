@@ -121,7 +121,7 @@ public static class CSharpFileTransformer
     /// A dictionary where each key is a type name (extracted from CodeFileDto content) and the value is the namespace
     /// determined by the code file's folder location.
     /// </returns>
-    public static Dictionary<string, string> BuildClassToNamespaceDictionary(FolderDto rootFolder, string baseNamespace = "MyApp")
+    public static Dictionary<string, string> BuildClassToNamespaceDictionary(FolderDto rootFolder, string? baseNamespace = null)
     {
         logger.LogInformation("Building class-to-namespace dictionary starting from root folder {FolderName}", rootFolder.Name);
 
@@ -181,7 +181,8 @@ public static class CSharpFileTransformer
             }
         }
 
-        ProcessFolder(rootFolder, $"{baseNamespace}.{rootFolder.Name}");
+        var folderNamespace = string.IsNullOrEmpty(baseNamespace) ? rootFolder.Name : $"{baseNamespace}.{rootFolder.Name}";
+        ProcessFolder(rootFolder, folderNamespace);
 
         logger.LogInformation("Completed building class-to-namespace dictionary with {Count} entries", mapping.Count);
 
