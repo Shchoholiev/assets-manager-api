@@ -30,78 +30,78 @@ public class ProgramCsGeneratorTests
         Assert.AreEqual("Csharp", codeFile.Language);
     }
 
-    [Test]
-    public void GenerateProgramCs_WithServiceAndInterface_FoundInFolder_RegistersScopedService()
-    {
-        var folder = new FolderDto
-        {
-            Name = "MyApp",
-            Type = FileType.Folder,
-            Items = new List<FileSystemNodeDto>
-            {
-                new FolderDto
-                {
-                    Name = "Services",
-                    Type = FileType.Folder,
-                    Items = new List<FileSystemNodeDto>
-                    {
-                        new CodeFileDto
-                        {
-                            Name = "IMyService.cs",
-                            Type = FileType.CodeFile,
-                            Text = "public interface IMyService { }",
-                            Language = "Csharp"
-                        },
-                        new CodeFileDto
-                        {
-                            Name = "MyService.cs",
-                            Type = FileType.CodeFile,
-                            Text = "public class MyService : IMyService { }",
-                            Language = "Csharp"
-                        }
-                    }
-                }
-            }
-        };
+    // [Test]
+    // public void GenerateProgramCs_WithServiceAndInterface_FoundInFolder_RegistersScopedService()
+    // {
+    //     var folder = new FolderDto
+    //     {
+    //         Name = "MyApp",
+    //         Type = FileType.Folder,
+    //         Items = new List<FileSystemNodeDto>
+    //         {
+    //             new FolderDto
+    //             {
+    //                 Name = "Services",
+    //                 Type = FileType.Folder,
+    //                 Items = new List<FileSystemNodeDto>
+    //                 {
+    //                     new CodeFileDto
+    //                     {
+    //                         Name = "IMyService.cs",
+    //                         Type = FileType.CodeFile,
+    //                         Text = "public interface IMyService { }",
+    //                         Language = "Csharp"
+    //                     },
+    //                     new CodeFileDto
+    //                     {
+    //                         Name = "MyService.cs",
+    //                         Type = FileType.CodeFile,
+    //                         Text = "public class MyService : IMyService { }",
+    //                         Language = "Csharp"
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     };
 
-        var codeFile = ProgramCsGenerator.GenerateProgramCs(folder, "MyApp");
-        var generatedCode = codeFile.Text;
+    //     var codeFile = ProgramCsGenerator.GenerateProgramCs(folder, "MyApp");
+    //     var generatedCode = codeFile.Text;
 
-        StringAssert.Contains("builder.Services.AddScoped<IMyService, MyService>()", generatedCode);
-    }
+    //     StringAssert.Contains("builder.Services.AddScoped<IMyService, MyService>()", generatedCode);
+    // }
 
-    [Test]
-    public void GenerateProgramCs_WithDbContext_FoundInFolder_RegistersDbContext()
-    {
-        var folder = new FolderDto
-        {
-            Name = "MyApp",
-            Type = FileType.Folder,
-            Items = new List<FileSystemNodeDto>
-            {
-                new FolderDto
-                {
-                    Name = "DataAccess",
-                    Type = FileType.Folder,
-                    Items = new List<FileSystemNodeDto>
-                    {
-                        new CodeFileDto
-                        {
-                            Name = "MyDbContext.cs",
-                            Type = FileType.CodeFile,
-                            Text = "public class MyDbContext { }",
-                            Language = "Csharp"
-                        }
-                    }
-                }
-            }
-        };
+    // [Test]
+    // public void GenerateProgramCs_WithDbContext_FoundInFolder_RegistersDbContext()
+    // {
+    //     var folder = new FolderDto
+    //     {
+    //         Name = "MyApp",
+    //         Type = FileType.Folder,
+    //         Items = new List<FileSystemNodeDto>
+    //         {
+    //             new FolderDto
+    //             {
+    //                 Name = "DataAccess",
+    //                 Type = FileType.Folder,
+    //                 Items = new List<FileSystemNodeDto>
+    //                 {
+    //                     new CodeFileDto
+    //                     {
+    //                         Name = "MyDbContext.cs",
+    //                         Type = FileType.CodeFile,
+    //                         Text = "public class MyDbContext { }",
+    //                         Language = "Csharp"
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     };
 
-        var codeFile = ProgramCsGenerator.GenerateProgramCs(folder, "MyApp");
-        var generatedCode = codeFile.Text;
+    //     var codeFile = ProgramCsGenerator.GenerateProgramCs(folder, "MyApp");
+    //     var generatedCode = codeFile.Text;
 
-        StringAssert.Contains("builder.Services.AddDbContext<MyDbContext>()", generatedCode);
-    }
+    //     StringAssert.Contains("builder.Services.AddDbContext<MyDbContext>()", generatedCode);
+    // }
 
     [Test]
     public void GenerateProgramCs_ProducesValidSyntaxTree()

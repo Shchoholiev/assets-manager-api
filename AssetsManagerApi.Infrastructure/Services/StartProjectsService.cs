@@ -165,15 +165,15 @@ public class StartProjectsService(
 
         // TODO: update to AI generated name
         var startProjectName = "Start Project";
-        var startProjectNameCamelCase = "StartProject";
+        var startProjectNamePascalCase = "StartProject";
 
-        var combinedAssetCreateDto = new CodeAssetCreateDto 
+        var combinedAssetCreateDto = new CodeAssetCreateDto
         {
             Name = startProjectName,
             AssetType = AssetTypes.Corporate,
             // TODO: update to dynamic. Currently only C# is supported
-            Language = Languages.csharp.LanguageToString(), 
-            RootFolderName = startProjectNameCamelCase
+            Language = Languages.csharp.LanguageToString(),
+            RootFolderName = startProjectNamePascalCase
         };
 
         var combinedAsset = await _codeAssetsService.CreateCodeAssetAsync(combinedAssetCreateDto, cancellationToken);
@@ -181,48 +181,51 @@ public class StartProjectsService(
         _logger.LogInformation("Shell for combined asset is created.");
 
         var tags = new List<TagDto>();
-        var allCodeFiles = new List<CodeFileDto>();
         var rootFolders = new List<FolderDto>();
         foreach (var assetId in startProject.CodeAssetsIds)
         {
             var asset = await _codeAssetsService.GetCodeAssetAsync(assetId, cancellationToken);
             tags.AddRange(asset.Tags);
             rootFolders.Add(asset.RootFolder);
-
-            // TODO: it doesn't drill down to subfolders
-            allCodeFiles.AddRange(
-                asset.RootFolder.Items?
-                    .Where(f => f.Type == FileType.CodeFile)
-                    .Select(f => (CodeFileDto)f)
-                    .ToList() 
-                    ?? []
-            );
-
-            // await AddFilesFromFolderAsync(combinedAsset.RootFolder.Id, asset.RootFolder.Items ?? [], cancellationToken);
         }
 
         var mergedFolder = FolderMerger.MergeFolders(rootFolders);
+        mergedFolder.Name = startProjectNamePascalCase;
 
         // TODO: modify existing folder, do not create a copy
         var (updatedNamespaceFolder, removedNamespaces) = CSharpFileTransformer.UpdateNamespaces(mergedFolder);
 
         var removedUsingsFolder = CSharpFileTransformer.RemoveInvalidUsings(updatedNamespaceFolder, removedNamespaces);
+        var allCodeFiles = GetAllCodeFilesFromFolder(removedUsingsFolder);
 
         var csprojFile = await CreateCsprojAsync(allCodeFiles, cancellationToken);
-        csprojFile.Name = $"{startProjectNameCamelCase}.csproj";
-        var createdCsprojFile = await _codeFilesService.CreateCodeFileAsync(csprojFile, cancellationToken);
-        removedUsingsFolder.Items?.Add(createdCsprojFile);
+        csprojFile.Name = $"{startProjectNamePascalCase}.csproj";
+        removedUsingsFolder.Items?.Add(csprojFile);
 
-        
+        var typeToNamespaceMappings = CSharpFileTransformer.BuildClassToNamespaceDictionary(removedUsingsFolder);
+        var newUsingFolder = CSharpFileTransformer.AddMissingUsingsToFolder(removedUsingsFolder, typeToNamespaceMappings);
 
-        // rootFolder.CodeFiles.Add(csprojFile);
+        var programFile = ProgramCsGenerator.GenerateProgramCs(newUsingFolder, startProjectNamePascalCase);
+        newUsingFolder.Items?.Add(programFile);
 
-        // Step 5: Return a combined CodeAssetDto
-        // var combinedAsset = new CodeAssetDto
-        // {
-        //     Name = $"CombinedProject_{startProjectId}",
-        //     Folders = allFolders.Values.ToList()
-        // };
+        await _foldersService.SaveFolderHierarchyAsync(newUsingFolder, null, cancellationToken);
+
+        var updateCodeAsset = new CodeAssetUpdateDto
+        {
+            Id = combinedAsset.Id,
+            Name = combinedAsset.Name,
+            AssetType = combinedAsset.AssetType,
+            Language = combinedAsset.Language,
+            TagsIds = tags.Select(t => t.Id).ToList(),
+            RootFolderId = newUsingFolder.Id,
+            PrimaryCodeFileId = newUsingFolder.Items?.Where(f => f.Name == "Program.cs").FirstOrDefault()?.Id
+        };
+        var updatedCodeAsset = await _codeAssetsService.UpdateCodeAssetAsync(updateCodeAsset, cancellationToken);
+
+        // TODO: remove and update mock in unit test
+        combinedAsset.RootFolder = newUsingFolder;
+        combinedAsset.Tags = tags;
+
         startProject.CodeAssetId = combinedAsset.Id;
         await _startProjectsRepository.UpdateAsync(startProject, cancellationToken);
 
@@ -232,9 +235,31 @@ public class StartProjectsService(
     }
 
 
+    private List<CodeFileDto> GetAllCodeFilesFromFolder(FolderDto folder)
+    {
+        var codeFiles = new List<CodeFileDto>();
+
+        if (folder?.Items == null)
+            return codeFiles;
+
+        foreach (var node in folder.Items)
+        {
+            if (node.Type == FileType.CodeFile)
+            {
+                codeFiles.Add((CodeFileDto)node);
+            }
+            else if (node is FolderDto subfolder)
+            {
+                codeFiles.AddRange(GetAllCodeFilesFromFolder(subfolder));
+            }
+        }
+
+        return codeFiles;
+    }
+
     public async Task<CompilationResponse> CompileStartProjectAsync(string startProjectId, CancellationToken cancellationToken)
     {
-         _logger.LogInformation("Compiling start project with Id: {startProjectId}", startProjectId);
+        _logger.LogInformation("Compiling start project with Id: {startProjectId}", startProjectId);
 
         var startProject = await _startProjectsRepository.GetOneAsync(startProjectId, cancellationToken);
         if (startProject == null)
@@ -281,14 +306,14 @@ public class StartProjectsService(
         return (zipContent, zipName);
     }
 
-    public async Task<CodeFileCreateDto> CreateCsprojAsync(IEnumerable<CodeFileDto> files, CancellationToken cancellationToken)
+    public async Task<CodeFileDto> CreateCsprojAsync(IEnumerable<CodeFileDto> files, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Creating csproj file");
 
         var packages = new HashSet<string>();
         foreach (var file in files)
         {
-            var lines = file.Text.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = file.Text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
                 var trimmed = line.Trim();
@@ -304,7 +329,7 @@ public class StartProjectsService(
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine("<Project Sdk=\"Microsoft.NET.Sdk\">");
+        sb.AppendLine("<Project Sdk=\"Microsoft.NET.Sdk.Web\">");
         sb.AppendLine("  <PropertyGroup>");
         sb.AppendLine("    <TargetFramework>net8.0</TargetFramework>");
         sb.AppendLine("    <ImplicitUsings>enable</ImplicitUsings>");
@@ -325,7 +350,7 @@ public class StartProjectsService(
 
         _logger.LogInformation("Created csproj file");
 
-        return new CodeFileCreateDto { Text = sb.ToString(), Language = Languages.xml.LanguageToString() };
+        return new CodeFileDto { Text = sb.ToString(), Language = Languages.xml.LanguageToString(), Type = FileType.CodeFile };
     }
 
     public async Task<CodeAssetDto> GetCombinedAssetAsync(string startProjectId, CancellationToken cancellationToken)
@@ -350,7 +375,7 @@ public class StartProjectsService(
 
         return codeAsset;
     }
-    
+
     private async Task AddFilesFromFolderAsync(string parentId, List<FileSystemNodeDto> files, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"Adding files to folder with Id: {parentId}");
@@ -360,7 +385,7 @@ public class StartProjectsService(
             switch (file.Type)
             {
                 case FileType.Folder:
-                    var folder = (FolderDto) file;
+                    var folder = (FolderDto)file;
                     var createFolderDto = new FolderCreateDto
                     {
                         Name = file.Name,
@@ -372,7 +397,7 @@ public class StartProjectsService(
                     break;
 
                 case FileType.CodeFile:
-                    var codeFile = (CodeFileDto) file;
+                    var codeFile = (CodeFileDto)file;
                     var createCodeFileDto = new CodeFileCreateDto
                     {
                         Name = codeFile.Name,

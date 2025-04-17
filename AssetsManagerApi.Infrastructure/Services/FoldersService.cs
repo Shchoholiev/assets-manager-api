@@ -15,13 +15,20 @@ public class FoldersService : IFoldersService
     private readonly IFoldersRepository _foldersRepository;
 
     private readonly ICodeFilesRepository _codeFilesRepository;
+    
+    private readonly ICodeFilesService _codeFilesService;
 
     private readonly IMapper _mapper;
 
-    public FoldersService(IFoldersRepository foldersRepository, ICodeFilesRepository codeFilesRepository, IMapper mapper)
+    public FoldersService(
+        IFoldersRepository foldersRepository, 
+        ICodeFilesRepository codeFilesRepository,
+        ICodeFilesService codeFilesService,
+        IMapper mapper)
     {
         _foldersRepository = foldersRepository;
         _codeFilesRepository = codeFilesRepository;
+        _codeFilesService = codeFilesService;
         _mapper = mapper;
     }
 
@@ -103,5 +110,65 @@ public class FoldersService : IFoldersService
         {
             await _foldersRepository.DeleteAsync(folderToDelete, cancellationToken);
         }
+    }
+
+        /// <summary>
+    /// Recursively saves a FolderDto along with its nested folders and code files.
+    /// If the folder or any code file already has an Id, it is assumed to be saved, and creation is skipped.
+    /// </summary>
+    /// <param name="folderDto">The folder hierarchy to save.</param>
+    /// <param name="parentId">The parent folder's Id, or null for root.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The created (or existing) folder as stored in the database.</returns>
+    public async Task<FolderDto> SaveFolderHierarchyAsync(FolderDto folderDto, string? parentId, CancellationToken cancellationToken)
+    {
+        FolderDto createdFolder;
+        if (!string.IsNullOrEmpty(folderDto.Id))
+        {
+            createdFolder = folderDto;
+        }
+        else
+        {
+            var folderCreateDto = new FolderCreateDto
+            {
+                Name = folderDto.Name,
+                ParentId = parentId
+            };
+
+            createdFolder = await CreateFolderAsync(folderCreateDto, cancellationToken);
+            folderDto.Id = createdFolder.Id;
+        }
+
+        if (folderDto.Items != null && folderDto.Items.Count > 0)
+        {
+            foreach (var item in folderDto.Items)
+            {
+                if (item.Type == FileType.Folder)
+                {
+                    if (item is FolderDto childFolder)
+                    {
+                        await SaveFolderHierarchyAsync(childFolder, createdFolder.Id, cancellationToken);
+                    }
+                }
+                else if (item.Type == FileType.CodeFile)
+                {
+                    if (item is CodeFileDto codeFile && string.IsNullOrEmpty(codeFile.Id))
+                    {
+                        var codeFileCreateDto = new CodeFileCreateDto
+                        {
+                            Name = codeFile.Name,
+                            Text = codeFile.Text,
+                            Language = codeFile.Language,
+                            ParentId = createdFolder.Id
+                        };
+
+                        var createdCodeFile = await _codeFilesService.CreateCodeFileAsync(codeFileCreateDto, cancellationToken);
+                        item.Id = createdCodeFile.Id;
+                    }
+                }
+            }
+        }
+
+        return createdFolder;
     }
 }

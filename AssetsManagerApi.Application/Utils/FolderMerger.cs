@@ -7,7 +7,7 @@ public static class FolderMerger
 {
     public static FolderDto MergeFolders(IEnumerable<FolderDto> roots)
     {
-        var result = new FolderDto { Name = "MergedRoot", Type = FileType.Folder };
+        var result = new FolderDto { Type = FileType.Folder };
 
         foreach (var folder in roots)
         {
@@ -22,7 +22,6 @@ public static class FolderMerger
         target.Items ??= [];
         foreach (var item in source.Items ?? [])
         {
-            Console.WriteLine(item.Type);
             if (item is FolderDto sourceSubfolder)
             {
                 sourceSubfolder.Items ??= [];

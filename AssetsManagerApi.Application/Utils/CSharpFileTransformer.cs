@@ -280,7 +280,7 @@ public static class CSharpFileTransformer
     /// <param name="codeText">The original C# source code.</param>
     /// <param name="typeToNamespace">A dictionary mapping type names to namespaces.</param>
     /// <returns>The updated C# source code with missing using directives added.</returns>
-    public static string AddMissingUsings(string codeText, Dictionary<string, string> typeToNamespace)
+    private static string AddMissingUsings(string codeText, Dictionary<string, string> typeToNamespace)
     {
         var tree = CSharpSyntaxTree.ParseText(codeText);
         var root = tree.GetCompilationUnitRoot();

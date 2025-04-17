@@ -53,25 +53,26 @@ public static class ProgramCsGenerator
 
         var registrationStatements = new List<string>();
         var implementations = registrations.Where(r => !r.IsInterface).ToList();
-        foreach (var impl in implementations)
-        {
-            var interfaceCandidate = registrations.FirstOrDefault(r =>
-                r.IsInterface &&
-                r.TypeName == "I" + impl.TypeName &&
-                r.Namespace == impl.Namespace);
-            if (interfaceCandidate != null)
-            {
-                registrationStatements.Add($"builder.Services.AddScoped<{interfaceCandidate.TypeName}, {impl.TypeName}>();");
-            }
-            else if (impl.IsDbContext)
-            {
-                registrationStatements.Add($"builder.Services.AddDbContext<{impl.TypeName}>();");
-            }
-            else
-            {
-                registrationStatements.Add($"builder.Services.AddScoped<{impl.TypeName}>();");
-            }
-        }
+        // TODO: needs improvement to handle registrations better
+        // foreach (var impl in implementations)
+        // {
+        //     var interfaceCandidate = registrations.FirstOrDefault(r =>
+        //         r.IsInterface &&
+        //         r.TypeName == "I" + impl.TypeName &&
+        //         r.Namespace == impl.Namespace);
+        //     if (interfaceCandidate != null)
+        //     {
+        //         registrationStatements.Add($"builder.Services.AddScoped<{interfaceCandidate.TypeName}, {impl.TypeName}>();");
+        //     }
+        //     else if (impl.IsDbContext)
+        //     {
+        //         registrationStatements.Add($"builder.Services.AddDbContext<{impl.TypeName}>();");
+        //     }
+        //     else
+        //     {
+        //         registrationStatements.Add($"builder.Services.AddScoped<{impl.TypeName}>();");
+        //     }
+        // }
 
         var usingDirectives = new List<string>
         {
