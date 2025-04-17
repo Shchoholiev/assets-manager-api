@@ -8,6 +8,7 @@ using AssetsManagerApi.Domain.Entities;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Domain.Enums;
 using System.Text.Json;
+using AssetsManagerApi.Application.Models.UpdateDto;
 
 namespace AssetsManagerApi.UnitTests;
 
@@ -199,6 +200,34 @@ public class StartProjectsServiceTests
         _codeAssetsServiceMock
             .Setup(svc => svc.GetCodeAssetAsync("asset2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(asset2);
+
+
+        var mergedFolder = new FolderDto();
+        _foldersServiceMock
+            .Setup(svc => svc.SaveFolderHierarchyAsync(It.IsAny<FolderDto>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FolderDto folder, string parentId, CancellationToken token) =>
+            {
+                mergedFolder = folder;
+                return mergedFolder;
+            });
+            
+        _codeAssetsServiceMock
+            .Setup(svc => svc.UpdateCodeAssetAsync(It.IsAny<CodeAssetUpdateDto>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CodeAssetUpdateDto asset, CancellationToken token) =>
+            {
+                var result = new CodeAssetDto 
+                { 
+                    Id = asset.Id,
+                    Name = asset.Name,
+                    AssetType = asset.AssetType,
+                    Language = asset.Language,
+                    Tags = asset.TagsIds.Select(t => new TagDto { Id = t }).ToList(),
+                    RootFolder = mergedFolder,
+                    PrimaryCodeFile = (CodeFileDto)mergedFolder.Items?.Where(f => f.Name == "Program.cs").FirstOrDefault()!
+                };
+                
+                return result;
+            });
 
         // Act
         var result = await _startProjectsService.CombineStartProjectAsync(startProjectId, CancellationToken.None);

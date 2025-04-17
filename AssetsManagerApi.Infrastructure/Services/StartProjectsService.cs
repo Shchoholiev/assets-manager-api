@@ -222,16 +222,12 @@ public class StartProjectsService(
         };
         var updatedCodeAsset = await _codeAssetsService.UpdateCodeAssetAsync(updateCodeAsset, cancellationToken);
 
-        // TODO: remove and update mock in unit test
-        combinedAsset.RootFolder = newUsingFolder;
-        combinedAsset.Tags = tags;
-
-        startProject.CodeAssetId = combinedAsset.Id;
+        startProject.CodeAssetId = updatedCodeAsset.Id;
         await _startProjectsRepository.UpdateAsync(startProject, cancellationToken);
 
         _logger.LogInformation("Successfully combined start project {startProjectId}", startProjectId);
 
-        return combinedAsset;
+        return updatedCodeAsset;
     }
 
 
