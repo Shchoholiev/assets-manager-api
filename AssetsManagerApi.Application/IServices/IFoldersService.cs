@@ -11,4 +11,6 @@ public interface IFoldersService
     Task<FolderDto> CreateFolderAsync(FolderCreateDto createDto, CancellationToken cancellationToken);
 
     Task<FolderDto> UpdateFolderAsync(FolderUpdateDto dto, CancellationToken cancellationToken);
+
+    Task<FolderDto> SaveFolderHierarchyAsync(FolderDto folderDto, string? parentId, CancellationToken cancellationToken);
 }

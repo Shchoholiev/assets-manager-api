@@ -1,7 +1,7 @@
-﻿using AssetsManagerApi.Domain.Entities;
-using AssetsManagerApi.Domain.Enums;
+﻿using AssetsManagerApi.Domain.Enums;
 
 namespace AssetsManagerApi.Application.Models.UpdateDto;
+
 public class CodeAssetUpdateDto
 {
     public string Id { get; set; }
