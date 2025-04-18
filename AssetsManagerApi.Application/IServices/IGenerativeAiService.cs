@@ -14,4 +14,6 @@ public interface IGenerativeAiService
         string projectDescription, 
         IEnumerable<CodeAssetDto> assets, 
         CancellationToken cancellationToken);
+
+    Task<string> ReviewCodeOnDrySolidPrinciplesAsync(string code, CancellationToken cancellationToken);
 }

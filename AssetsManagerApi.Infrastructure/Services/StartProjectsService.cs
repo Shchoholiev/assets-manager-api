@@ -272,11 +272,66 @@ public class StartProjectsService(
         var codeAsset = await _codeAssetsService.GetCodeAssetAsync(startProject.CodeAssetId, cancellationToken);
         var (zipContent, _) = await _codeAssetsService.GetCodeAssetAsZipAsync(startProject.CodeAssetId, cancellationToken);
 
-        return codeAsset.Language.StringToLanguage() switch
+        var compilationResult = codeAsset.Language.StringToLanguage() switch
         {
             Languages.csharp => await _compilationService.CompileDotNetProjectAsync(zipContent, cancellationToken),
             _ => throw new NotImplementedException($"Compilation for {codeAsset.Language} is not implemented."),
         };
+
+        // TODO: Add tips from AI
+        var code = CombineCodeFilesText(codeAsset.RootFolder);
+        var drySolidReview = await _generativeAiService.ReviewCodeOnDrySolidPrinciplesAsync(code, cancellationToken);
+        compilationResult.Output += $"DRY & SOLID Code Review\n{drySolidReview}";
+
+        return compilationResult;
+    }
+
+    /// <summary>
+    /// Combines the text from all code files in the folder hierarchy.
+    /// A couple of new lines are inserted between each file's content.
+    /// </summary>
+    /// <param name="folder">The root folder to start traversing.</param>
+    /// <returns>The concatenated code text.</returns>
+    public string CombineCodeFilesText(FolderDto folder)
+    {
+        if (folder == null)
+        {
+            return string.Empty;
+        }
+
+        var stringBuilder = new StringBuilder();
+        TraverseFolderHierarchy(folder, stringBuilder);
+        return stringBuilder.ToString();
+    }
+
+    private void TraverseFolderHierarchy(FolderDto folder, StringBuilder stringBuilder)
+    {
+        if (folder.Items == null || folder.Items.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var item in folder.Items)
+        {
+            switch (item.Type)
+            {
+                case FileType.CodeFile:
+                    if (item is CodeFileDto codeFile)
+                    {
+                        // Append the code file text followed by a couple of new lines
+                        stringBuilder.AppendLine(codeFile.Text);
+                        stringBuilder.AppendLine();
+                    }
+                    break;
+                case FileType.Folder:
+                    if (item is FolderDto childFolder)
+                    {
+                        // Recursive call to traverse the child folder
+                        TraverseFolderHierarchy(childFolder, stringBuilder);
+                    }
+                    break;
+            }
+        }
     }
 
     public async Task<(byte[] zipContent, string fileName)> DownloadStartProjectZipAsync(string startProjectId, CancellationToken cancellationToken)
