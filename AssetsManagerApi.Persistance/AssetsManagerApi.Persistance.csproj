@@ -28,10 +28,16 @@
     <None Update="Static\digital_bank_tags.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Static\code_assets_integration_tests.json">
+    <None Update="Static\enterprise_file_system_nodes.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Static\file_system_nodes_integration_tests.json">
+    <None Update="Static\enterprise_code_assets.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Static\public_file_system_nodes.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Static\public_code_assets.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
