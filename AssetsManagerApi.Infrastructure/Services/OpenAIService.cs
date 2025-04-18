@@ -118,6 +118,64 @@ public class OpenAIService(
         return selectedAssets;
     }
 
+    public async Task<string> ReviewCodeOnDrySolidPrinciplesAsync(string code, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Reviewing code for DRY and SOLID principles.");
+
+        var messages = new List<object>
+        {
+            new 
+            { 
+                role = "developer", 
+                content = "You are a seasoned code reviewer specializing in DRY (Don't Repeat Yourself) and SOLID principles. Analyze the code and provide a detailed explanation on how it adheres to these principles and include suggestions for improvement if needed." 
+            }
+        };
+
+        messages.Add(new 
+        { 
+            role = "user", 
+            content = 
+                $"""
+                <code>
+                {code}
+                </code>
+
+                <response template>
+                DRY
+                1. what to change in code to better align with DRY
+                2. each item should be a single paragraph
+
+                SOLID
+                1. what to change in code to better align with SOLID
+                2. ...
+                </response template>
+
+                Task:
+                1. Analyze code provided in <code></code> according to DRY / SOLID principles
+                2. Return result as defined in <response template></response template>
+                3. Keep response concise
+                4. Response must be a plain text. Do not highlight text or add any styles.
+                """ 
+        });
+
+        var request = new 
+        {
+            model = "gpt-4.1-nano",
+            messages = messages,
+        };
+
+        var response = await _httpClient.PostAsJsonAsync("/v1/chat/completions", request, cancellationToken);
+        _logger.LogInformation("Open AI Response status code: {statusCode}", response.StatusCode);
+
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        // _logger.LogInformation("Open AI Response content: {responseContent}", responseContent);
+
+        var jsonResponse = JObject.Parse(responseContent);
+        var reviewText = jsonResponse["choices"]?[0]?["message"]?["content"]?.ToString();
+        
+        return reviewText;
+    }
+
     private static string PreprocessCodeAssets(IEnumerable<CodeAssetDto> codeAssets)
     {
         var options = new JsonSerializerOptions { WriteIndented = true };
