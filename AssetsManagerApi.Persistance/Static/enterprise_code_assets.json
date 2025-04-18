@@ -1,0 +1,366 @@
+[
+  {
+    "Id": "4b32587b-5e64-435c-9ba8-69740845bd5a",
+    "CreatedById": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+    "CreatedDateUtc": "2025-02-08T18:15:24.687251Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "Virtual Assistant Service",
+    "Description": "Implements an AI-driven assistant for customer inquiries.",
+    "Tags": [
+      {
+        "Id": "40404040-4040-4040-4040-404040404040",
+        "Name": "Integration"
+      },
+      {
+        "Id": "20202020-2020-2020-2020-202020202020",
+        "Name": "Analytics"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "12db2329-424f-45d8-8c27-1d91eb600314",
+    "CompanyId": null,
+    "PrimaryCodeFileId": "3e33e737-7980-46fa-af7a-12860640f16f",
+    "PrimaryCodeFile": {
+      "Id": "3e33e737-7980-46fa-af7a-12860640f16f",
+      "Name": "Program.cs",
+      "ParentId": "12db2329-424f-45d8-8c27-1d91eb600314",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace VirtualAssistantService\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}\n",
+      "Language": 0
+    },
+    "User": {
+      "Id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "Name": "Julia Roberts",
+      "Email": "julia.roberts@digitalbank.com"
+    }
+  },
+  {
+    "Id": "c4c8ec92-71cb-46d8-9b65-97c21aa6681f",
+    "CreatedById": "9b8a7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d",
+    "CreatedDateUtc": "2025-02-03T01:36:04.872078Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "Chat Support Integration",
+    "Description": "Integrates live chat support into customer service platforms.",
+    "Tags": [
+      {
+        "Id": "40404040-4040-4040-4040-404040404040",
+        "Name": "Integration"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
+    "CompanyId": null,
+    "PrimaryCodeFileId": "f942c4d3-caf5-4580-a5b4-3a8265b64e93",
+    "PrimaryCodeFile": {
+      "Id": "f942c4d3-caf5-4580-a5b4-3a8265b64e93",
+      "Name": "Program.cs",
+      "ParentId": "68f43a7f-9a55-4d10-9c43-c7bcd811cf54",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace ChatSupportIntegration\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}",
+      "Language": 0
+    },
+    "User": {
+      "Id": "9b8a7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d",
+      "Name": "George King",
+      "Email": "george.king@digitalbank.com"
+    }
+  },
+  {
+    "Id": "baa059d9-6c33-48e7-9a29-a101c210d165",
+    "CreatedById": "7c8d9e0a-b1c2-4d3e-8f9a-0b1c2d3e4f5a",
+    "CreatedDateUtc": "2025-02-08T18:16:45.480844Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "Mortgage Calculation Service",
+    "Description": "Calculates mortgage details based on user inputs.",
+    "Tags": [
+      {
+        "Id": "20202020-2020-2020-2020-202020202020",
+        "Name": "Analytics"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "550f4486-1d5f-4d61-bf9e-0e1217117631",
+    "CompanyId": null,
+    "PrimaryCodeFile": {
+      "Id": "7f287530-3ff1-4c2d-9850-adc66c8e8bee",
+      "Name": "Program.cs",
+      "ParentId": "550f4486-1d5f-4d61-bf9e-0e1217117631",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace MortgageCalculationService\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}\n",
+      "Language": 0
+    },
+    "User": {
+      "Id": "7c8d9e0a-b1c2-4d3e-8f9a-0b1c2d3e4f5a",
+      "Name": "Evan Lee",
+      "Email": "evan.lee@digitalbank.com"
+    },
+    "PrimaryCodeFileId": "7f287530-3ff1-4c2d-9850-adc66c8e8bee"
+  },
+  {
+    "Id": "b73c177f-c73d-4d90-bcae-95e9a6f2c0d2",
+    "CreatedById": "2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
+    "CreatedDateUtc": "2025-02-08T18:18:42.380665Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "Electronic Statement Generator",
+    "Description": "Creates electronic statements for customer accounts.",
+    "Tags": [
+      {
+        "Id": "66666666-6666-6666-6666-666666666666",
+        "Name": "Transaction"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "31116afa-4a91-4d86-8dce-15601955d226",
+    "CompanyId": null,
+    "PrimaryCodeFile": {
+      "Id": "46f48c66-fae7-41d5-ad81-b88cb8a395d9",
+      "Name": "Program.cs",
+      "ParentId": "31116afa-4a91-4d86-8dce-15601955d226",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace ElectronicStatementGenerator\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}\n",
+      "Language": 0
+    },
+    "User": {
+      "Id": "2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
+      "Name": "Hannah Miller",
+      "Email": "hannah.miller@digitalbank.com"
+    },
+    "PrimaryCodeFileId": "46f48c66-fae7-41d5-ad81-b88cb8a395d9"
+  },
+  {
+    "Id": "c5212788-0454-4269-a1da-23440509389c",
+    "CreatedById": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+    "CreatedDateUtc": "2025-02-08T18:19:17.782634Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "ATM Integration Service",
+    "Description": "Connects ATM networks with the core banking system.",
+    "Tags": [
+      {
+        "Id": "40404040-4040-4040-4040-404040404040",
+        "Name": "Integration"
+      },
+      {
+        "Id": "66666666-6666-6666-6666-666666666666",
+        "Name": "Transaction"
+      },
+      {
+        "Id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+        "Name": "Logging"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "faf4d3fe-43f9-4f77-b27d-f3bd4b551abd",
+    "CompanyId": null,
+    "PrimaryCodeFile": {
+      "Id": "5ca9ffac-c6a4-4b55-a57d-7ba50c5e47f0",
+      "Name": "Program.cs",
+      "ParentId": "faf4d3fe-43f9-4f77-b27d-f3bd4b551abd",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace ATMIntegrationService\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}\n",
+      "Language": 0
+    },
+    "User": {
+      "Id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "Name": "Julia Roberts",
+      "Email": "julia.roberts@digitalbank.com"
+    },
+    "PrimaryCodeFileId": "5ca9ffac-c6a4-4b55-a57d-7ba50c5e47f0"
+  },
+  {
+    "Id": "498544e8-a9e4-467a-a58c-afb9a7ff77d8",
+    "CreatedById": "e3f1c4d0-7fbb-4a20-99ad-1a4d51a1f2e1",
+    "CreatedDateUtc": "2025-02-08T17:55:25.495995Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "User Login Service",
+    "Description": "Handles authentication and login processes for users.",
+    "Tags": [
+      {
+        "Id": "11111111-1111-1111-1111-111111111111",
+        "Name": "Authentication"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "44ee7283-732e-4208-9e9b-22768dafe350",
+    "CompanyId": null,
+    "PrimaryCodeFile": {
+      "Id": "a9a67b77-f05b-47bd-8677-66d76ea421f6",
+      "Name": "Program.cs",
+      "ParentId": "44ee7283-732e-4208-9e9b-22768dafe350",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Builder;\nusing Microsoft.Extensions.DependencyInjection;\nusing Microsoft.Extensions.Hosting;\nusing UserLoginService.Services;\nusing UserLoginService.Data;\n\nvar builder = WebApplication.CreateBuilder(args);\n\nbuilder.Services.AddControllers();\nbuilder.Services.AddScoped<IUserRepository, UserRepository>();\nbuilder.Services.AddScoped<IAuthService, AuthService>();\n\nbuilder.Services.AddLogging();\n// Authentication middleware configuration can be added here if needed\n\nvar app = builder.Build();\n\napp.UseRouting();\n\napp.UseEndpoints(endpoints =>\n{\n    endpoints.MapControllers();\n});\n\napp.Run();\n",
+      "Language": 0
+    },
+    "User": {
+      "Id": "e3f1c4d0-7fbb-4a20-99ad-1a4d51a1f2e1",
+      "Name": "Alice Johnson",
+      "Email": "alice.johnson@digitalbank.com"
+    },
+    "PrimaryCodeFileId": "a9a67b77-f05b-47bd-8677-66d76ea421f6"
+  },
+  {
+    "Id": "5f3e6ef5-1c65-4e2b-ab87-9f45e0414577",
+    "CreatedById": "2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
+    "CreatedDateUtc": "2025-02-08T17:55:53.419147Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "Token Management System",
+    "Description": "Manages the creation, validation, and storage of security tokens.",
+    "Tags": [
+      {
+        "Id": "11111111-1111-1111-1111-111111111111",
+        "Name": "Authentication"
+      },
+      {
+        "Id": "30303030-3030-3030-3030-303030303030",
+        "Name": "Encryption"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "e2b518aa-f7b1-4c69-aafb-fec2ffece993",
+    "CompanyId": null,
+    "PrimaryCodeFile": {
+      "Id": "d02b533e-398e-4b1d-a3c1-9af286566a83",
+      "Name": "Program.cs",
+      "ParentId": "e2b518aa-f7b1-4c69-aafb-fec2ffece993",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Builder;\nusing Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.DependencyInjection;\nusing Microsoft.Extensions.Hosting;\nusing TokenManagementSystem.Services;\nusing TokenManagementSystem.Data;\n\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nbuilder.Services.AddSingleton<ITokenService, TokenService>();\nbuilder.Services.AddSingleton<ITokenRepository, TokenRepository>();\n\nvar app = builder.Build();\n\napp.UseRouting();\n\napp.UseEndpoints(endpoints =>\n{\n    endpoints.MapControllers();\n});\n\napp.Run();",
+      "Language": 0
+    },
+    "User": {
+      "Id": "2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
+      "Name": "Hannah Miller",
+      "Email": "hannah.miller@digitalbank.com"
+    },
+    "PrimaryCodeFileId": "d02b533e-398e-4b1d-a3c1-9af286566a83"
+  },
+  {
+    "Id": "92ea263f-2aaa-470f-81f0-e92783de4ec0",
+    "CreatedById": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+    "CreatedDateUtc": "2025-02-08T17:56:40.934342Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "Two-Factor Authentication Service",
+    "Description": "Implements two-factor authentication using SMS, email, or app-based verification.",
+    "Tags": [
+      {
+        "Id": "11111111-1111-1111-1111-111111111111",
+        "Name": "Authentication"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "31ecad81-7526-4ba5-bb51-3f1af045a793",
+    "CompanyId": null,
+    "PrimaryCodeFile": {
+      "Id": "9536cc0a-1d03-47a4-a0c2-a0485811f205",
+      "Name": "Program.cs",
+      "ParentId": "31ecad81-7526-4ba5-bb51-3f1af045a793",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace TwoFactorAuthenticationService\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}",
+      "Language": 0
+    },
+    "User": {
+      "Id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+      "Name": "Ian Wright",
+      "Email": "ian.wright@digitalbank.com"
+    },
+    "PrimaryCodeFileId": "9536cc0a-1d03-47a4-a0c2-a0485811f205"
+  },
+  {
+    "Id": "c9cc516b-8187-4f3f-9512-ee8ee91d1fd9",
+    "CreatedById": "bb4d6e21-6c63-4f80-ae18-3e5a7b8f77d2",
+    "CreatedDateUtc": "2025-02-08T18:01:18.618735Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "Payment Gateway Connector",
+    "Description": "Interfaces with external payment gateways for smooth payment processing.",
+    "Tags": [
+      {
+        "Id": "40404040-4040-4040-4040-404040404040",
+        "Name": "Integration"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "eef2ceef-4e71-47b5-9d8f-b2fe80357b0b",
+    "CompanyId": null,
+    "PrimaryCodeFile": {
+      "Id": "17fdbddc-8850-4505-9a9c-81c2d7103511",
+      "Name": "Program.cs",
+      "ParentId": "eef2ceef-4e71-47b5-9d8f-b2fe80357b0b",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Builder;\nusing Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.DependencyInjection;\nusing Microsoft.Extensions.Hosting;\nusing PaymentGatewayConnector.Services;\nusing PaymentGatewayConnector.Infrastructure;\n\nvar builder = WebApplication.CreateBuilder(args);\n\nbuilder.Services.AddControllers();\nbuilder.Services.AddHttpClient();\nbuilder.Services.AddScoped<IPaymentProviderAdapter, PaymentProviderAdapter>();\nbuilder.Services.AddScoped<IGatewayConnectorService, GatewayConnectorService>();\n\nvar app = builder.Build();\n\nif (app.Environment.IsDevelopment())\n{\n    app.UseDeveloperExceptionPage();\n}\n\napp.UseRouting();\napp.UseEndpoints(endpoints =>\n{\n    endpoints.MapControllers();\n});\n\napp.Run();",
+      "Language": 0
+    },
+    "User": {
+      "Id": "bb4d6e21-6c63-4f80-ae18-3e5a7b8f77d2",
+      "Name": "Bob Smith",
+      "Email": "bob.smith@digitalbank.com"
+    },
+    "PrimaryCodeFileId": "17fdbddc-8850-4505-9a9c-81c2d7103511"
+  },
+  {
+    "Id": "6b3ee323-eb6e-45c3-9cdb-decc48b9b893",
+    "CreatedById": "7c8d9e0a-b1c2-4d3e-8f9a-0b1c2d3e4f5a",
+    "CreatedDateUtc": "2025-02-08T18:02:49.413531Z",
+    "IsDeleted": false,
+    "LastModifiedById": null,
+    "LastModifiedDateUtc": null,
+    "Name": "Fraud Detection System",
+    "Description": "Analyzes transactions to detect and prevent fraudulent activities.",
+    "Tags": [
+      {
+        "Id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "Name": "Fraud"
+      },
+      {
+        "Id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        "Name": "Risk"
+      },
+      {
+        "Id": "20202020-2020-2020-2020-202020202020",
+        "Name": "Analytics"
+      }
+    ],
+    "AssetType": 2,
+    "Language": 0,
+    "RootFolderId": "e7242e38-062d-4a0f-8344-4a481d6c4a4f",
+    "CompanyId": null,
+    "PrimaryCodeFile": {
+      "Id": "31d404fa-b865-4553-998a-406ace4777c3",
+      "Name": "Program.cs",
+      "ParentId": "e7242e38-062d-4a0f-8344-4a481d6c4a4f",
+      "Type": 1,
+      "Text": "using Microsoft.AspNetCore.Hosting;\nusing Microsoft.Extensions.Hosting;\n\nnamespace FraudDetectionSystem\n{\n    public class Program\n    {\n        public static void Main(string[] args)\n        {\n            CreateHostBuilder(args).Build().Run();\n        }\n\n        public static IHostBuilder CreateHostBuilder(string[] args) =>\n            Host.CreateDefaultBuilder(args)\n                .ConfigureWebHostDefaults(webBuilder =>\n                {\n                    webBuilder.UseStartup<Startup>();\n                });\n    }\n}",
+      "Language": 0
+    },
+    "User": {
+      "Id": "7c8d9e0a-b1c2-4d3e-8f9a-0b1c2d3e4f5a",
+      "Name": "Evan Lee",
+      "Email": "evan.lee@digitalbank.com"
+    },
+    "PrimaryCodeFileId": "31d404fa-b865-4553-998a-406ace4777c3"
+  }
+]
