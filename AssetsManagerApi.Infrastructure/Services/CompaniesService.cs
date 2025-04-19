@@ -85,4 +85,83 @@ public class CompaniesService(
 
         return _mapper.Map<CompanyDto>(createdCompany);
     }
+   
+    // New methods for managing company users
+    public async Task<UserDto> AddUserToCompanyAsync(string userId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Admin {AdminId} requests to add user {UserIdToAdd} to company {CompanyId}", GlobalUser.Id, userId, GlobalUser.CompanyId);
+        if (GlobalUser.CompanyId == null)
+        {
+            _logger.LogWarning("User {UserId} has no company to add members", GlobalUser.Id);
+            throw new EntityNotFoundException("User does not have a company");
+        }
+        var user = await _usersRepository.GetOneAsync(userId, cancellationToken)
+            ?? throw new EntityNotFoundException("User not found.");
+        if (user.CompanyId != null)
+        {
+            throw new EntityAlreadyExistsException("User is already part of a company.");
+        }
+        var enterpriseRole = await _rolesRepository.GetOneAsync(r => r.Name == "Enterprise", cancellationToken)
+            ?? throw new EntityNotFoundException("Role 'Enterprise' not found.");
+        user.CompanyId = GlobalUser.CompanyId;
+        if (!user.Roles.Any(r => r.Name == enterpriseRole.Name))
+            user.Roles.Add(enterpriseRole);
+        await _usersRepository.UpdateUserAsync(user, cancellationToken);
+        _logger.LogInformation("User {UserIdToAdd} successfully added to company {CompanyId}", userId, user.CompanyId);
+        return _mapper.Map<UserDto>(user);
+    }
+
+    public async Task<UserDto> RemoveUserFromCompanyAsync(string userId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Admin {AdminId} requests to remove user {UserIdToRemove} from company {CompanyId}", GlobalUser.Id, userId, GlobalUser.CompanyId);
+        if (GlobalUser.CompanyId == null)
+        {
+            _logger.LogWarning("User {UserId} has no company to remove members", GlobalUser.Id);
+            throw new EntityNotFoundException("User does not have a company");
+        }
+        var user = await _usersRepository.GetOneAsync(userId, cancellationToken)
+            ?? throw new EntityNotFoundException("User not found.");
+        if (user.CompanyId != GlobalUser.CompanyId)
+        {
+            throw new EntityNotFoundException("User is not part of this company.");
+        }
+        user.CompanyId = null;
+        user.Roles.RemoveAll(r => r.Name == "Enterprise");
+        user.Roles.RemoveAll(r => r.Name == "Admin");
+        await _usersRepository.UpdateUserAsync(user, cancellationToken);
+        _logger.LogInformation("User {UserIdToRemove} removed from company {CompanyId}", userId, GlobalUser.CompanyId);
+        return _mapper.Map<UserDto>(user);
+    }
+
+    public async Task<UserDto> AssignCompanyUserRoleAsync(string userId, string roleName, CancellationToken cancellationToken)
+    {
+        if (!string.Equals(roleName, "Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning("Role {RoleName} not supported for company users", roleName);
+            throw new ArgumentException($"Role '{roleName}' not supported for company users.");
+        }
+
+        _logger.LogInformation("Admin {AdminId} requests to assign role {RoleName} to user {UserId} in company {CompanyId}", GlobalUser.Id, roleName, userId, GlobalUser.CompanyId);
+
+        if (GlobalUser.CompanyId == null)
+        {
+            _logger.LogWarning("User {UserId} has no company to assign roles", GlobalUser.Id);
+            throw new EntityNotFoundException("User does not have a company");
+        }
+        var user = await _usersRepository.GetOneAsync(userId, cancellationToken)
+            ?? throw new EntityNotFoundException("User not found.");
+        if (user.CompanyId != GlobalUser.CompanyId)
+        {
+            throw new EntityNotFoundException("User is not part of this company.");
+        }
+        var adminRole = await _rolesRepository.GetOneAsync(r => r.Name == "Admin", cancellationToken)
+            ?? throw new EntityNotFoundException("Role 'Admin' not found.");
+        if (!user.Roles.Any(r => r.Name == adminRole.Name))
+            user.Roles.Add(adminRole);
+        await _usersRepository.UpdateUserAsync(user, cancellationToken);
+
+        _logger.LogInformation("User {UserId} assigned role {RoleName} in company {CompanyId}", userId, roleName, user.CompanyId);
+
+        return _mapper.Map<UserDto>(user);
+    }
 }

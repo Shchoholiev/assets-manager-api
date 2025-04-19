@@ -128,6 +128,9 @@ public class DbInitializer(CosmosDbContext dbContext)
         };
         await companiessCollection.CreateItemAsync(company);
 
+        adminUser.CompanyId = company.Id;
+        await usersCollection.ReplaceItemAsync(adminUser, adminUser.Id);
+
         var enterpriseUser = new User
         {
             Id = "6852c3b89ae02a3135d6409fc",
@@ -153,6 +156,29 @@ public class DbInitializer(CosmosDbContext dbContext)
             EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(1) // Valid for 1 hour
         };
         await usersCollection.CreateItemAsync(validTokenUser);
+
+        var userToAddToCompany = new User
+        {
+            Id = "a5e00e4b-4c5a-4e08-932f-5b579d5c3f8f",
+            Email = "userToAddToCompany@gmail.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await usersCollection.CreateItemAsync(userToAddToCompany);
+
+        var companyUser = new User
+        {
+            Id = "a5e00e2b-4c5a-3e08-932f-5b579d5c3f8f",
+            Email = "userToAddToCompany@gmail.com",
+            Roles = new List<Role> { userRole },
+            PasswordHash = passwordHasher.Hash("Yuiop12345"),
+            CompanyId = company.Id,
+            CreatedById = string.Empty,
+            CreatedDateUtc = DateTime.UtcNow
+        };
+        await usersCollection.CreateItemAsync(companyUser);
 
         // User with an expired email verification token
         var expiredTokenUser = new User
