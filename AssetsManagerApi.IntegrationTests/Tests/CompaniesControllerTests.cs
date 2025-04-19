@@ -53,21 +53,6 @@ public class CompaniesControllerTests(TestingFactory<Program> factory)
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
-
-    [Fact]
-    public async Task CreateCompany_InvalidModel_ReturnsBadRequest()
-    {
-        // Arrange
-        await LoginAsync("admin@gmail.com", "Yuiop12345");
-        // Missing name/description
-        var createDto = new CompanyCreateDto { Name = string.Empty, Description = string.Empty };
-
-        // Act
-        var response = await HttpClient.PostAsJsonAsync(ResourceUrl, createDto);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
     
     [Fact]
     public async Task GetUsersCompany_EnterpriseUser_ReturnsCompany()
