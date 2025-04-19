@@ -1,8 +1,6 @@
 ﻿using AssetsManagerApi.Application.IServices;
 using AssetsManagerApi.Application.Models.Dto;
-using AssetsManagerApi.Application.Models.Operations;
-using AssetsManagerApi.Application.Paging;
-using AssetsManagerApi.Infrastructure.Services;
+using AssetsManagerApi.Application.Models.CreateDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,5 +23,17 @@ public class CompaniesController(ICompaniesService companiesService) : ApiContro
     public async Task<ActionResult<CompanyDto>> GetUsersCompanyAsync(CancellationToken cancellationToken)
     {
         return await _companiesService.GetUsersCompanyAsync(cancellationToken);
+    }
+    
+    /// <summary>
+    /// Creates a new company and assigns the current user as its administrator.
+    /// </summary>
+    [Authorize]
+    [HttpPost]
+    public async Task<ActionResult<CompanyDto>> CreateCompanyAsync([FromBody] CompanyCreateDto createDto, CancellationToken cancellationToken)
+    {
+        var dto = await _companiesService.CreateCompanyAsync(createDto, cancellationToken);
+        // Return Created (201) without relying on route generation for Location header
+        return Created(string.Empty, dto);
     }
 }
