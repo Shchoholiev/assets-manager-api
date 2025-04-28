@@ -40,13 +40,13 @@ public class CompaniesController(ICompaniesService companiesService) : ApiContro
     }
     
     /// <summary>
-    /// Adds a user to the current user's company.
+    /// Adds a user to the current user's company by email.
     /// </summary>
     [Authorize(Roles = "Admin")]
-    [HttpPost("users/{userId}")]
-    public async Task<ActionResult<UserDto>> AddUserToCompanyAsync(string userId, CancellationToken cancellationToken)
+    [HttpPost("users")]
+    public async Task<ActionResult<UserDto>> AddUserToCompanyAsync([FromBody] Models.AddUserRequestModel request, CancellationToken cancellationToken)
     {
-        var user = await _companiesService.AddUserToCompanyAsync(userId, cancellationToken);
+        var user = await _companiesService.AddUserToCompanyAsync(request.Email, cancellationToken);
         return Ok(user);
     }
 
