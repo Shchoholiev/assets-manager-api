@@ -87,27 +87,24 @@ public class CompaniesService(
     }
    
     // New methods for managing company users
-    public async Task<UserDto> AddUserToCompanyAsync(string userId, CancellationToken cancellationToken)
+    public async Task<UserDto> AddUserToCompanyAsync(string email, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Admin {AdminId} requests to add user {UserIdToAdd} to company {CompanyId}", GlobalUser.Id, userId, GlobalUser.CompanyId);
+        _logger.LogInformation("Admin {AdminId} requests to add user with email {EmailToAdd} to company {CompanyId}", GlobalUser.Id, email, GlobalUser.CompanyId);
         if (GlobalUser.CompanyId == null)
         {
             _logger.LogWarning("User {UserId} has no company to add members", GlobalUser.Id);
             throw new EntityNotFoundException("User does not have a company");
         }
-        var user = await _usersRepository.GetOneAsync(userId, cancellationToken)
-            ?? throw new EntityNotFoundException("User not found.");
-        if (user.CompanyId != null)
-        {
-            throw new EntityAlreadyExistsException("User is already part of a company.");
-        }
+        // Find a user by email who is not already in a company
+        var user = await _usersRepository.GetOneAsync(u => u.Email == email && u.CompanyId == null, cancellationToken)
+            ?? throw new EntityNotFoundException("User not found or already part of a company.");
         var enterpriseRole = await _rolesRepository.GetOneAsync(r => r.Name == "Enterprise", cancellationToken)
             ?? throw new EntityNotFoundException("Role 'Enterprise' not found.");
         user.CompanyId = GlobalUser.CompanyId;
         if (!user.Roles.Any(r => r.Name == enterpriseRole.Name))
             user.Roles.Add(enterpriseRole);
         await _usersRepository.UpdateUserAsync(user, cancellationToken);
-        _logger.LogInformation("User {UserIdToAdd} successfully added to company {CompanyId}", userId, user.CompanyId);
+        _logger.LogInformation("User with email {EmailToAdd} successfully added to company {CompanyId}", email, user.CompanyId);
         return _mapper.Map<UserDto>(user);
     }
 

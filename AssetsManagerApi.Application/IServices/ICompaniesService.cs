@@ -21,10 +21,10 @@ public interface ICompaniesService
     Task<CompanyDto> CreateCompanyAsync(CompanyCreateDto createDto, CancellationToken cancellationToken);
     
     /// <summary>
-    /// Adds a user to the current user's company.
+    /// Adds a user to the current user's company by email.
     /// </summary>
-    /// <param name="userId">The ID of the user to add.</param>
-    Task<UserDto> AddUserToCompanyAsync(string userId, CancellationToken cancellationToken);
+    /// <param name="email">The email of the user to add.</param>
+    Task<UserDto> AddUserToCompanyAsync(string email, CancellationToken cancellationToken);
 
     /// <summary>
     /// Removes a user from the current user's company.

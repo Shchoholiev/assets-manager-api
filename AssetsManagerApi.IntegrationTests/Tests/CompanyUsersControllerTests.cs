@@ -17,9 +17,10 @@ public class CompanyUsersControllerTests(TestingFactory<Program> factory)
         // Arrange
         await LoginAsync("admin@gmail.com", "Yuiop12345");
         var userId = "a5e00e4b-4c5a-4e08-932f-5b579d5c3f8f"; // test user without company
+        var request = new AddUserRequestModel { Email = "userToAddToCompany@gmail.com" };
 
         // Act
-        var response = await HttpClient.PostAsync($"{ResourceUrl}/users/{userId}", null);
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/users", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -74,9 +75,10 @@ public class CompanyUsersControllerTests(TestingFactory<Program> factory)
         // Arrange: enterprise user without admin role
         await LoginAsync("enterprise@gmail.com", "Yuiop12345");
         var userId = "652c3b89ae02a3135d6309fc"; // group test user
+        var request = new AddUserRequestModel { Email = userId };
 
         // Act
-        var response = await HttpClient.PostAsync($"{ResourceUrl}/users/{userId}", null);
+        var response = await HttpClient.PostAsJsonAsync($"{ResourceUrl}/users", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
