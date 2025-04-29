@@ -70,6 +70,13 @@ public class CompaniesControllerTests(TestingFactory<Program> factory)
         Assert.Equal("67a87bdb92156dc8ddd81daa", company.Id);
         Assert.Equal("Tech Corp", company.Name);
         Assert.Equal("A leading tech company.", company.Description);
+        // Company users should be included
+        Assert.NotNull(company.Users);
+        Assert.NotEmpty(company.Users);
+        // Should contain the enterprise user
+        Assert.Contains(company.Users, u => u.Email == "enterprise@gmail.com");
+        // Should contain the admin user
+        Assert.Contains(company.Users, u => u.Email == "admin@gmail.com");
     }
 
     [Fact]
