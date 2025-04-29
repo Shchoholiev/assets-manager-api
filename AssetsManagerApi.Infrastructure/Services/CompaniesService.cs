@@ -5,6 +5,7 @@ using AssetsManagerApi.Application.Models.Dto;
 using AssetsManagerApi.Application.Models.CreateDto;
 using AssetsManagerApi.Application.Models.Global;
 using AssetsManagerApi.Domain.Entities;
+using System.Collections.Generic;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 
@@ -45,7 +46,9 @@ public class CompaniesService(
 
         _logger.LogInformation("Found company {CompanyId} for user {UserId}", entity.Id, GlobalUser.Id);
         var dto = _mapper.Map<CompanyDto>(entity);
-
+        // Retrieve all users belonging to this company and map to DTOs
+        var users = await _usersRepository.GetAllAsync(u => u.CompanyId == entity.Id, cancellationToken);
+        dto.Users = _mapper.Map<List<UserDto>>(users);
         return dto;
     }
 
