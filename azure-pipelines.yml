@@ -48,7 +48,6 @@ stages:
           **/AssetsManagerApi.UnitTests/*.csproj
         arguments: >
           --configuration $(buildConfiguration)
-          --no-build
           --collect "Code coverage"
           --logger "trx;LogFileName=unit_test_results.trx"
     - task: PublishTestResults@2
