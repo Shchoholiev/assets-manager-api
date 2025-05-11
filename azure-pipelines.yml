@@ -40,27 +40,28 @@ stages:
   - job: UnitTests
     displayName: 'Run Unit Tests'
     steps:
-    - task: DotNetCoreCLI@2
-      displayName: 'Run Unit Tests with Coverage'
-      inputs:
-        command: test
-        projects: |
-          **/AssetsManagerApi.UnitTests/*.csproj
-        arguments: >
-          --configuration $(buildConfiguration)
-          --collect "Code coverage"
-          --logger "trx;LogFileName=unit_test_results.trx"
-    - task: PublishTestResults@2
-      displayName: 'Publish Unit Test Results'
-      inputs:
-        testResultsFiles: '**/unit_test_results.trx'
-        mergeTestResults: true
-    - task: PublishCodeCoverageResults@2
-      displayName: 'Publish Unit Code Coverage'
-      inputs:
-        codeCoverageTool: 'Cobertura'
-        summaryFileLocation: '**/coverage.cobertura.xml'
-        reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportUnit'
+      - task: DotNetCoreCLI@2
+        displayName: 'Run Unit Tests with Coverage'
+        inputs:
+          command: test
+          projects: '**/AssetsManagerApi.UnitTests/*.csproj'
+          publishTestResults: false      # turn off the auto-injected logger/results-dir
+          arguments: >
+            --configuration $(buildConfiguration)
+            --results-directory "$(Build.SourcesDirectory)/TestResults/Unit"
+            --collect "Code coverage"
+            --logger "trx;LogFileName=unit_test_results.trx"
+      - task: PublishTestResults@2
+        displayName: 'Publish Unit Test Results'
+        inputs:
+          testResultsFiles: '$(Build.SourcesDirectory)/TestResults/Unit/*.trx'
+          mergeTestResults: true
+      - task: PublishCodeCoverageResults@2
+        displayName: 'Publish Unit Code Coverage'
+        inputs:
+          codeCoverageTool: Cobertura
+          summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Unit/**/coverage.cobertura.xml'
+          reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportUnit'
 
   # Integration tests job
   - job: IntegrationTests
