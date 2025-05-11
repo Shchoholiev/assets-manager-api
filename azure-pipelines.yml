@@ -31,33 +31,63 @@ stages:
         publishLocation: 'Container'
       displayName: 'Publish Artifact'
 
-# Test Stage
+# Test Stage (Unit + Integration)
 - stage: Test
   dependsOn: Build
   condition: succeeded()
   jobs:
-  - job: TestJob
+  # Unit tests job
+  - job: UnitTests
+    displayName: 'Run Unit Tests'
     steps:
-      
     - task: DotNetCoreCLI@2
+      displayName: 'Run Unit Tests with Coverage'
       inputs:
-        command: 'test'
-        projects: '**/*Tests/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --collect "Code coverage" --logger "trx;LogFileName=test_results.trx"'
-      displayName: 'Run Integration Tests'
-
+        command: test
+        projects: |
+          **/AssetsManagerApi.UnitTests/*.csproj
+        arguments: >
+          --configuration $(buildConfiguration)
+          --collect "Code coverage"
+          --logger "trx;LogFileName=unit_test_results.trx"
     - task: PublishTestResults@2
+      displayName: 'Publish Unit Test Results'
       inputs:
-        testResultsFiles: '**/TestResults/*.trx'
+        testResultsFiles: '**/TestResults/unit_test_results.trx'
         mergeTestResults: true
-      displayName: 'Publish Test Results'
-
-    - task: PublishCodeCoverageResults@2 
+    - task: PublishCodeCoverageResults@2
+      displayName: 'Publish Unit Code Coverage'
       inputs:
         codeCoverageTool: 'Cobertura'
-        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
-        reportDirectory: '$(Build.SourcesDirectory)/**/CodeCoverageReport'
-      displayName: 'Publish Code Coverage Results'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/TestResults/**/coverage.cobertura.xml'
+        reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportUnit'
+
+  # Integration tests job
+  - job: IntegrationTests
+    displayName: 'Run Integration Tests'
+    dependsOn: UnitTests
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'Run Integration Tests with Coverage'
+      inputs:
+        command: test
+        projects: |
+          **/AssetsManagerApi.IntegrationTests/*.csproj
+        arguments: >
+          --configuration $(buildConfiguration)
+          --collect "Code coverage"
+          --logger "trx;LogFileName=integration_test_results.trx"
+    - task: PublishTestResults@2
+      displayName: 'Publish Integration Test Results'
+      inputs:
+        testResultsFiles: '**/TestResults/integration_test_results.trx'
+        mergeTestResults: true
+    - task: PublishCodeCoverageResults@2
+      displayName: 'Publish Integration Code Coverage'
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/TestResults/**/coverage.cobertura.xml'
+        reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportIntegration'
 
 # Development Stage
 - stage: Dev
