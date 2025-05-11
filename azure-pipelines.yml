@@ -49,17 +49,18 @@ stages:
         arguments: >
           --configuration $(buildConfiguration)
           --collect "Code coverage"
+          --results-directory $(Build.SourcesDirectory)/TestResults/Unit
           --logger "trx;LogFileName=unit_test_results.trx"
     - task: PublishTestResults@2
       displayName: 'Publish Unit Test Results'
       inputs:
-        testResultsFiles: '**/TestResults/unit_test_results.trx'
+        testResultsFiles: '$(Build.SourcesDirectory)/**/TestResults/Unit/unit_test_results.trx'
         mergeTestResults: true
     - task: PublishCodeCoverageResults@2
       displayName: 'Publish Unit Code Coverage'
       inputs:
         codeCoverageTool: 'Cobertura'
-        summaryFileLocation: '$(Build.SourcesDirectory)/**/TestResults/**/coverage.cobertura.xml'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/TestResults/Unit/coverage.cobertura.xml'
         reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportUnit'
 
   # Integration tests job
