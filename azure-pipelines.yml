@@ -48,18 +48,19 @@ stages:
           **/AssetsManagerApi.UnitTests/*.csproj
         arguments: >
           --configuration $(buildConfiguration)
+          --no-build
           --collect "Code coverage"
           --logger "trx;LogFileName=unit_test_results.trx"
     - task: PublishTestResults@2
       displayName: 'Publish Unit Test Results'
       inputs:
-        testResultsFiles: '$(Build.SourcesDirectory)/**/unit_test_results.trx'
+        testResultsFiles: '**/unit_test_results.trx'
         mergeTestResults: true
     - task: PublishCodeCoverageResults@2
       displayName: 'Publish Unit Code Coverage'
       inputs:
         codeCoverageTool: 'Cobertura'
-        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+        summaryFileLocation: '**/coverage.cobertura.xml'
         reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportUnit'
 
   # Integration tests job
