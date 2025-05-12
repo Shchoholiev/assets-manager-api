@@ -45,22 +45,21 @@ stages:
         inputs:
           command: test
           projects: '**/AssetsManagerApi.UnitTests/*.csproj'
-          publishTestResults: false      # turn off the auto-injected logger/results-dir
           arguments: >
             --configuration $(buildConfiguration)
             --collect "Code coverage"
             --logger "trx;LogFileName=unit_test_results.trx"
-      - task: PublishTestResults@2
-        displayName: 'Publish Unit Test Results'
-        inputs:
-          testResultsFiles: '$(Agent.TempDirectory)/**/unit_test_results.trx'
-          mergeTestResults: true
-      - task: PublishCodeCoverageResults@2
-        displayName: 'Publish Unit Code Coverage'
-        inputs:
-          codeCoverageTool: Cobertura
-          summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Unit/**/coverage.cobertura.xml'
-          reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportUnit'
+      # - task: PublishTestResults@2
+      #   displayName: 'Publish Unit Test Results'
+      #   inputs:
+      #     testResultsFiles: '$(Agent.TempDirectory)/**/unit_test_results.trx'
+      #     mergeTestResults: true
+      # - task: PublishCodeCoverageResults@2
+      #   displayName: 'Publish Unit Code Coverage'
+      #   inputs:
+      #     codeCoverageTool: Cobertura
+      #     summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/Unit/**/coverage.cobertura.xml'
+      #     reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportUnit'
 
   # Integration tests job
   - job: IntegrationTests
@@ -77,17 +76,17 @@ stages:
           --configuration $(buildConfiguration)
           --collect "Code coverage"
           --logger "trx;LogFileName=integration_test_results.trx"
-    - task: PublishTestResults@2
-      displayName: 'Publish Integration Test Results'
-      inputs:
-        testResultsFiles: '**/TestResults/integration_test_results.trx'
-        mergeTestResults: true
-    - task: PublishCodeCoverageResults@2
-      displayName: 'Publish Integration Code Coverage'
-      inputs:
-        codeCoverageTool: 'Cobertura'
-        summaryFileLocation: '$(Build.SourcesDirectory)/**/TestResults/**/coverage.cobertura.xml'
-        reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportIntegration'
+    # - task: PublishTestResults@2
+    #   displayName: 'Publish Integration Test Results'
+    #   inputs:
+    #     testResultsFiles: '**/TestResults/integration_test_results.trx'
+    #     mergeTestResults: true
+    # - task: PublishCodeCoverageResults@2
+    #   displayName: 'Publish Integration Code Coverage'
+    #   inputs:
+    #     codeCoverageTool: 'Cobertura'
+    #     summaryFileLocation: '$(Build.SourcesDirectory)/**/TestResults/**/coverage.cobertura.xml'
+    #     reportDirectory: '$(Build.SourcesDirectory)/CodeCoverageReportIntegration'
 
 # Development Stage
 - stage: Dev
