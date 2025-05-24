@@ -24,93 +24,18 @@ public class OpenAIService(
     {
         _logger.LogInformation("Selecting relevant code assets for a project.");
 
-        List<object> messages = [
-            new
-            {
-                role = "developer",
-                content = "You are a helpful assistant that selects relevant code assets based on project description."
-            }
-        ];
-        // messages.AddRange(GetRelevantCodeAssetsSelectionExamples());
-        messages.AddRange(GetRelevantCodeAssetsSelectionCoTExamples());
-
-        messages.Add(new
-        {
-            role = "user",
-            content =
-                $"""
-                Project Description:
-                {projectDescription}
-
-                Available Code Assets:
-                {PreprocessCodeAssets(assets)}
-
-                Return a list of all relevant code assets as a JSON object with key "ids" and array of string inside <json></json> tag based on the project description. 
-                Explain your reasoning step by step before returning the final answer.
-                """
-        });
-
         var request = new
         {
             model = "gpt-4o-mini",
-            messages = messages,
-            // response_format = new
-            // {
-            //     type = "json_schema",
-            //     json_schema = new
-            //     {
-            //         name = "array_of_code_asset_ids",
-            //         schema = new
-            //         {
-            //             type = "object",
-            //             properties = new
-            //             {
-            //                 ids = new
-            //                 {
-            //                     type = "array",
-            //                     description = "An array of code asset ids represented as strings.",
-            //                     items = new
-            //                     {
-            //                         type = "string"
-            //                     }
-            //                 }
-            //             },
-            //             required = new[] { "ids" },
-            //             additionalProperties = false
-            //         },
-            //         strict = true
-            //     }
-            // }
+            messages = BuildPromptForRelevantAssets(projectDescription, assets),
         };
 
         var response = await _httpClient.PostAsJsonAsync("/v1/chat/completions", request, cancellationToken);
+
         _logger.LogInformation("Open AI Response status code: {statusCode}", response.StatusCode);
 
         var jsonString = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        // _logger.LogInformation("Open AI Response: {response}", jsonString);
-
-        var match = Regex.Match(jsonString, @"<json>(.*?)</json>", RegexOptions.Singleline);
-        var json = match.Groups[1].Value;
-
-        // _logger.LogInformation("Extracted JSON: {json}", json);
-
-        var unescapedJson = Regex.Unescape(json).Trim();
-        var responseObject = JObject.Parse(unescapedJson);
-        var ids = responseObject["ids"]?.ToObject<string[]>();
-
-        // For JSON response
-        // var responseObject = JObject.Parse(jsonString);
-        // var ids = responseObject["choices"]
-        //     ?.Select(choice => choice["message"]?["content"]?.ToString())
-        //     .Where(content => !string.IsNullOrEmpty(content))
-        //     .SelectMany(content =>
-        //     {
-        //         JObject innerObject = JObject.Parse(content);
-        //         return innerObject["ids"]?.Select(id => id.ToString()) ?? Enumerable.Empty<string>();
-        //     })
-        //     .ToList();
-
+        var ids = ExtractIdsFromJson(jsonString);
         var selectedAssets = assets.Where(x => ids?.Contains(x.Id.ToString()) ?? false).ToList();
 
         _logger.LogInformation("Selected {count} code assets", selectedAssets.Count);
@@ -181,6 +106,46 @@ public class OpenAIService(
         var options = new JsonSerializerOptions { WriteIndented = true };
         var strippedAssets = codeAssets.Select(x => new { x.Id, x.Name, x.Description });
         return JsonSerializer.Serialize(strippedAssets, options);
+    }
+
+    private static List<object> BuildPromptForRelevantAssets(string projectDescription, IEnumerable<CodeAssetDto> assets)
+    {
+        var messages = new List<object> {
+            new
+            {
+                role = "developer",
+                content = "You are a helpful assistant that selects relevant code assets based on project description."
+            },
+        };
+        messages.AddRange(GetRelevantCodeAssetsSelectionCoTExamples());
+        messages.Add(new
+        {
+            role = "user",
+            content =
+                $"""
+                Project Description:
+                {projectDescription}
+
+                Available Code Assets:
+                {PreprocessCodeAssets(assets)}
+
+                Return a list of all relevant code assets as a JSON object with key "ids" and array of string inside <json></json> tag based on the project description. 
+                Explain your reasoning step by step before returning the final answer.
+                """
+        });
+
+        return messages;
+    }
+
+
+    private static string[]? ExtractIdsFromJson(string jsonString)
+    {
+        var match = Regex.Match(jsonString, @"<json>(.*?)</json>", RegexOptions.Singleline);
+        var json = match.Groups[1].Value;
+
+        var unescapedJson = Regex.Unescape(json).Trim();
+        var responseObject = JObject.Parse(unescapedJson);
+        return responseObject["ids"]?.ToObject<string[]>();
     }
 
     private static List<object> GetRelevantCodeAssetsSelectionExamples()

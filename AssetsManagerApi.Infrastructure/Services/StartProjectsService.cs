@@ -163,7 +163,6 @@ public class StartProjectsService(
             throw new EntityNotFoundException("Start project not found.");
         }
 
-        // TODO: update to AI generated name
         var startProjectName = "Start Project";
         var startProjectNamePascalCase = "StartProject";
 
@@ -171,7 +170,6 @@ public class StartProjectsService(
         {
             Name = startProjectName,
             AssetType = AssetTypes.Corporate,
-            // TODO: update to dynamic. Currently only C# is supported
             Language = Languages.csharp.LanguageToString(),
             RootFolderName = startProjectNamePascalCase
         };
@@ -192,7 +190,6 @@ public class StartProjectsService(
         var mergedFolder = FolderMerger.MergeFolders(rootFolders);
         mergedFolder.Name = startProjectNamePascalCase;
 
-        // TODO: modify existing folder, do not create a copy
         var (updatedNamespaceFolder, removedNamespaces) = CSharpFileTransformer.UpdateNamespaces(mergedFolder);
 
         var removedUsingsFolder = CSharpFileTransformer.RemoveInvalidUsings(updatedNamespaceFolder, removedNamespaces);
